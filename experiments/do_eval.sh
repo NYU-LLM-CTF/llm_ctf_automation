@@ -28,7 +28,7 @@ for category in $categories; do
                 fi
                 cleanup_container
                 printf '[%02d/10] %s attempting %s/%s\n' $i "${model}" "${category}" "${chalname}"
-                python llm_ctf_solve.py -d -M ${model} -m 30 -L "${log}" "${chal}"
+                python llm_ctf/llm_ctf_solve.py -d -M ${model} -m 30 -L "${log}" "${chal}"
             done
         done
     done
