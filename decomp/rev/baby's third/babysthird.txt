@@ -1,0 +1,2011 @@
+segment_2.1:0...7f454c460...    Elf64_Ehdr                                          
+   |_segment_2.1:0...e_ident_m...    db          7Fh                                     
+   |_segment_2.1:0...e_ident_m...    ds          "ELF"                                   
+   |_segment_2.1:0...e_ident_c...    db          2h                                      
+   |_segment_2.1:0...e_ident_data    db          1h                                      
+   |_segment_2.1:0...e_ident_v...    db          1h                                      
+   |_segment_2.1:0...e_ident_o...    db          0h                                      
+   |_segment_2.1:0...e_ident_a...    db          0h                                      
+   |_segment_2.1:0...e_ident_pad     db[7]                                               
+      |_segment_2.1:0...[0]             db          0h                                      
+      |_segment_2.1:0...[1]             db          0h                                      
+      |_segment_2.1:0...[2]             db          0h                                      
+      |_segment_2.1:0...[3]             db          0h                                      
+      |_segment_2.1:0...[4]             db          0h                                      
+      |_segment_2.1:0...[5]             db          0h                                      
+      |_segment_2.1:0...[6]             db          0h                                      
+   |_segment_2.1:0...e_type          dw          3h                                      
+   |_segment_2.1:0...e_machine       dw          3Eh                                     
+   |_segment_2.1:0...e_version       ddw         1h                                      
+   |_segment_2.1:0...e_entry         dq          .text:_start                            
+   |_segment_2.1:0...e_phoff         dq          Elf64_Phdr_ARRAY_00100040               
+   |_segment_2.1:0...e_shoff         dq          _elfSectionHeaders:Elf64_Shdr_ARRAY__...
+   |_segment_2.1:0...e_flags         ddw         0h                                      
+   |_segment_2.1:0...e_ehsize        dw          40h                                     
+   |_segment_2.1:0...e_phentsize     dw          38h                                     
+   |_segment_2.1:0...e_phnum         dw          Dh                                      
+   |_segment_2.1:0...e_shentsize     dw          40h                                     
+   |_segment_2.1:0...e_shnum         dw          1Fh                                     
+   |_segment_2.1:0...e_shstrndx      dw          1Eh                                     
+                            Elf64_Phdr_ARRAY_00100040:    ;XREF[2,0]:   00100020,00100050
+segment_2.1:0...060000000...    Elf64_Ph...                                        ;PT_PHDR - Program header table
+   |_segment_2.1:0...[0]             Elf64_Phdr                                          
+      |_segment_2.1:0...p_type          Elf_Prog...PT_PHDR                                 
+      |_segment_2.1:0...p_flags         ddw         4h                                      
+      |_segment_2.1:0...p_offset        dq          40h                                     
+      |_segment_2.1:0...p_vaddr         dq          Elf64_Phdr_ARRAY_00100040               
+      |_segment_2.1:0...p_paddr         dq          40h                                     
+      |_segment_2.1:0...p_filesz        dq          2D8h                                    
+      |_segment_2.1:0...p_memsz         dq          2D8h                                    
+      |_segment_2.1:0...p_align         dq          8h                                      
+   |_segment_2.1:0...[1]             Elf64_Phdr                                          
+      |_segment_2.1:0...p_type          Elf_Prog...PT_INTERP                               
+      |_segment_2.1:0...p_flags         ddw         4h                                      
+      |_segment_2.1:0...p_offset        dq          318h                                    
+      |_segment_2.1:0...p_vaddr         dq          .interp:s_/lib64/ld-linux-x86-64.so.2...
+      |_segment_2.1:0...p_paddr         dq          318h                                    
+      |_segment_2.1:0...p_filesz        dq          1Ch                                     
+      |_segment_2.1:0...p_memsz         dq          1Ch                                     
+      |_segment_2.1:0...p_align         dq          1h                                      
+   |_segment_2.1:0...[2]             Elf64_Phdr                                          
+      |_segment_2.1:0...p_type          Elf_Prog...PT_LOAD                                 
+      |_segment_2.1:0...p_flags         ddw         4h                                      
+      |_segment_2.1:0...p_offset        dq          0h                                      
+      |_segment_2.1:0...p_vaddr         dq          0h                                      
+      |_segment_2.1:0...p_paddr         dq          0h                                      
+      |_segment_2.1:0...p_filesz        dq          750h                                    
+      |_segment_2.1:0...p_memsz         dq          750h                                    
+      |_segment_2.1:0...p_align         dq          1000h                                   
+   |_segment_2.1:0...[3]             Elf64_Phdr                                          
+      |_segment_2.1:0...p_type          Elf_Prog...PT_LOAD                                 
+      |_segment_2.1:0...p_flags         ddw         5h                                      
+      |_segment_2.1:0...p_offset        dq          1000h                                   
+      |_segment_2.1:0...p_vaddr         dq          .init:_init                             
+      |_segment_2.1:0...p_paddr         dq          1000h                                   
+      |_segment_2.1:0...p_filesz        dq          275h                                    
+      |_segment_2.1:0...p_memsz         dq          275h                                    
+      |_segment_2.1:0...p_align         dq          1000h                                   
+   |_segment_2.1:0...[4]             Elf64_Phdr                                          
+      |_segment_2.1:0...p_type          Elf_Prog...PT_LOAD                                 
+      |_segment_2.1:0...p_flags         ddw         4h                                      
+      |_segment_2.1:0...p_offset        dq          2000h                                   
+      |_segment_2.1:0...p_vaddr         dq          .rodata:_IO_stdin_used                  
+      |_segment_2.1:0...p_paddr         dq          2000h                                   
+      |_segment_2.1:0...p_filesz        dq          144h                                    
+      |_segment_2.1:0...p_memsz         dq          144h                                    
+      |_segment_2.1:0...p_align         dq          1000h                                   
+   |_segment_2.1:0...[5]             Elf64_Phdr                                          
+      |_segment_2.1:0...p_type          Elf_Prog...PT_LOAD                                 
+      |_segment_2.1:0...p_flags         ddw         6h                                      
+      |_segment_2.1:0...p_offset        dq          2D98h                                   
+      |_segment_2.1:0...p_vaddr         dq          .init_array:__frame_dummy_init_array_...
+      |_segment_2.1:0...p_paddr         dq          3D98h                                   
+      |_segment_2.1:0...p_filesz        dq          278h                                    
+      |_segment_2.1:0...p_memsz         dq          280h                                    
+      |_segment_2.1:0...p_align         dq          1000h                                   
+   |_segment_2.1:0...[6]             Elf64_Phdr                                          
+      |_segment_2.1:0...p_type          Elf_Prog...PT_DYNAMIC                              
+      |_segment_2.1:0...p_flags         ddw         6h                                      
+      |_segment_2.1:0...p_offset        dq          2DA8h                                   
+      |_segment_2.1:0...p_vaddr         dq          .dynamic:_DYNAMIC                       
+      |_segment_2.1:0...p_paddr         dq          3DA8h                                   
+      |_segment_2.1:0...p_filesz        dq          1F0h                                    
+      |_segment_2.1:0...p_memsz         dq          1F0h                                    
+      |_segment_2.1:0...p_align         dq          8h                                      
+   |_segment_2.1:0...[7]             Elf64_Phdr                                          
+      |_segment_2.1:0...p_type          Elf_Prog...PT_NOTE                                 
+      |_segment_2.1:0...p_flags         ddw         4h                                      
+      |_segment_2.1:0...p_offset        dq          338h                                    
+      |_segment_2.1:0...p_vaddr         dq          .note.gnu.property:NoteGnuProperty_4_...
+      |_segment_2.1:0...p_paddr         dq          338h                                    
+      |_segment_2.1:0...p_filesz        dq          30h                                     
+      |_segment_2.1:0...p_memsz         dq          30h                                     
+      |_segment_2.1:0...p_align         dq          8h                                      
+   |_segment_2.1:0...[8]             Elf64_Phdr                                          
+      |_segment_2.1:0...p_type          Elf_Prog...PT_NOTE                                 
+      |_segment_2.1:0...p_flags         ddw         4h                                      
+      |_segment_2.1:0...p_offset        dq          368h                                    
+      |_segment_2.1:0...p_vaddr         dq          .note.gnu.build-id:GnuBuildId_00100368  
+      |_segment_2.1:0...p_paddr         dq          368h                                    
+      |_segment_2.1:0...p_filesz        dq          44h                                     
+      |_segment_2.1:0...p_memsz         dq          44h                                     
+      |_segment_2.1:0...p_align         dq          4h                                      
+   |_segment_2.1:0...[9]             Elf64_Phdr                                          
+      |_segment_2.1:0...p_type          Elf_Prog...6474E553h                               
+      |_segment_2.1:0...p_flags         ddw         4h                                      
+      |_segment_2.1:0...p_offset        dq          338h                                    
+      |_segment_2.1:0...p_vaddr         dq          .note.gnu.property:NoteGnuProperty_4_...
+      |_segment_2.1:0...p_paddr         dq          338h                                    
+      |_segment_2.1:0...p_filesz        dq          30h                                     
+      |_segment_2.1:0...p_memsz         dq          30h                                     
+      |_segment_2.1:0...p_align         dq          8h                                      
+   |_segment_2.1:0...[10]            Elf64_Phdr                                          
+      |_segment_2.1:0...p_type          Elf_Prog...PT_GNU_EH_FRAME                         
+      |_segment_2.1:0...p_flags         ddw         4h                                      
+      |_segment_2.1:0...p_offset        dq          2064h                                   
+      |_segment_2.1:0...p_vaddr         dq          .eh_frame_hdr:__GNU_EH_FRAME_HDR        
+      |_segment_2.1:0...p_paddr         dq          2064h                                   
+      |_segment_2.1:0...p_filesz        dq          34h                                     
+      |_segment_2.1:0...p_memsz         dq          34h                                     
+      |_segment_2.1:0...p_align         dq          4h                                      
+   |_segment_2.1:0...[11]            Elf64_Phdr                                          
+      |_segment_2.1:0...p_type          Elf_Prog...PT_GNU_STACK                            
+      |_segment_2.1:0...p_flags         ddw         6h                                      
+      |_segment_2.1:0...p_offset        dq          0h                                      
+      |_segment_2.1:0...p_vaddr         dq          0h                                      
+      |_segment_2.1:0...p_paddr         dq          0h                                      
+      |_segment_2.1:0...p_filesz        dq          0h                                      
+      |_segment_2.1:0...p_memsz         dq          0h                                      
+      |_segment_2.1:0...p_align         dq          10h                                     
+   |_segment_2.1:0...[12]            Elf64_Phdr                                          
+      |_segment_2.1:0...p_type          Elf_Prog...PT_GNU_RELRO                            
+      |_segment_2.1:0...p_flags         ddw         4h                                      
+      |_segment_2.1:0...p_offset        dq          2D98h                                   
+      |_segment_2.1:0...p_vaddr         dq          .init_array:__frame_dummy_init_array_...
+      |_segment_2.1:0...p_paddr         dq          3D98h                                   
+      |_segment_2.1:0...p_filesz        dq          268h                                    
+      |_segment_2.1:0...p_memsz         dq          268h                                    
+      |_segment_2.1:0...p_align         dq          1h                                      
+                            s_/lib64/ld-linux-x86-64.so...;XREF[2,0]:   00100088,_elfSectionHeaders::00000050
+.interp:001003182f6c69623...    ds          "/lib64/ld-linux-x86-64.so.2"           ;Initial Elf program interpreter
+                            NoteGnuProperty_4_00100338:   ;XREF[3,0]:   001001d8,00100248,_elfSectionHeaders::00000090
+.note.gnu.pro...040000002...    NoteGnuP...                                        ;Length of name field
+   |_.note.gnu.pro...namesz          ddw         4h                                      
+   |_.note.gnu.pro...descsz          ddw         20h                                     
+   |_.note.gnu.pro...type            ddw         5h                                      
+   |_.note.gnu.pro...name            ds          "GNU"                                   
+.note.gnu.pro...020000c00...    NoteGnuP...                                        ;processor opt 0xc0000002=03 00 00 00
+   |_.note.gnu.pro...prType          ddw         C0000002h                               
+   |_.note.gnu.pro...prDatasz        ddw         4h                                      
+   |_.note.gnu.pro...data            db[4]                                               
+      |_.note.gnu.pro...[0]             db          3h                                      
+      |_.note.gnu.pro...[1]             db          0h                                      
+      |_.note.gnu.pro...[2]             db          0h                                      
+      |_.note.gnu.pro...[3]             db          0h                                      
+.note.gnu.pro...000000000...    NoteGnuP...                                        ;processor opt 0xc0008002=01 00 00 00
+   |_.note.gnu.pro...prType          ddw         0h                                      
+   |_.note.gnu.pro...prDatasz        ddw         C0008002h                               
+   |_.note.gnu.pro...data            db[4]                                               
+      |_.note.gnu.pro...[0]             db          4h                                      
+      |_.note.gnu.pro...[1]             db          0h                                      
+      |_.note.gnu.pro...[2]             db          0h                                      
+      |_.note.gnu.pro...[3]             db          0h                                      
+.note.gnu.pro...01              ??          01h                                     
+.note.gnu.pro...00              ??          00h                                     
+.note.gnu.pro...00              ??          00h                                     
+.note.gnu.pro...00              ??          00h                                     
+.note.gnu.pro...00              ??          00h                                     
+.note.gnu.pro...00              ??          00h                                     
+.note.gnu.pro...00              ??          00h                                     
+.note.gnu.pro...00              ??          00h                                     
+                            GnuBuildId_00100368:          ;XREF[2,0]:   00100210,_elfSectionHeaders::000000d0
+.note.gnu.bui...040000001...    GnuBuildId                                          ;Length of name field
+   |_.note.gnu.bui...namesz          ddw         4h                                      
+   |_.note.gnu.bui...descsz          ddw         14h                                     
+   |_.note.gnu.bui...type            ddw         3h                                      
+   |_.note.gnu.bui...name            ds          "GNU"                                   
+   |_.note.gnu.bui...hash            db[20]                                              
+      |_.note.gnu.bui...[0]             db          9Eh                                     
+      |_.note.gnu.bui...[1]             db          DDh                                     
+      |_.note.gnu.bui...[2]             db          58h                                     
+      |_.note.gnu.bui...[3]             db          4Ah                                     
+      |_.note.gnu.bui...[4]             db          11h                                     
+      |_.note.gnu.bui...[5]             db          85h                                     
+      |_.note.gnu.bui...[6]             db          41h                                     
+      |_.note.gnu.bui...[7]             db          29h                                     
+      |_.note.gnu.bui...[8]             db          15h                                     
+      |_.note.gnu.bui...[9]             db          25h                                     
+      |_.note.gnu.bui...[10]            db          87h                                     
+      |_.note.gnu.bui...[11]            db          Eh                                      
+      |_.note.gnu.bui...[12]            db          6h                                      
+      |_.note.gnu.bui...[13]            db          A1h                                     
+      |_.note.gnu.bui...[14]            db          C7h                                     
+      |_.note.gnu.bui...[15]            db          F9h                                     
+      |_.note.gnu.bui...[16]            db          A0h                                     
+      |_.note.gnu.bui...[17]            db          65h                                     
+      |_.note.gnu.bui...[18]            db          5Bh                                     
+      |_.note.gnu.bui...[19]            db          93h                                     
+                            __abi_tag:                    ;XREF[1,0]:   _elfSectionHeaders::00000110
+.note.ABI-tag...040000001...    NoteAbiTag                                          ;Length of name field
+   |_.note.ABI-tag...namesz          ddw         4h                                      
+   |_.note.ABI-tag...descsz          ddw         10h                                     
+   |_.note.ABI-tag...type            ddw         1h                                      
+   |_.note.ABI-tag...name            ds          "GNU"                                   
+   |_.note.ABI-tag...abiType         ddw         0h                                      
+   |_.note.ABI-tag...requiredK...    ddw[3]                                              
+      |_.note.ABI-tag...[0]             ddw         3h                                      
+      |_.note.ABI-tag...[1]             ddw         2h                                      
+      |_.note.ABI-tag...[2]             ddw         0h                                      
+                            __DT_GNU_HASH:                ;XREF[2,0]:   00103e20,_elfSectionHeaders::00000150
+.gnu.hash:001...02000000        ddw         2h                                      ;GNU Hash Table - nbucket
+.gnu.hash:001...0a000000        ddw         Ah                                      ;GNU Hash Table - symbase
+.gnu.hash:001...01000000        ddw         1h                                      ;GNU Hash Table - bloom_size
+.gnu.hash:001...06000000        ddw         6h                                      ;GNU Hash Table - bloom_shift
+.gnu.hash:001...000081000...    dq[1]                                               ;GNU Hash Table - bloom
+   |_.gnu.hash:001...[0]             dq          810000h                                 
+.gnu.hash:001...0a0000000...    ddw[2]                                              ;GNU Hash Table - buckets
+   |_.gnu.hash:001...[0]             ddw         Ah                                      
+   |_.gnu.hash:001...[1]             ddw         0h                                      
+.gnu.hash:001...d165ce6d        ddw[1]                                              ;GNU Hash Table - chain
+   |_.gnu.hash:001...[0]             ddw         6DCE65D1h                               
+                            __DT_SYMTAB:                  ;XREF[2,0]:   00103e40,_elfSectionHeaders::00000190
+.dynsym:001003d8000000000...    Elf64_Sy...                                        
+   |_.dynsym:001003d8[0]             Elf64_Sym                                           
+      |_.dynsym:001003d8st_name         ddw         0h                                      
+      |_.dynsym:001003dcst_info         db          0h                                      
+      |_.dynsym:001003ddst_other        db          0h                                      
+      |_.dynsym:001003dest_shndx        dw          0h                                      
+      |_.dynsym:001003e0st_value        dq          0h                                      
+      |_.dynsym:001003e8st_size         dq          0h                                      
+   |_.dynsym:001003f0[1]             Elf64_Sym                                           
+      |_.dynsym:001003f0st_name         ddw         10h                                     
+      |_.dynsym:001003f4st_info         db          12h                                     
+      |_.dynsym:001003f5st_other        db          0h                                      
+      |_.dynsym:001003f6st_shndx        dw          0h                                      
+      |_.dynsym:001003f8st_value        dq          0h                                      
+      |_.dynsym:00100400st_size         dq          0h                                      
+   |_.dynsym:00100408[2]             Elf64_Sym                                           
+      |_.dynsym:00100408st_name         ddw         8Ah                                     
+      |_.dynsym:0010040cst_info         db          20h                                     
+      |_.dynsym:0010040dst_other        db          0h                                      
+      |_.dynsym:0010040est_shndx        dw          0h                                      
+      |_.dynsym:00100410st_value        dq          0h                                      
+      |_.dynsym:00100418st_size         dq          0h                                      
+   |_.dynsym:00100420[3]             Elf64_Sym                                           
+      |_.dynsym:00100420st_name         ddw         29h                                     
+      |_.dynsym:00100424st_info         db          12h                                     
+      |_.dynsym:00100425st_other        db          0h                                      
+      |_.dynsym:00100426st_shndx        dw          0h                                      
+      |_.dynsym:00100428st_value        dq          0h                                      
+      |_.dynsym:00100430st_size         dq          0h                                      
+   |_.dynsym:00100438[4]             Elf64_Sym                                           
+      |_.dynsym:00100438st_name         ddw         3Dh                                     
+      |_.dynsym:0010043cst_info         db          12h                                     
+      |_.dynsym:0010043dst_other        db          0h                                      
+      |_.dynsym:0010043est_shndx        dw          0h                                      
+      |_.dynsym:00100440st_value        dq          0h                                      
+      |_.dynsym:00100448st_size         dq          0h                                      
+   |_.dynsym:00100450[5]             Elf64_Sym                                           
+      |_.dynsym:00100450st_name         ddw         4Eh                                     
+      |_.dynsym:00100454st_info         db          12h                                     
+      |_.dynsym:00100455st_other        db          0h                                      
+      |_.dynsym:00100456st_shndx        dw          0h                                      
+      |_.dynsym:00100458st_value        dq          0h                                      
+      |_.dynsym:00100460st_size         dq          0h                                      
+   |_.dynsym:00100468[6]             Elf64_Sym                                           
+      |_.dynsym:00100468st_name         ddw         22h                                     
+      |_.dynsym:0010046cst_info         db          12h                                     
+      |_.dynsym:0010046dst_other        db          0h                                      
+      |_.dynsym:0010046est_shndx        dw          0h                                      
+      |_.dynsym:00100470st_value        dq          0h                                      
+      |_.dynsym:00100478st_size         dq          0h                                      
+   |_.dynsym:00100480[7]             Elf64_Sym                                           
+      |_.dynsym:00100480st_name         ddw         A6h                                     
+      |_.dynsym:00100484st_info         db          20h                                     
+      |_.dynsym:00100485st_other        db          0h                                      
+      |_.dynsym:00100486st_shndx        dw          0h                                      
+      |_.dynsym:00100488st_value        dq          0h                                      
+      |_.dynsym:00100490st_size         dq          0h                                      
+   |_.dynsym:00100498[8]             Elf64_Sym                                           
+      |_.dynsym:00100498st_name         ddw         2Eh                                     
+      |_.dynsym:0010049cst_info         db          12h                                     
+      |_.dynsym:0010049dst_other        db          0h                                      
+      |_.dynsym:0010049est_shndx        dw          0h                                      
+      |_.dynsym:001004a0st_value        dq          0h                                      
+      |_.dynsym:001004a8st_size         dq          0h                                      
+   |_.dynsym:001004b0[9]             Elf64_Sym                                           
+      |_.dynsym:001004b0st_name         ddw         B5h                                     
+      |_.dynsym:001004b4st_info         db          20h                                     
+      |_.dynsym:001004b5st_other        db          0h                                      
+      |_.dynsym:001004b6st_shndx        dw          0h                                      
+      |_.dynsym:001004b8st_value        dq          0h                                      
+      |_.dynsym:001004c0st_size         dq          0h                                      
+   |_.dynsym:001004c8[10]            Elf64_Sym                                           
+      |_.dynsym:001004c8st_name         ddw         1h                                      
+      |_.dynsym:001004ccst_info         db          22h                                     
+      |_.dynsym:001004cdst_other        db          0h                                      
+      |_.dynsym:001004cest_shndx        dw          0h                                      
+      |_.dynsym:001004d0st_value        dq          0h                                      
+      |_.dynsym:001004d8st_size         dq          0h                                      
+                            __DT_STRTAB:                  ;XREF[2,0]:   00103e30,_elfSectionHeaders::000001d0
+.dynstr:001004e000              ??          00h                                     
+.dynstr:001004e15f5f63786...    utf8        u8"__cxa_finalize"                      
+.dynstr:001004f05f5f6c696...    utf8        u8"__libc_start_main"                   
+.dynstr:00100502737472636...    utf8        u8"strcmp"                              
+.dynstr:001005097075747300      utf8        u8"puts"                                
+.dynstr:0010050e5f5f69736...    utf8        u8"__isoc99_scanf"                      
+.dynstr:0010051d5f5f73746...    utf8        u8"__stack_chk_fail"                    
+.dynstr:0010052e7072696e7...    utf8        u8"printf"                              
+.dynstr:001005356c6962632...    utf8        u8"libc.so.6"                           
+.dynstr:0010053f474c49424...    utf8        u8"GLIBC_2.7"                           
+.dynstr:00100549474c49424...    utf8        u8"GLIBC_2.4"                           
+.dynstr:00100553474c49424...    utf8        u8"GLIBC_2.2.5"                         
+.dynstr:0010055f474c49424...    utf8        u8"GLIBC_2.34"                          
+.dynstr:0010056a5f49544d5...    utf8        u8"_ITM_deregisterTMCloneTable"         
+.dynstr:001005865f5f676d6...    utf8        u8"__gmon_start__"                      
+.dynstr:001005955f49544d5...    utf8        u8"_ITM_registerTMCloneTable"           
+                            __DT_VERSYM:                  ;XREF[2,0]:   00103f30,_elfSectionHeaders::00000210
+.gnu.version:...0000            dw          0h                                      ;0
+.gnu.version:...0200            dw          2h                                      ;__libc_start_main
+.gnu.version:...0100            dw          1h                                      ;_ITM_deregisterTMCloneTable
+.gnu.version:...0300            dw          3h                                      ;puts
+.gnu.version:...0400            dw          4h                                      ;__stack_chk_fail
+.gnu.version:...0300            dw          3h                                      ;printf
+.gnu.version:...0300            dw          3h                                      ;strcmp
+.gnu.version:...0100            dw          1h                                      ;__gmon_start__
+.gnu.version:...0500            dw          5h                                      ;__isoc99_scanf
+.gnu.version:...0100            dw          1h                                      ;_ITM_registerTMCloneTable
+.gnu.version:...0300            dw          3h                                      ;__cxa_finalize
+                            __DT_VERNEED:                 ;XREF[2,0]:   00103f10,_elfSectionHeaders::00000250
+.gnu.version_...01              ??          01h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...04              ??          04h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...55              ??          55h    U                                
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     ;?  ->  00100000
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...10              ??          10h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...17              ??          17h                                     
+.gnu.version_...69              ??          69h    i                                
+.gnu.version_...69              ??          69h    i                                
+.gnu.version_...0d              ??          0Dh                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...05              ??          05h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...5f              ??          5Fh    _                                
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...10              ??          10h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...14              ??          14h                                     
+.gnu.version_...69              ??          69h    i                                
+.gnu.version_...69              ??          69h    i                                
+.gnu.version_...0d              ??          0Dh                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...04              ??          04h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...69              ??          69h    i                                
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...10              ??          10h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...75              ??          75h    u                                
+.gnu.version_...1a              ??          1Ah                                     
+.gnu.version_...69              ??          69h    i                                
+.gnu.version_...09              ??          09h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...03              ??          03h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...73              ??          73h    s                                
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...10              ??          10h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...b4              ??          B4h                                     
+.gnu.version_...91              ??          91h                                     
+.gnu.version_...96              ??          96h                                     
+.gnu.version_...06              ??          06h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...02              ??          02h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...7f              ??          7Fh                                    
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+.gnu.version_...00              ??          00h                                     
+                            __DT_RELA:                    ;XREF[2,0]:   00103ec0,_elfSectionHeaders::00000290
+.rela.dyn:001...983d00000...    Elf64_Re...                                        ;location to apply the relocation action
+   |_.rela.dyn:001...[0]             Elf64_Rela                                          
+      |_.rela.dyn:001...r_offset        dq          3D98h                                   
+      |_.rela.dyn:001...r_info          dq          8h                                      
+      |_.rela.dyn:001...r_addend        dq          11C0h                                   
+   |_.rela.dyn:001...[1]             Elf64_Rela                                          
+      |_.rela.dyn:001...r_offset        dq          3DA0h                                   
+      |_.rela.dyn:001...r_info          dq          8h                                      
+      |_.rela.dyn:001...r_addend        dq          1180h                                   
+   |_.rela.dyn:001...[2]             Elf64_Rela                                          
+      |_.rela.dyn:001...r_offset        dq          4008h                                   
+      |_.rela.dyn:001...r_info          dq          8h                                      
+      |_.rela.dyn:001...r_addend        dq          4008h                                   
+   |_.rela.dyn:001...[3]             Elf64_Rela                                          
+      |_.rela.dyn:001...r_offset        dq          3FD8h                                   
+      |_.rela.dyn:001...r_info          dq          100000006h                              
+      |_.rela.dyn:001...r_addend        dq          0h                                      
+   |_.rela.dyn:001...[4]             Elf64_Rela                                          
+      |_.rela.dyn:001...r_offset        dq          3FE0h                                   
+      |_.rela.dyn:001...r_info          dq          200000006h                              
+      |_.rela.dyn:001...r_addend        dq          0h                                      
+   |_.rela.dyn:001...[5]             Elf64_Rela                                          
+      |_.rela.dyn:001...r_offset        dq          3FE8h                                   
+      |_.rela.dyn:001...r_info          dq          700000006h                              
+      |_.rela.dyn:001...r_addend        dq          0h                                      
+   |_.rela.dyn:001...[6]             Elf64_Rela                                          
+      |_.rela.dyn:001...r_offset        dq          3FF0h                                   
+      |_.rela.dyn:001...r_info          dq          900000006h                              
+      |_.rela.dyn:001...r_addend        dq          0h                                      
+   |_.rela.dyn:001...[7]             Elf64_Rela                                          
+      |_.rela.dyn:001...r_offset        dq          3FF8h                                   
+      |_.rela.dyn:001...r_info          dq          A00000006h                              
+      |_.rela.dyn:001...r_addend        dq          0h                                      
+                            __DT_JMPREL:                  ;XREF[2,0]:   00103eb0,_elfSectionHeaders::000002d0
+.rela.plt:001...b03f00000...    Elf64_Re...                                        ;location to apply the relocation action
+   |_.rela.plt:001...[0]             Elf64_Rela                                          
+      |_.rela.plt:001...r_offset        dq          3FB0h                                   
+      |_.rela.plt:001...r_info          dq          300000007h                              
+      |_.rela.plt:001...r_addend        dq          0h                                      
+   |_.rela.plt:001...[1]             Elf64_Rela                                          
+      |_.rela.plt:001...r_offset        dq          3FB8h                                   
+      |_.rela.plt:001...r_info          dq          400000007h                              
+      |_.rela.plt:001...r_addend        dq          0h                                      
+   |_.rela.plt:001...[2]             Elf64_Rela                                          
+      |_.rela.plt:001...r_offset        dq          3FC0h                                   
+      |_.rela.plt:001...r_info          dq          500000007h                              
+      |_.rela.plt:001...r_addend        dq          0h                                      
+   |_.rela.plt:001...[3]             Elf64_Rela                                          
+      |_.rela.plt:001...r_offset        dq          3FC8h                                   
+      |_.rela.plt:001...r_info          dq          600000007h                              
+      |_.rela.plt:001...r_addend        dq          0h                                      
+   |_.rela.plt:001...[4]             Elf64_Rela                                          
+      |_.rela.plt:001...r_offset        dq          3FD0h                                   
+      |_.rela.plt:001...r_info          dq          800000007h                              
+      |_.rela.plt:001...r_addend        dq          0h                                      
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;int _init(EVP_PKEY_CTX * ctx)
+          ;ctx           EVP_PKEY_CTX *     RDI                      
+                                                          ;XREF[4,0]:   Entry Point,001000f8,00103dc0
+                                                          ;             _elfSectionHeaders::00000310
+.init:00101000  f30f1efa        ENDBR64                                             
+.init:00101004  4883ec08        SUB         RSP,0x8                                 
+.init:00101008  488b05d92...    MOV         RAX=>EXTERNAL:<E...,qword ptr [-><EXT...;= ??
+                                                                                    ;= 00105030
+.init:0010100f  4885c0          TEST        RAX,RAX                                 
+.init:00101012  7402            JZ          LAB_00101016                            
+.init:00101014  ffd0            CALL        RAX=>EXTERNAL:<EXTERNAL>::__gmon_start__;undefined __gmon_start__()
+                            LAB_00101016:                 ;XREF[1,0]:   00101012
+.init:00101016  4883c408        ADD         RSP,0x8                                 
+.init:0010101a  c3              RET                                                 
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined FUN_00101020()
+                                                          ;XREF[8,0]:   00101039,00101049,00101059,00101069
+                                                          ;             00101079,00102070,001020d0,_elfSectionHeaders::00000350
+.plt:00101020   ff357a2f0000    PUSH        qword ptr [.got:PTR_00103fa0]           ;= 00000000
+.plt:00101026   f2ff257b2...    JMP         qword ptr [.got:PTR_00103fa8]           
+.plt:0010102d   0f              ??          0Fh                                     
+.plt:0010102e   1f              ??          1Fh                                     
+.plt:0010102f   00              ??          00h                                     
+.plt:00101030   f30f1efa        ENDBR64                                             
+.plt:00101034   6800000000      PUSH        0x0                                     
+.plt:00101039   f2e9e1ffffff    JMP         FUN_00101020                            ;undefined FUN_00101020()
+.plt:0010103f   90              NOP                                                 
+.plt:00101040   f30f1efa        ENDBR64                                             
+.plt:00101044   6801000000      PUSH        0x1                                     
+.plt:00101049   f2e9d1ffffff    JMP         FUN_00101020                            ;undefined FUN_00101020()
+.plt:0010104f   90              NOP                                                 
+.plt:00101050   f30f1efa        ENDBR64                                             
+.plt:00101054   6802000000      PUSH        0x2                                     
+.plt:00101059   f2e9c1ffffff    JMP         FUN_00101020                            ;undefined FUN_00101020()
+.plt:0010105f   90              NOP                                                 
+.plt:00101060   f30f1efa        ENDBR64                                             
+.plt:00101064   6803000000      PUSH        0x3                                     
+.plt:00101069   f2e9b1ffffff    JMP         FUN_00101020                            ;undefined FUN_00101020()
+.plt:0010106f   90              NOP                                                 
+.plt:00101070   f30f1efa        ENDBR64                                             
+.plt:00101074   6804000000      PUSH        0x4                                     
+.plt:00101079   f2e9a1ffffff    JMP         FUN_00101020                            ;undefined FUN_00101020()
+.plt:0010107f   90              NOP                                                 
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined FUN_00101080()
+                                                          ;XREF[4,0]:   001011a2,00102078,001020f8,_elfSectionHeaders::00000390
+.plt.got:0010...f30f1efa        ENDBR64                                             
+.plt.got:0010...f2ff256d2...    JMP         qword ptr [-><EXTERNAL>::__cxa_finalize];undefined __cxa_finalize()
+.plt.got:0010...0f              ??          0Fh                                     
+.plt.got:0010...1f              ??          1Fh                                     
+.plt.got:0010...44              ??          44h    D                                
+.plt.got:0010...00              ??          00h                                     
+.plt.got:0010...00              ??          00h                                     
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;int puts(char * __s)
+          ;__s           char *             RDI                      
+                                                          ;XREF[5,0]:   00101237,00101248,00102080,00102110
+                                                          ;             _elfSectionHeaders::000003d0
+.plt.sec:0010...f30f1efa        ENDBR64                                             
+.plt.sec:0010...f2ff25152...    JMP         qword ptr [-><EXTERNAL>::puts]          ;int puts(char * __s)
+.plt.sec:0010...0f              ??          0Fh                                     
+.plt.sec:0010...1f              ??          1Fh                                     
+.plt.sec:0010...44              ??          44h    D                                
+.plt.sec:0010...00              ??          00h                                     
+.plt.sec:0010...00              ??          00h                                     
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined __stack_chk_fail()
+                                                          ;XREF[1,0]:   00101261
+.plt.sec:0010...f30f1efa        ENDBR64                                             
+.plt.sec:0010...f2ff250d2...    JMP         qword ptr [-><EXTERNAL>::__stack_chk_...;undefined __stack_chk_fail()
+.plt.sec:0010...0f              ??          0Fh                                     
+.plt.sec:0010...1f              ??          1Fh                                     
+.plt.sec:0010...44              ??          44h    D                                
+.plt.sec:0010...00              ??          00h                                     
+.plt.sec:0010...00              ??          00h                                     
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;int printf(char * __format, ...)
+          ;__format      char *             RDI                      
+                                                          ;XREF[1,0]:   001011f3
+.plt.sec:0010...f30f1efa        ENDBR64                                             
+.plt.sec:0010...f2ff25052...    JMP         qword ptr [-><EXTERNAL>::printf]        ;int printf(char * __format, ...)
+.plt.sec:0010...0f              ??          0Fh                                     
+.plt.sec:0010...1f              ??          1Fh                                     
+.plt.sec:0010...44              ??          44h    D                                
+.plt.sec:0010...00              ??          00h                                     
+.plt.sec:0010...00              ??          00h                                     
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;int strcmp(char * __s1, char * __s2)
+          ;__s1          char *             RDI                      
+          ;__s2          char *             RSI                      
+                                                          ;XREF[1,0]:   00101224
+.plt.sec:0010...f30f1efa        ENDBR64                                             
+.plt.sec:0010...f2ff25fd2...    JMP         qword ptr [-><EXTERNAL>::strcmp]        ;int strcmp(char * __s1, char * __s2)
+.plt.sec:0010...0f              ??          0Fh                                     
+.plt.sec:0010...1f              ??          1Fh                                     
+.plt.sec:0010...44              ??          44h    D                                
+.plt.sec:0010...00              ??          00h                                     
+.plt.sec:0010...00              ??          00h                                     
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined __isoc99_scanf()
+                                                          ;XREF[1,0]:   0010120e
+.plt.sec:0010...f30f1efa        ENDBR64                                             
+.plt.sec:0010...f2ff25f52...    JMP         qword ptr [-><EXTERNAL>::__isoc99_scanf];undefined __isoc99_scanf()
+.plt.sec:0010...0f              ??          0Fh                                     
+.plt.sec:0010...1f              ??          1Fh                                     
+.plt.sec:0010...44              ??          44h    D                                
+.plt.sec:0010...00              ??          00h                                     
+.plt.sec:0010...00              ??          00h                                     
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined _start()
+          ;local_10      undefined8         -10                      ;XREF[1,0]:   001010f2
+                                                          ;XREF[5,0]:   Entry Point,00100018,00102088
+                                                          ;             001020b8,_elfSectionHeaders::00000410
+.text:001010e0  f30f1efa        ENDBR64                                             
+.text:001010e4  31ed            XOR         EBP,EBP                                 
+.text:001010e6  4989d1          MOV         R9,RDX                                  
+.text:001010e9  5e              POP         RSI                                     
+.text:001010ea  4889e2          MOV         RDX,RSP                                 
+.text:001010ed  4883e4f0        AND         RSP,-0x10                               
+.text:001010f1  50              PUSH        RAX                                     
+.text:001010f2  54              PUSH        RSP=>local_10                           
+.text:001010f3  4531c0          XOR         R8D,R8D                                 
+.text:001010f6  31c9            XOR         ECX,ECX                                 
+.text:001010f8  488d3dca0...    LEA         RDI,[main]                              
+.text:001010ff  ff15d32e0000    CALL        qword ptr [-><EXTERNAL>::__libc_start...;undefined __libc_start_main()
+                                                                                    ;= 00105000
+.text:00101105  f4              HLT                                                 
+.text:00101106  66              ??          66h    f                                
+.text:00101107  2e              ??          2Eh    .                                
+.text:00101108  0f              ??          0Fh                                     
+.text:00101109  1f              ??          1Fh                                     
+.text:0010110a  84              ??          84h                                     
+.text:0010110b  00              ??          00h                                     
+.text:0010110c  00              ??          00h                                     
+.text:0010110d  00              ??          00h                                     
+.text:0010110e  00              ??          00h                                     
+.text:0010110f  00              ??          00h                                     
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined deregister_tm_clones()
+                                                          ;XREF[1,0]:   001011a7
+.text:00101110  488d3df92...    LEA         RDI,[.bss:completed.0]                  ;= ??
+.text:00101117  488d05f22...    LEA         RAX,[.bss:completed.0]                  ;= ??
+.text:0010111e  4839f8          CMP         RAX,RDI                                 
+.text:00101121  7415            JZ          LAB_00101138                            
+.text:00101123  488b05b62...    MOV         RAX=>EXTERNAL:<E...,qword ptr [-><EXT...;= ??
+                                                                                    ;= 00105008
+.text:0010112a  4885c0          TEST        RAX,RAX                                 
+.text:0010112d  7409            JZ          LAB_00101138                            
+.text:0010112f  ffe0            JMP         RAX=>EXTERNAL:<EXTERNAL>::_ITM_deregi...;undefined _ITM_deregisterTMCloneTable()
+.text:00101131  0f              ??          0Fh                                     
+.text:00101132  1f              ??          1Fh                                     
+.text:00101133  80              ??          80h                                     
+.text:00101134  00              ??          00h                                     
+.text:00101135  00              ??          00h                                     
+.text:00101136  00              ??          00h                                     
+.text:00101137  00              ??          00h                                     
+                            LAB_00101138:                 ;XREF[2,0]:   00101121,0010112d
+.text:00101138  c3              RET                                                 
+.text:00101139  0f              ??          0Fh                                     
+.text:0010113a  1f              ??          1Fh                                     
+.text:0010113b  80              ??          80h                                     
+.text:0010113c  00              ??          00h                                     
+.text:0010113d  00              ??          00h                                     
+.text:0010113e  00              ??          00h                                     
+.text:0010113f  00              ??          00h                                     
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined register_tm_clones()
+                                                          ;XREF[1,0]:   001011c4
+.text:00101140  488d3dc92...    LEA         RDI,[.bss:completed.0]                  ;= ??
+.text:00101147  488d35c22...    LEA         RSI,[.bss:completed.0]                  ;= ??
+.text:0010114e  4829fe          SUB         RSI,RDI                                 
+.text:00101151  4889f0          MOV         RAX,RSI                                 
+.text:00101154  48c1ee3f        SHR         RSI,0x3f                                
+.text:00101158  48c1f803        SAR         RAX,0x3                                 
+.text:0010115c  4801c6          ADD         RSI,RAX                                 
+.text:0010115f  48d1fe          SAR         RSI,0x1                                 
+.text:00101162  7414            JZ          LAB_00101178                            
+.text:00101164  488b05852...    MOV         RAX=>EXTERNAL:<E...,qword ptr [-><EXT...;= ??
+                                                                                    ;= 00105040
+.text:0010116b  4885c0          TEST        RAX,RAX                                 
+.text:0010116e  7408            JZ          LAB_00101178                            
+.text:00101170  ffe0            JMP         RAX=>EXTERNAL:<EXTERNAL>::_ITM_regist...;undefined _ITM_registerTMCloneTable()
+.text:00101172  66              ??          66h    f                                
+.text:00101173  0f              ??          0Fh                                     
+.text:00101174  1f              ??          1Fh                                     
+.text:00101175  44              ??          44h    D                                
+.text:00101176  00              ??          00h                                     
+.text:00101177  00              ??          00h                                     
+                            LAB_00101178:                 ;XREF[2,0]:   00101162,0010116e
+.text:00101178  c3              RET                                                 
+.text:00101179  0f              ??          0Fh                                     
+.text:0010117a  1f              ??          1Fh                                     
+.text:0010117b  80              ??          80h                                     
+.text:0010117c  00              ??          00h                                     
+.text:0010117d  00              ??          00h                                     
+.text:0010117e  00              ??          00h                                     
+.text:0010117f  00              ??          00h                                     
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined __do_global_dtors_aux()
+                                                          ;XREF[2,0]:   Entry Point,00103da0
+.text:00101180  f30f1efa        ENDBR64                                             
+.text:00101184  803d852e0...    CMP         byte ptr [.bss:completed.0],0x0         ;= ??
+.text:0010118b  752b            JNZ         LAB_001011b8                            
+.text:0010118d  55              PUSH        RBP                                     
+.text:0010118e  48833d622...    CMP         qword ptr [-><EX...,0x0                 ;= 00105048
+.text:00101196  4889e5          MOV         RBP,RSP                                 
+.text:00101199  740c            JZ          LAB_001011a7                            
+.text:0010119b  488b3d662...    MOV         RDI,qword ptr [->__dso_handle]          ;= 00104008
+.text:001011a2  e8d9feffff      CALL        .plt.got:FUN_00101080                   ;undefined FUN_00101080()
+                            LAB_001011a7:                 ;XREF[1,0]:   00101199
+.text:001011a7  e864ffffff      CALL        deregister_tm_clones                    ;undefined deregister_tm_clones()
+.text:001011ac  c6055d2e0...    MOV         byte ptr [.bss:completed.0],0x1         ;= ??
+.text:001011b3  5d              POP         RBP                                     
+.text:001011b4  c3              RET                                                 
+.text:001011b5  0f              ??          0Fh                                     
+.text:001011b6  1f              ??          1Fh                                     
+.text:001011b7  00              ??          00h                                     
+                            LAB_001011b8:                 ;XREF[1,0]:   0010118b
+.text:001011b8  c3              RET                                                 
+.text:001011b9  0f              ??          0Fh                                     
+.text:001011ba  1f              ??          1Fh                                     
+.text:001011bb  80              ??          80h                                     
+.text:001011bc  00              ??          00h                                     
+.text:001011bd  00              ??          00h                                     
+.text:001011be  00              ??          00h                                     
+.text:001011bf  00              ??          00h                                     
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined frame_dummy()
+                                                          ;XREF[2,0]:   Entry Point,00103d98
+.text:001011c0  f30f1efa        ENDBR64                                             
+.text:001011c4  e977ffffff      JMP         register_tm_clones                      ;undefined register_tm_clones()
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined main()
+          ;local_10      undefined8         -10                      ;XREF[2,0]:   001011de,00101252
+          ;local_78      undefined1         -78                      ;XREF[2,0]:   001011f8,00101213
+                                                          ;XREF[4,0]:   Entry Point,001010f8,00102090
+                                                          ;             00102128
+.text:001011c9  f30f1efa        ENDBR64                                             
+.text:001011cd  55              PUSH        RBP                                     
+.text:001011ce  4889e5          MOV         RBP,RSP                                 
+.text:001011d1  4883ec70        SUB         RSP,0x70                                
+.text:001011d5  64488b042...    MOV         RAX,qword ptr FS:[0x28]                 
+.text:001011de  488945f8        MOV         qword ptr [RBP + local_10+0x8],RAX      
+.text:001011e2  31c0            XOR         EAX,EAX                                 
+.text:001011e4  488d051d0...    LEA         RAX,[.rodata:s_Enter_your_password:_0...;= "Enter your password: "
+.text:001011eb  4889c7          MOV         RDI=>.rodata:s_E...,RAX                 ;= "Enter your password: "
+.text:001011ee  b800000000      MOV         EAX,0x0                                 
+.text:001011f3  e8b8feffff      CALL        .plt.sec:<EXTERNAL>::printf             ;int printf(char * __format, ...)
+.text:001011f8  488d4590        LEA         RAX=>local_78,[RBP + -0x70]             
+.text:001011fc  4889c6          MOV         RSI,RAX                                 
+.text:001011ff  488d05180...    LEA         RAX,[.rodata:DAT_0010201e]              ;= 25h    %
+.text:00101206  4889c7          MOV         RDI=>.rodata:DAT_0010201e,RAX           ;= 25h    %
+.text:00101209  b800000000      MOV         EAX,0x0                                 
+.text:0010120e  e8bdfeffff      CALL        .plt.sec:<EXTERNAL>::__isoc99_scanf     ;undefined __isoc99_scanf()
+.text:00101213  488d4590        LEA         RAX=>local_78,[RBP + -0x70]             
+.text:00101217  488d150a0...    LEA         RDX,[.rodata:s_csawctf{st1ng_th30ry_a...;= "csawctf{st1ng_th30ry_a1nt_so_h4rd}"
+.text:0010121e  4889d6          MOV         RSI=>.rodata:s_c...,RDX                 ;= "csawctf{st1ng_th30ry_a1nt_so_h4rd}"
+.text:00101221  4889c7          MOV         RDI,RAX                                 
+.text:00101224  e897feffff      CALL        .plt.sec:<EXTERNAL>::strcmp             ;int strcmp(char * __s1, char * __s2)
+.text:00101229  85c0            TEST        EAX,EAX                                 
+.text:0010122b  7511            JNZ         LAB_0010123e                            
+.text:0010122d  488d05170...    LEA         RAX,[.rodata:s_Correct!_0010204b]       ;= "Correct!"
+.text:00101234  4889c7          MOV         RDI=>.rodata:s_Correct!_0010204b,RAX    ;= "Correct!"
+.text:00101237  e854feffff      CALL        .plt.sec:<EXTERNAL>::puts               ;int puts(char * __s)
+.text:0010123c  eb0f            JMP         LAB_0010124d                            
+                            LAB_0010123e:                 ;XREF[1,0]:   0010122b
+.text:0010123e  488d050f0...    LEA         RAX,[.rodata:s_Access_denied._00102054] ;= "Access denied."
+.text:00101245  4889c7          MOV         RDI=>.rodata:s_A...,RAX                 ;= "Access denied."
+.text:00101248  e843feffff      CALL        .plt.sec:<EXTERNAL>::puts               ;int puts(char * __s)
+                            LAB_0010124d:                 ;XREF[1,0]:   0010123c
+.text:0010124d  b800000000      MOV         EAX,0x0                                 
+.text:00101252  488b55f8        MOV         RDX,qword ptr [RBP + local_10+0x8]      
+.text:00101256  64482b142...    SUB         RDX,qword ptr FS:[0x28]                 
+.text:0010125f  7405            JZ          LAB_00101266                            
+.text:00101261  e83afeffff      CALL        .plt.sec:<EXTERNAL>::__stack_chk_fail   ;undefined __stack_chk_fail()
+                            LAB_00101266:                 ;XREF[1,0]:   0010125f
+.text:00101266  c9              LEAVE                                               
+.text:00101267  c3              RET                                                 
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined _fini()
+                                                          ;XREF[3,0]:   Entry Point,00103dd0,_elfSectionHeaders::00000450
+.fini:00101268  f30f1efa        ENDBR64                                             
+.fini:0010126c  4883ec08        SUB         RSP,0x8                                 
+.fini:00101270  4883c408        ADD         RSP,0x8                                 
+.fini:00101274  c3              RET                                                 
+                            _IO_stdin_used:               ;XREF[3,0]:   Entry Point,00100130,_elfSectionHeaders::00000490
+.rodata:0010200001000200        undefined4  00020001h                               
+.rodata:0010200400              ??          00h                                     
+.rodata:0010200500              ??          00h                                     
+.rodata:0010200600              ??          00h                                     
+.rodata:0010200700              ??          00h                                     
+                            s_Enter_your_password:_0010...;XREF[2,0]:   001011e4,001011eb
+.rodata:00102008456e74657...    ds          "Enter your password: "                 
+                            DAT_0010201e:                 ;XREF[2,0]:   001011ff,00101206
+.rodata:0010201e25              ??          25h    %                                
+.rodata:0010201f39              ??          39h    9                                
+.rodata:0010202039              ??          39h    9                                
+.rodata:0010202173              ??          73h    s                                
+.rodata:0010202200              ??          00h                                     
+.rodata:0010202300              ??          00h                                     
+.rodata:0010202400              ??          00h                                     
+.rodata:0010202500              ??          00h                                     
+.rodata:0010202600              ??          00h                                     
+.rodata:0010202700              ??          00h                                     
+                            s_csawctf{st1ng_th30ry_a1nt...;XREF[2,0]:   00101217,0010121e
+.rodata:00102028637361776...    ds          "csawctf{st1ng_th30ry_a1nt_so_h4rd}"    
+                            s_Correct!_0010204b:          ;XREF[2,0]:   0010122d,00101234
+.rodata:0010204b436f72726...    ds          "Correct!"                              
+                            s_Access_denied._00102054:    ;XREF[2,0]:   0010123e,00101245
+.rodata:00102054416363657...    ds          "Access denied."                        
+                            ;************************************************************************************************
+                            ;*                                Exception Handler Frame Header                                *
+                            ;************************************************************************************************
+                            __GNU_EH_FRAME_HDR:           ;XREF[2,0]:   00100280,_elfSectionHeaders::000004d0
+.eh_frame_hdr...011b033b        eh_frame...                                        ;Exception Handler Frame Header Version
+   |_.eh_frame_hdr...eh_frame_...    db          1h                                      
+   |_.eh_frame_hdr...eh_frame_...    dwfenc      DW_EH_PE_sdata4 | DW_EH_PE_pcrel        
+   |_.eh_frame_hdr...eh_frame_...    dwfenc      DW_EH_PE_udata4 | DW_EH_PE_absptr       
+   |_.eh_frame_hdr...eh_frame_...    dwfenc      DW_EH_PE_sdata4 | DW_EH_PE_datarel      
+.eh_frame_hdr...30000000        ddw         .eh_frame:cie_00102098                  ;Encoded eh_frame_ptr
+.eh_frame_hdr...05000000        ddw         5h                                      ;Encoded FDE count
+                            ;************************************************************************************************
+                            ;*                                Frame Description Entry Table                                 *
+                            ;************************************************************************************************
+.eh_frame_hdr...bcefffff6...    fde_tabl...                                        ;Initial Location
+   |_.eh_frame_hdr...initial_loc     ddw         .plt:FUN_00101020                       
+   |_.eh_frame_hdr...data_loc        ddw         .eh_frame:fde_001020c8                  
+.eh_frame_hdr...1cf0ffff8...    fde_tabl...                                        ;Initial Location
+   |_.eh_frame_hdr...initial_loc     ddw         .plt.got:FUN_00101080                   
+   |_.eh_frame_hdr...data_loc        ddw         .eh_frame:fde_001020f0                  
+.eh_frame_hdr...2cf0ffffa...    fde_tabl...                                        ;Initial Location
+   |_.eh_frame_hdr...initial_loc     ddw         .plt.sec:<EXTERNAL>::puts               
+   |_.eh_frame_hdr...data_loc        ddw         .eh_frame:fde_00102108                  
+.eh_frame_hdr...7cf0ffff4...    fde_tabl...                                        ;Initial Location
+   |_.eh_frame_hdr...initial_loc     ddw         .text:_start                            
+   |_.eh_frame_hdr...data_loc        ddw         .eh_frame:fde_001020b0                  
+.eh_frame_hdr...65f1ffffb...    fde_tabl...                                        ;Initial Location
+   |_.eh_frame_hdr...initial_loc     ddw         .text:main                              
+   |_.eh_frame_hdr...data_loc        ddw         .eh_frame:fde_00102120                  
+                            ;************************************************************************************************
+                            ;*                                   Common Information Entry                                   *
+                            ;************************************************************************************************
+                            cie_00102098:                 ;XREF[7,0]:   00102068,001020b4,001020cc,001020f4
+                                                          ;             0010210c,00102124,_elfSectionHeaders::00000510
+.eh_frame:001...14000000        ddw         14h                                     ;(CIE) Length
+.eh_frame:001...00000000        ddw         0h                                      ;(CIE) ID
+.eh_frame:001...01              db          1h                                      ;(CIE) Version
+.eh_frame:001...7a5200          ds          "zR"                                    ;(CIE) Augmentation String
+.eh_frame:001...01              uleb128     1h                                      ;(CIE) Code Alignment
+.eh_frame:001...78              sleb128     -8h                                     ;(CIE) Data Alignment
+.eh_frame:001...10              db          10h                                     ;(CIE) Return Address Register Column
+.eh_frame:001...01              uleb128     1h                                      ;(CIE) Augmentation Data Length
+.eh_frame:001...1b              dwfenc      DW_EH_PE_sdata4 | DW_EH_PE_pcrel        ;(CIE Augmentation Data) FDE Encoding
+.eh_frame:001...0c0708900...    db[7]                                               ;(CIE) Initial Instructions
+   |_.eh_frame:001...[0]             db          Ch                                      
+   |_.eh_frame:001...[1]             db          7h                                      
+   |_.eh_frame:001...[2]             db          8h                                      
+   |_.eh_frame:001...[3]             db          90h                                     
+   |_.eh_frame:001...[4]             db          1h                                      
+   |_.eh_frame:001...[5]             db          0h                                      
+   |_.eh_frame:001...[6]             db          0h                                      
+                            ;************************************************************************************************
+                            ;*                                    Frame Descriptor Entry                                    *
+                            ;************************************************************************************************
+                            fde_001020b0:                 ;XREF[1,0]:   0010208c
+.eh_frame:001...14000000        ddw         14h                                     ;(FDE) Length
+.eh_frame:001...1c000000        ddw         cie_00102098                            ;(FDE) CIE Reference Pointer 
+.eh_frame:001...28f0ffff        ddw         .text:_start                            ;(FDE) PcBegin
+.eh_frame:001...26000000        ddw         26h                                     ;(FDE) PcRange
+.eh_frame:001...00              uleb128     0h                                      ;(FDE) Augmentation Data Length
+.eh_frame:001...440710000...    db[7]                                               ;(FDE) Call Frame Instructions
+   |_.eh_frame:001...[0]             db          44h                                     
+   |_.eh_frame:001...[1]             db          7h                                      
+   |_.eh_frame:001...[2]             db          10h                                     
+   |_.eh_frame:001...[3]             db          0h                                      
+   |_.eh_frame:001...[4]             db          0h                                      
+   |_.eh_frame:001...[5]             db          0h                                      
+   |_.eh_frame:001...[6]             db          0h                                      
+                            ;************************************************************************************************
+                            ;*                                    Frame Descriptor Entry                                    *
+                            ;************************************************************************************************
+                            fde_001020c8:                 ;XREF[1,0]:   00102074
+.eh_frame:001...24000000        ddw         24h                                     ;(FDE) Length
+.eh_frame:001...34000000        ddw         cie_00102098                            ;(FDE) CIE Reference Pointer 
+.eh_frame:001...50efffff        ddw         .plt:FUN_00101020                       ;(FDE) PcBegin
+.eh_frame:001...60000000        ddw         60h                                     ;(FDE) PcRange
+.eh_frame:001...00              uleb128     0h                                      ;(FDE) Augmentation Data Length
+.eh_frame:001...0e10460e1...    db[23]                                              ;(FDE) Call Frame Instructions
+   |_.eh_frame:001...[0]             db          Eh                                      
+   |_.eh_frame:001...[1]             db          10h                                     
+   |_.eh_frame:001...[2]             db          46h                                     
+   |_.eh_frame:001...[3]             db          Eh                                      
+   |_.eh_frame:001...[4]             db          18h                                     
+   |_.eh_frame:001...[5]             db          4Ah                                     
+   |_.eh_frame:001...[6]             db          Fh                                      
+   |_.eh_frame:001...[7]             db          Bh                                      
+   |_.eh_frame:001...[8]             db          77h                                     
+   |_.eh_frame:001...[9]             db          8h                                      
+   |_.eh_frame:001...[10]            db          80h                                     
+   |_.eh_frame:001...[11]            db          0h                                      
+   |_.eh_frame:001...[12]            db          3Fh                                     
+   |_.eh_frame:001...[13]            db          1Ah                                     
+   |_.eh_frame:001...[14]            db          3Ah                                     
+   |_.eh_frame:001...[15]            db          2Ah                                     
+   |_.eh_frame:001...[16]            db          33h                                     
+   |_.eh_frame:001...[17]            db          24h                                     
+   |_.eh_frame:001...[18]            db          22h                                     
+   |_.eh_frame:001...[19]            db          0h                                      
+   |_.eh_frame:001...[20]            db          0h                                      
+   |_.eh_frame:001...[21]            db          0h                                      
+   |_.eh_frame:001...[22]            db          0h                                      
+                            ;************************************************************************************************
+                            ;*                                    Frame Descriptor Entry                                    *
+                            ;************************************************************************************************
+                            fde_001020f0:                 ;XREF[1,0]:   0010207c
+.eh_frame:001...14000000        ddw         14h                                     ;(FDE) Length
+.eh_frame:001...5c000000        ddw         cie_00102098                            ;(FDE) CIE Reference Pointer 
+.eh_frame:001...88efffff        ddw         .plt.got:FUN_00101080                   ;(FDE) PcBegin
+.eh_frame:001...100000000...    dq          10h                                     ;(FDE) PcRange
+.eh_frame:001...00              uleb128     0h                                      ;(FDE) Augmentation Data Length
+.eh_frame:001...000000          db[3]                                               ;(FDE) Call Frame Instructions
+   |_.eh_frame:001...[0]             db          0h                                      
+   |_.eh_frame:001...[1]             db          0h                                      
+   |_.eh_frame:001...[2]             db          0h                                      
+                            ;************************************************************************************************
+                            ;*                                    Frame Descriptor Entry                                    *
+                            ;************************************************************************************************
+                            fde_00102108:                 ;XREF[1,0]:   00102084
+.eh_frame:001...14000000        ddw         14h                                     ;(FDE) Length
+.eh_frame:001...74000000        ddw         cie_00102098                            ;(FDE) CIE Reference Pointer 
+.eh_frame:001...80efffff        ddw         .plt.sec:<EXTERNAL>::puts               ;(FDE) PcBegin
+.eh_frame:001...500000000...    dq          50h                                     ;(FDE) PcRange
+.eh_frame:001...00              uleb128     0h                                      ;(FDE) Augmentation Data Length
+.eh_frame:001...000000          db[3]                                               ;(FDE) Call Frame Instructions
+   |_.eh_frame:001...[0]             db          0h                                      
+   |_.eh_frame:001...[1]             db          0h                                      
+   |_.eh_frame:001...[2]             db          0h                                      
+                            ;************************************************************************************************
+                            ;*                                    Frame Descriptor Entry                                    *
+                            ;************************************************************************************************
+                            fde_00102120:                 ;XREF[1,0]:   00102094
+.eh_frame:001...1c000000        ddw         1Ch                                     ;(FDE) Length
+.eh_frame:001...8c000000        ddw         cie_00102098                            ;(FDE) CIE Reference Pointer 
+.eh_frame:001...a1f0ffff        ddw         .text:main                              ;(FDE) PcBegin
+.eh_frame:001...9f000000        ddw         9Fh                                     ;(FDE) PcRange
+.eh_frame:001...00              uleb128     0h                                      ;(FDE) Augmentation Data Length
+.eh_frame:001...450e10860...    db[15]                                              ;(FDE) Call Frame Instructions
+   |_.eh_frame:001...[0]             db          45h                                     
+   |_.eh_frame:001...[1]             db          Eh                                      
+   |_.eh_frame:001...[2]             db          10h                                     
+   |_.eh_frame:001...[3]             db          86h                                     
+   |_.eh_frame:001...[4]             db          2h                                      
+   |_.eh_frame:001...[5]             db          43h                                     
+   |_.eh_frame:001...[6]             db          Dh                                      
+   |_.eh_frame:001...[7]             db          6h                                      
+   |_.eh_frame:001...[8]             db          2h                                      
+   |_.eh_frame:001...[9]             db          96h                                     
+   |_.eh_frame:001...[10]            db          Ch                                      
+   |_.eh_frame:001...[11]            db          7h                                      
+   |_.eh_frame:001...[12]            db          8h                                      
+   |_.eh_frame:001...[13]            db          0h                                      
+   |_.eh_frame:001...[14]            db          0h                                      
+                            ;************************************************************************************************
+                            ;*                                         END OF FRAME                                         *
+                            ;************************************************************************************************
+                            __FRAME_END__:                
+.eh_frame:001...00000000        ddw         0h                                      ;End of Frame
+                            __DT_INIT_ARRAY:              ;XREF[4,0]:   00100168,001002f0,00103de0,_elfSectionHeaders::00000550
+                            __frame_dummy_init_array_en...
+.init_array:0...c01110000...    addr        .text:frame_dummy                       
+                            __DT_FINI_ARRAY:              ;XREF[2,0]:   00103e00,_elfSectionHeaders::00000590
+                            __do_global_dtors_aux_fini_...
+.fini_array:0...801110000...    addr        .text:__do_global_dtors_aux             
+                            _DYNAMIC:                     ;XREF[3,0]:   001001a0,00103f98,_elfSectionHeaders::000005d0
+.dynamic:0010...010000000...    Elf64_Dy...                                        ;DT_NEEDED - Name of needed library
+   |_.dynamic:0010...[0]             Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_NEEDED                               
+      |_.dynamic:0010...d_val           dq          55h                                     
+   |_.dynamic:0010...[1]             Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_INIT                                 
+      |_.dynamic:0010...d_val           dq          .init:_init                             
+   |_.dynamic:0010...[2]             Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_FINI                                 
+      |_.dynamic:0010...d_val           dq          .fini:_fini                             
+   |_.dynamic:0010...[3]             Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_INIT_ARRAY                           
+      |_.dynamic:0010...d_val           dq          .init_array:__frame_dummy_init_array_...
+   |_.dynamic:0010...[4]             Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_INIT_ARRAYSZ                         
+      |_.dynamic:0010...d_val           dq          8h                                      
+   |_.dynamic:0010...[5]             Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_FINI_ARRAY                           
+      |_.dynamic:0010...d_val           dq          .fini_array:__do_global_dtors_aux_fin...
+   |_.dynamic:0010...[6]             Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_FINI_ARRAYSZ                         
+      |_.dynamic:0010...d_val           dq          8h                                      
+   |_.dynamic:0010...[7]             Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_GNU_HASH                             
+      |_.dynamic:0010...d_val           dq          .gnu.hash:__DT_GNU_HASH                 
+   |_.dynamic:0010...[8]             Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_STRTAB                               
+      |_.dynamic:0010...d_val           dq          .dynstr:__DT_STRTAB                     
+   |_.dynamic:0010...[9]             Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_SYMTAB                               
+      |_.dynamic:0010...d_val           dq          .dynsym:__DT_SYMTAB                     
+   |_.dynamic:0010...[10]            Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_STRSZ                                
+      |_.dynamic:0010...d_val           dq          CFh                                     
+   |_.dynamic:0010...[11]            Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_SYMENT                               
+      |_.dynamic:0010...d_val           dq          18h                                     
+   |_.dynamic:0010...[12]            Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_DEBUG                                
+      |_.dynamic:0010...d_val           dq          0h                                      
+   |_.dynamic:0010...[13]            Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_PLTGOT                               
+      |_.dynamic:0010...d_val           dq          .got:_GLOBAL_OFFSET_TABLE_              
+   |_.dynamic:0010...[14]            Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_PLTRELSZ                             
+      |_.dynamic:0010...d_val           dq          78h                                     
+   |_.dynamic:0010...[15]            Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_PLTREL                               
+      |_.dynamic:0010...d_val           dq          7h                                      
+   |_.dynamic:0010...[16]            Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_JMPREL                               
+      |_.dynamic:0010...d_val           dq          .rela.plt:__DT_JMPREL                   
+   |_.dynamic:0010...[17]            Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_RELA                                 
+      |_.dynamic:0010...d_val           dq          .rela.dyn:__DT_RELA                     
+   |_.dynamic:0010...[18]            Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_RELASZ                               
+      |_.dynamic:0010...d_val           dq          C0h                                     
+   |_.dynamic:0010...[19]            Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_RELAENT                              
+      |_.dynamic:0010...d_val           dq          18h                                     
+   |_.dynamic:0010...[20]            Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_FLAGS                                
+      |_.dynamic:0010...d_val           dq          8h                                      
+   |_.dynamic:0010...[21]            Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_FLAGS_1                              
+      |_.dynamic:0010...d_val           dq          8000001h                                
+   |_.dynamic:0010...[22]            Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_VERNEED                              
+      |_.dynamic:0010...d_val           dq          .gnu.version_r:__DT_VERNEED             
+   |_.dynamic:0010...[23]            Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_VERNEEDNUM                           
+      |_.dynamic:0010...d_val           dq          1h                                      
+   |_.dynamic:0010...[24]            Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_VERSYM                               
+      |_.dynamic:0010...d_val           dq          .gnu.version:__DT_VERSYM                
+   |_.dynamic:0010...[25]            Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_RELACOUNT                            
+      |_.dynamic:0010...d_val           dq          3h                                      
+   |_.dynamic:0010...[26]            Elf64_Dyn                                           
+      |_.dynamic:0010...d_tag           Elf64_Dy...DT_NULL                                 
+      |_.dynamic:0010...d_val           dq          0h                                      
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+.dynamic:0010...00              ??          00h                                     
+                            __DT_PLTGOT:                  ;XREF[2,0]:   00103e80,_elfSectionHeaders::00000610
+                            _GLOBAL_OFFSET_TABLE_:        
+.got:00103f98   a83d10000...    addr        .dynamic:_DYNAMIC                       
+                            PTR_00103fa0:                 ;XREF[1,0]:   00101020
+.got:00103fa0   000000000...    addr        00000000                                
+                            PTR_00103fa8:                 ;XREF[1,0]:   00101026
+.got:00103fa8   000000000...    addr        00000000                                
+                            PTR_puts_00103fb0:            ;XREF[1,0]:   00101094
+.got:00103fb0   105010000...    addr        EXTERNAL:<EXTERNAL>::puts               ;= ??
+                            PTR___stack_chk_fail_00103fb8:;XREF[1,0]:   001010a4
+.got:00103fb8   185010000...    addr        EXTERNAL:<EXTERNAL>::__stack_chk_fail   ;= ??
+                            PTR_printf_00103fc0:          ;XREF[1,0]:   001010b4
+.got:00103fc0   205010000...    addr        EXTERNAL:<EXTERNAL>::printf             ;= ??
+                            PTR_strcmp_00103fc8:          ;XREF[1,0]:   001010c4
+.got:00103fc8   285010000...    addr        EXTERNAL:<EXTERNAL>::strcmp             ;= ??
+                            PTR___isoc99_scanf_00103fd0:  ;XREF[1,0]:   001010d4
+.got:00103fd0   385010000...    addr        EXTERNAL:<EXTERNAL>::__isoc99_scanf     ;= ??
+                            PTR___libc_start_main_00103...;XREF[1,0]:   001010ff
+.got:00103fd8   005010000...    addr        EXTERNAL:<EXTERNAL>::__libc_start_main  ;= ??
+                            PTR__ITM_deregisterTMCloneT...;XREF[1,0]:   00101123
+.got:00103fe0   085010000...    addr        EXTERNAL:<EXTERNAL>::_ITM_deregisterT...;= ??
+                            PTR___gmon_start___00103fe8:  ;XREF[1,0]:   00101008
+.got:00103fe8   305010000...    addr        EXTERNAL:<EXTERNAL>::__gmon_start__     ;= ??
+                            PTR__ITM_registerTMCloneTab...;XREF[1,0]:   00101164
+.got:00103ff0   405010000...    addr        EXTERNAL:<EXTERNAL>::_ITM_registerTMC...;= ??
+                            PTR___cxa_finalize_00103ff8:  ;XREF[2,0]:   00101084,0010118e
+.got:00103ff8   485010000...    addr        EXTERNAL:<EXTERNAL>::__cxa_finalize     ;= ??
+                            __data_start:                 ;XREF[2,0]:   Entry Point,_elfSectionHeaders::00000650
+                            data_start:                   
+.data:00104000  00              ??          00h                                     
+.data:00104001  00              ??          00h                                     
+.data:00104002  00              ??          00h                                     
+.data:00104003  00              ??          00h                                     
+.data:00104004  00              ??          00h                                     
+.data:00104005  00              ??          00h                                     
+.data:00104006  00              ??          00h                                     
+.data:00104007  00              ??          00h                                     
+                            __dso_handle:                 ;XREF[3,0]:   Entry Point,0010119b,00104008
+.data:00104008  084010000...    addr        __dso_handle                            ;= 00104008
+                            _edata:                       ;XREF[8,0]:   Entry Point,00101110,00101117
+                            __bss_start:                  ;             00101140,00101147,00101184
+                            __TMC_END__:                  ;             001011ac,_elfSectionHeaders::00000690
+                            completed.0:                  
+.bss:00104010                   undefined1  ??                                      
+.bss:00104011                   ??          ??                                      
+.bss:00104012                   ??          ??                                      
+.bss:00104013                   ??          ??                                      
+.bss:00104014                   ??          ??                                      
+.bss:00104015                   ??          ??                                      
+.bss:00104016                   ??          ??                                      
+.bss:00104017                   ??          ??                                      
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined __libc_start_main()
+                            ;__libc_start_main@GLIBC_2.34
+                                                          ;XREF[2,0]:   001010ff,00103fd8
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined _ITM_deregisterTMCloneTable()
+                                                          ;XREF[3,0]:   00101123,0010112f,00103fe0
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;int puts(char * __s)
+          ;__s           char *             RDI                      
+                            ;puts@GLIBC_2.2.5
+                                                          ;XREF[2,0]:   00101094,00103fb0
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined __stack_chk_fail()
+                            ;__stack_chk_fail@GLIBC_2.4
+                                                          ;XREF[2,0]:   001010a4,00103fb8
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;int printf(char * __format, ...)
+          ;__format      char *             RDI                      
+                            ;printf@GLIBC_2.2.5
+                                                          ;XREF[2,0]:   001010b4,00103fc0
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;int strcmp(char * __s1, char * __s2)
+          ;__s1          char *             RDI                      
+          ;__s2          char *             RSI                      
+                            ;strcmp@GLIBC_2.2.5
+                                                          ;XREF[2,0]:   001010c4,00103fc8
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined __gmon_start__()
+                                                          ;XREF[3,0]:   00101008,00101014,00103fe8
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined __isoc99_scanf()
+                            ;__isoc99_scanf@GLIBC_2.7
+                                                          ;XREF[2,0]:   001010d4,00103fd0
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined _ITM_registerTMCloneTable()
+                                                          ;XREF[3,0]:   00101164,00101170,00103ff0
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+                            ;************************************************************************************************
+                            ;*                                           FUNCTION                                           *
+                            ;************************************************************************************************
+                            ;undefined __cxa_finalize()
+                            ;__cxa_finalize@GLIBC_2.2.5
+                                                          ;XREF[2,0]:   00101084,00103ff8
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+EXTERNAL:0010...                ??          ??                                      
+                            ElfComment[0]:                ;XREF[1,0]:   _elfSectionHeaders::000006d0
+.comment:.com...4743433a2...    utf8        u8"GCC: (Ubuntu 11.4.0-1ubuntu1~22.04...
+                            DAT_.shstrtab__00000000:      ;XREF[1,0]:   _elfSectionHeaders::00000790
+.shstrtab:.sh...00              ??          00h                                     
+.shstrtab:.sh...2e73796d7...    utf8        u8".symtab"                             
+.shstrtab:.sh...2e7374727...    utf8        u8".strtab"                             
+.shstrtab:.sh...2e7368737...    utf8        u8".shstrtab"                           
+.shstrtab:.sh...2e696e746...    utf8        u8".interp"                             
+.shstrtab:.sh...2e6e6f746...    utf8        u8".note.gnu.property"                  
+.shstrtab:.sh...2e6e6f746...    utf8        u8".note.gnu.build-id"                  
+.shstrtab:.sh...2e6e6f746...    utf8        u8".note.ABI-tag"                       
+.shstrtab:.sh...2e676e752...    utf8        u8".gnu.hash"                           
+.shstrtab:.sh...2e64796e7...    utf8        u8".dynsym"                             
+.shstrtab:.sh...2e64796e7...    utf8        u8".dynstr"                             
+.shstrtab:.sh...2e676e752...    utf8        u8".gnu.version"                        
+.shstrtab:.sh...2e676e752...    utf8        u8".gnu.version_r"                      
+.shstrtab:.sh...2e72656c6...    utf8        u8".rela.dyn"                           
+.shstrtab:.sh...2e72656c6...    utf8        u8".rela.plt"                           
+.shstrtab:.sh...2e696e697400    utf8        u8".init"                               
+.shstrtab:.sh...2e706c742...    utf8        u8".plt.got"                            
+.shstrtab:.sh...2e706c742...    utf8        u8".plt.sec"                            
+.shstrtab:.sh...2e7465787400    utf8        u8".text"                               
+.shstrtab:.sh...2e66696e6900    utf8        u8".fini"                               
+.shstrtab:.sh...2e726f646...    utf8        u8".rodata"                             
+.shstrtab:.sh...2e65685f6...    utf8        u8".eh_frame_hdr"                       
+.shstrtab:.sh...2e65685f6...    utf8        u8".eh_frame"                           
+.shstrtab:.sh...2e696e697...    utf8        u8".init_array"                         
+.shstrtab:.sh...2e66696e6...    utf8        u8".fini_array"                         
+.shstrtab:.sh...2e64796e6...    utf8        u8".dynamic"                            
+.shstrtab:.sh...2e6461746100    utf8        u8".data"                               
+.shstrtab:.sh...2e62737300      utf8        u8".bss"                                
+.shstrtab:.sh...2e636f6d6...    utf8        u8".comment"                            
+                            DAT_.strtab__00000000:        ;XREF[1,0]:   _elfSectionHeaders::00000750
+.strtab:.strt...00              ??          00h                                     
+.strtab:.strt...536372743...    utf8        u8"Scrt1.o"                             
+.strtab:.strt...5f5f61626...    utf8        u8"__abi_tag"                           
+.strtab:.strt...637274737...    utf8        u8"crtstuff.c"                          
+.strtab:.strt...646572656...    utf8        u8"deregister_tm_clones"                
+.strtab:.strt...5f5f646f5...    utf8        u8"__do_global_dtors_aux"               
+.strtab:.strt...636f6d706...    utf8        u8"completed.0"                         
+.strtab:.strt...5f5f646f5...    utf8        u8"__do_global_dtors_aux_fini_array_e...
+.strtab:.strt...6672616d6...    utf8        u8"frame_dummy"                         
+.strtab:.strt...5f5f66726...    utf8        u8"__frame_dummy_init_array_entry"      
+.strtab:.strt...626162797...    utf8        u8"babysthird.c"                        
+.strtab:.strt...5f5f46524...    utf8        u8"__FRAME_END__"                       
+.strtab:.strt...5f44594e4...    utf8        u8"_DYNAMIC"                            
+.strtab:.strt...5f5f474e5...    utf8        u8"__GNU_EH_FRAME_HDR"                  
+.strtab:.strt...5f474c4f4...    utf8        u8"_GLOBAL_OFFSET_TABLE_"               
+.strtab:.strt...5f5f6c696...    utf8        u8"__libc_start_main@GLIBC_2.34"        
+.strtab:.strt...5f49544d5...    utf8        u8"_ITM_deregisterTMCloneTable"         
+.strtab:.strt...707574734...    utf8        u8"puts@GLIBC_2.2.5"                    
+.strtab:.strt...5f6564617...    utf8        u8"_edata"                              
+.strtab:.strt...5f66696e6900    utf8        u8"_fini"                               
+.strtab:.strt...5f5f73746...    utf8        u8"__stack_chk_fail@GLIBC_2.4"          
+.strtab:.strt...7072696e7...    utf8        u8"printf@GLIBC_2.2.5"                  
+.strtab:.strt...5f5f64617...    utf8        u8"__data_start"                        
+.strtab:.strt...737472636...    utf8        u8"strcmp@GLIBC_2.2.5"                  
+.strtab:.strt...5f5f676d6...    utf8        u8"__gmon_start__"                      
+.strtab:.strt...5f5f64736...    utf8        u8"__dso_handle"                        
+.strtab:.strt...5f494f5f7...    utf8        u8"_IO_stdin_used"                      
+.strtab:.strt...5f656e6400      utf8        u8"_end"                                
+.strtab:.strt...5f5f62737...    utf8        u8"__bss_start"                         
+.strtab:.strt...6d61696e00      utf8        u8"main"                                
+.strtab:.strt...5f5f69736...    utf8        u8"__isoc99_scanf@GLIBC_2.7"            
+.strtab:.strt...5f5f544d4...    utf8        u8"__TMC_END__"                         
+.strtab:.strt...5f49544d5...    utf8        u8"_ITM_registerTMCloneTable"           
+.strtab:.strt...5f5f63786...    utf8        u8"__cxa_finalize@GLIBC_2.2.5"          
+.strtab:.strt...5f696e697400    utf8        u8"_init"                               
+                            Elf64_Sym_ARRAY_.symtab__00...;XREF[1,0]:   _elfSectionHeaders::00000710
+.symtab:.symt...000000000...    Elf64_Sy...                                        
+   |_.symtab:.symt...[0]             Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         0h                                      
+      |_.symtab:.symt...st_info         db          0h                                      
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          0h                                      
+      |_.symtab:.symt...st_value        dq          0h                                      
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[1]             Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         1h                                      
+      |_.symtab:.symt...st_info         db          4h                                      
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          FFF1h                                   
+      |_.symtab:.symt...st_value        dq          0h                                      
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[2]             Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         9h                                      
+      |_.symtab:.symt...st_info         db          1h                                      
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          4h                                      
+      |_.symtab:.symt...st_value        dq          38Ch                                    
+      |_.symtab:.symt...st_size         dq          20h                                     
+   |_.symtab:.symt...[3]             Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         13h                                     
+      |_.symtab:.symt...st_info         db          4h                                      
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          FFF1h                                   
+      |_.symtab:.symt...st_value        dq          0h                                      
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[4]             Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         1Eh                                     
+      |_.symtab:.symt...st_info         db          2h                                      
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          10h                                     
+      |_.symtab:.symt...st_value        dq          1110h                                   
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[5]             Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         20h                                     
+      |_.symtab:.symt...st_info         db          2h                                      
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          10h                                     
+      |_.symtab:.symt...st_value        dq          1140h                                   
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[6]             Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         33h                                     
+      |_.symtab:.symt...st_info         db          2h                                      
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          10h                                     
+      |_.symtab:.symt...st_value        dq          1180h                                   
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[7]             Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         49h                                     
+      |_.symtab:.symt...st_info         db          1h                                      
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          1Ah                                     
+      |_.symtab:.symt...st_value        dq          4010h                                   
+      |_.symtab:.symt...st_size         dq          1h                                      
+   |_.symtab:.symt...[8]             Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         55h                                     
+      |_.symtab:.symt...st_info         db          1h                                      
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          16h                                     
+      |_.symtab:.symt...st_value        dq          3DA0h                                   
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[9]             Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         7Ch                                     
+      |_.symtab:.symt...st_info         db          2h                                      
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          10h                                     
+      |_.symtab:.symt...st_value        dq          11C0h                                   
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[10]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         88h                                     
+      |_.symtab:.symt...st_info         db          1h                                      
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          15h                                     
+      |_.symtab:.symt...st_value        dq          3D98h                                   
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[11]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         A7h                                     
+      |_.symtab:.symt...st_info         db          4h                                      
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          FFF1h                                   
+      |_.symtab:.symt...st_value        dq          0h                                      
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[12]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         13h                                     
+      |_.symtab:.symt...st_info         db          4h                                      
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          FFF1h                                   
+      |_.symtab:.symt...st_value        dq          0h                                      
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[13]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         B4h                                     
+      |_.symtab:.symt...st_info         db          1h                                      
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          14h                                     
+      |_.symtab:.symt...st_value        dq          2140h                                   
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[14]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         0h                                      
+      |_.symtab:.symt...st_info         db          4h                                      
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          FFF1h                                   
+      |_.symtab:.symt...st_value        dq          0h                                      
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[15]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         C2h                                     
+      |_.symtab:.symt...st_info         db          1h                                      
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          17h                                     
+      |_.symtab:.symt...st_value        dq          3DA8h                                   
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[16]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         CBh                                     
+      |_.symtab:.symt...st_info         db          0h                                      
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          13h                                     
+      |_.symtab:.symt...st_value        dq          2064h                                   
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[17]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         DEh                                     
+      |_.symtab:.symt...st_info         db          1h                                      
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          18h                                     
+      |_.symtab:.symt...st_value        dq          3F98h                                   
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[18]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         F4h                                     
+      |_.symtab:.symt...st_info         db          12h                                     
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          0h                                      
+      |_.symtab:.symt...st_value        dq          0h                                      
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[19]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         111h                                    
+      |_.symtab:.symt...st_info         db          20h                                     
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          0h                                      
+      |_.symtab:.symt...st_value        dq          0h                                      
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[20]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         17Bh                                    
+      |_.symtab:.symt...st_info         db          20h                                     
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          19h                                     
+      |_.symtab:.symt...st_value        dq          4000h                                   
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[21]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         12Dh                                    
+      |_.symtab:.symt...st_info         db          12h                                     
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          0h                                      
+      |_.symtab:.symt...st_value        dq          0h                                      
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[22]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         13Eh                                    
+      |_.symtab:.symt...st_info         db          10h                                     
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          19h                                     
+      |_.symtab:.symt...st_value        dq          4010h                                   
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[23]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         145h                                    
+      |_.symtab:.symt...st_info         db          12h                                     
+      |_.symtab:.symt...st_other        db          2h                                      
+      |_.symtab:.symt...st_shndx        dw          11h                                     
+      |_.symtab:.symt...st_value        dq          1268h                                   
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[24]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         14Bh                                    
+      |_.symtab:.symt...st_info         db          12h                                     
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          0h                                      
+      |_.symtab:.symt...st_value        dq          0h                                      
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[25]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         166h                                    
+      |_.symtab:.symt...st_info         db          12h                                     
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          0h                                      
+      |_.symtab:.symt...st_value        dq          0h                                      
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[26]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         179h                                    
+      |_.symtab:.symt...st_info         db          10h                                     
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          19h                                     
+      |_.symtab:.symt...st_value        dq          4000h                                   
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[27]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         186h                                    
+      |_.symtab:.symt...st_info         db          12h                                     
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          0h                                      
+      |_.symtab:.symt...st_value        dq          0h                                      
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[28]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         199h                                    
+      |_.symtab:.symt...st_info         db          20h                                     
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          0h                                      
+      |_.symtab:.symt...st_value        dq          0h                                      
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[29]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         1A8h                                    
+      |_.symtab:.symt...st_info         db          11h                                     
+      |_.symtab:.symt...st_other        db          2h                                      
+      |_.symtab:.symt...st_shndx        dw          19h                                     
+      |_.symtab:.symt...st_value        dq          4008h                                   
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[30]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         1B5h                                    
+      |_.symtab:.symt...st_info         db          11h                                     
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          12h                                     
+      |_.symtab:.symt...st_value        dq          2000h                                   
+      |_.symtab:.symt...st_size         dq          4h                                      
+   |_.symtab:.symt...[31]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         1C4h                                    
+      |_.symtab:.symt...st_info         db          10h                                     
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          1Ah                                     
+      |_.symtab:.symt...st_value        dq          4018h                                   
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[32]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         17Fh                                    
+      |_.symtab:.symt...st_info         db          12h                                     
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          10h                                     
+      |_.symtab:.symt...st_value        dq          10E0h                                   
+      |_.symtab:.symt...st_size         dq          26h                                     
+   |_.symtab:.symt...[33]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         1C9h                                    
+      |_.symtab:.symt...st_info         db          10h                                     
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          1Ah                                     
+      |_.symtab:.symt...st_value        dq          4010h                                   
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[34]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         1D5h                                    
+      |_.symtab:.symt...st_info         db          12h                                     
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          10h                                     
+      |_.symtab:.symt...st_value        dq          11C9h                                   
+      |_.symtab:.symt...st_size         dq          9Fh                                     
+   |_.symtab:.symt...[35]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         1DAh                                    
+      |_.symtab:.symt...st_info         db          12h                                     
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          0h                                      
+      |_.symtab:.symt...st_value        dq          0h                                      
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[36]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         1F3h                                    
+      |_.symtab:.symt...st_info         db          11h                                     
+      |_.symtab:.symt...st_other        db          2h                                      
+      |_.symtab:.symt...st_shndx        dw          19h                                     
+      |_.symtab:.symt...st_value        dq          4010h                                   
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[37]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         1FFh                                    
+      |_.symtab:.symt...st_info         db          20h                                     
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          0h                                      
+      |_.symtab:.symt...st_value        dq          0h                                      
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[38]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         219h                                    
+      |_.symtab:.symt...st_info         db          22h                                     
+      |_.symtab:.symt...st_other        db          0h                                      
+      |_.symtab:.symt...st_shndx        dw          0h                                      
+      |_.symtab:.symt...st_value        dq          0h                                      
+      |_.symtab:.symt...st_size         dq          0h                                      
+   |_.symtab:.symt...[39]            Elf64_Sym                                           
+      |_.symtab:.symt...st_name         ddw         234h                                    
+      |_.symtab:.symt...st_info         db          12h                                     
+      |_.symtab:.symt...st_other        db          2h                                      
+      |_.symtab:.symt...st_shndx        dw          Ch                                      
+      |_.symtab:.symt...st_value        dq          1000h                                   
+      |_.symtab:.symt...st_size         dq          0h                                      
+                            Elf64_Shdr_ARRAY__elfSectio...;XREF[1,0]:   00100028
+_elfSectionHe...000000000...    Elf64_Sh...                                        ;SECTION0 - SHT_NULL
+   |__elfSectionHe...[0]             Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         0h                                      
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_NULL                                
+      |__elfSectionHe...sh_flags        dq          0h                                      
+      |__elfSectionHe...sh_addr         dq          0h                                      
+      |__elfSectionHe...sh_offset       dq          0h                                      
+      |__elfSectionHe...sh_size         dq          0h                                      
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          0h                                      
+      |__elfSectionHe...sh_entsize      dq          0h                                      
+   |__elfSectionHe...[1]             Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         1Bh                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_PROGBITS                            
+      |__elfSectionHe...sh_flags        dq          2h                                      
+      |__elfSectionHe...sh_addr         dq          .interp:s_/lib64/ld-linux-x86-64.so.2...
+      |__elfSectionHe...sh_offset       dq          318h                                    
+      |__elfSectionHe...sh_size         dq          1Ch                                     
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          1h                                      
+      |__elfSectionHe...sh_entsize      dq          0h                                      
+   |__elfSectionHe...[2]             Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         23h                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_NOTE                                
+      |__elfSectionHe...sh_flags        dq          2h                                      
+      |__elfSectionHe...sh_addr         dq          .note.gnu.property:NoteGnuProperty_4_...
+      |__elfSectionHe...sh_offset       dq          338h                                    
+      |__elfSectionHe...sh_size         dq          30h                                     
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          8h                                      
+      |__elfSectionHe...sh_entsize      dq          0h                                      
+   |__elfSectionHe...[3]             Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         36h                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_NOTE                                
+      |__elfSectionHe...sh_flags        dq          2h                                      
+      |__elfSectionHe...sh_addr         dq          .note.gnu.build-id:GnuBuildId_00100368  
+      |__elfSectionHe...sh_offset       dq          368h                                    
+      |__elfSectionHe...sh_size         dq          24h                                     
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          4h                                      
+      |__elfSectionHe...sh_entsize      dq          0h                                      
+   |__elfSectionHe...[4]             Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         49h                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_NOTE                                
+      |__elfSectionHe...sh_flags        dq          2h                                      
+      |__elfSectionHe...sh_addr         dq          .note.ABI-tag:__abi_tag                 
+      |__elfSectionHe...sh_offset       dq          38Ch                                    
+      |__elfSectionHe...sh_size         dq          20h                                     
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          4h                                      
+      |__elfSectionHe...sh_entsize      dq          0h                                      
+   |__elfSectionHe...[5]             Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         57h                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_GNU_HASH                            
+      |__elfSectionHe...sh_flags        dq          2h                                      
+      |__elfSectionHe...sh_addr         dq          .gnu.hash:__DT_GNU_HASH                 
+      |__elfSectionHe...sh_offset       dq          3B0h                                    
+      |__elfSectionHe...sh_size         dq          24h                                     
+      |__elfSectionHe...sh_link         ddw         6h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          8h                                      
+      |__elfSectionHe...sh_entsize      dq          0h                                      
+   |__elfSectionHe...[6]             Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         61h                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_DYNSYM                              
+      |__elfSectionHe...sh_flags        dq          2h                                      
+      |__elfSectionHe...sh_addr         dq          .dynsym:__DT_SYMTAB                     
+      |__elfSectionHe...sh_offset       dq          3D8h                                    
+      |__elfSectionHe...sh_size         dq          108h                                    
+      |__elfSectionHe...sh_link         ddw         7h                                      
+      |__elfSectionHe...sh_info         ddw         1h                                      
+      |__elfSectionHe...sh_addralign    dq          8h                                      
+      |__elfSectionHe...sh_entsize      dq          18h                                     
+   |__elfSectionHe...[7]             Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         69h                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_STRTAB                              
+      |__elfSectionHe...sh_flags        dq          2h                                      
+      |__elfSectionHe...sh_addr         dq          .dynstr:__DT_STRTAB                     
+      |__elfSectionHe...sh_offset       dq          4E0h                                    
+      |__elfSectionHe...sh_size         dq          CFh                                     
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          1h                                      
+      |__elfSectionHe...sh_entsize      dq          0h                                      
+   |__elfSectionHe...[8]             Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         71h                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_GNU_versym                          
+      |__elfSectionHe...sh_flags        dq          2h                                      
+      |__elfSectionHe...sh_addr         dq          .gnu.version:__DT_VERSYM                
+      |__elfSectionHe...sh_offset       dq          5B0h                                    
+      |__elfSectionHe...sh_size         dq          16h                                     
+      |__elfSectionHe...sh_link         ddw         6h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          2h                                      
+      |__elfSectionHe...sh_entsize      dq          2h                                      
+   |__elfSectionHe...[9]             Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         7Eh                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_GNU_verneed                         
+      |__elfSectionHe...sh_flags        dq          2h                                      
+      |__elfSectionHe...sh_addr         dq          .gnu.version_r:__DT_VERNEED             
+      |__elfSectionHe...sh_offset       dq          5C8h                                    
+      |__elfSectionHe...sh_size         dq          50h                                     
+      |__elfSectionHe...sh_link         ddw         7h                                      
+      |__elfSectionHe...sh_info         ddw         1h                                      
+      |__elfSectionHe...sh_addralign    dq          8h                                      
+      |__elfSectionHe...sh_entsize      dq          0h                                      
+   |__elfSectionHe...[10]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         8Dh                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_RELA                                
+      |__elfSectionHe...sh_flags        dq          2h                                      
+      |__elfSectionHe...sh_addr         dq          .rela.dyn:__DT_RELA                     
+      |__elfSectionHe...sh_offset       dq          618h                                    
+      |__elfSectionHe...sh_size         dq          C0h                                     
+      |__elfSectionHe...sh_link         ddw         6h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          8h                                      
+      |__elfSectionHe...sh_entsize      dq          18h                                     
+   |__elfSectionHe...[11]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         97h                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_RELA                                
+      |__elfSectionHe...sh_flags        dq          42h                                     
+      |__elfSectionHe...sh_addr         dq          .rela.plt:__DT_JMPREL                   
+      |__elfSectionHe...sh_offset       dq          6D8h                                    
+      |__elfSectionHe...sh_size         dq          78h                                     
+      |__elfSectionHe...sh_link         ddw         6h                                      
+      |__elfSectionHe...sh_info         ddw         18h                                     
+      |__elfSectionHe...sh_addralign    dq          8h                                      
+      |__elfSectionHe...sh_entsize      dq          18h                                     
+   |__elfSectionHe...[12]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         A1h                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_PROGBITS                            
+      |__elfSectionHe...sh_flags        dq          6h                                      
+      |__elfSectionHe...sh_addr         dq          .init:_init                             
+      |__elfSectionHe...sh_offset       dq          1000h                                   
+      |__elfSectionHe...sh_size         dq          1Bh                                     
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          4h                                      
+      |__elfSectionHe...sh_entsize      dq          0h                                      
+   |__elfSectionHe...[13]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         9Ch                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_PROGBITS                            
+      |__elfSectionHe...sh_flags        dq          6h                                      
+      |__elfSectionHe...sh_addr         dq          .plt:FUN_00101020                       
+      |__elfSectionHe...sh_offset       dq          1020h                                   
+      |__elfSectionHe...sh_size         dq          60h                                     
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          10h                                     
+      |__elfSectionHe...sh_entsize      dq          10h                                     
+   |__elfSectionHe...[14]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         A7h                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_PROGBITS                            
+      |__elfSectionHe...sh_flags        dq          6h                                      
+      |__elfSectionHe...sh_addr         dq          .plt.got:FUN_00101080                   
+      |__elfSectionHe...sh_offset       dq          1080h                                   
+      |__elfSectionHe...sh_size         dq          10h                                     
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          10h                                     
+      |__elfSectionHe...sh_entsize      dq          10h                                     
+   |__elfSectionHe...[15]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         B0h                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_PROGBITS                            
+      |__elfSectionHe...sh_flags        dq          6h                                      
+      |__elfSectionHe...sh_addr         dq          .plt.sec:<EXTERNAL>::puts               
+      |__elfSectionHe...sh_offset       dq          1090h                                   
+      |__elfSectionHe...sh_size         dq          50h                                     
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          10h                                     
+      |__elfSectionHe...sh_entsize      dq          10h                                     
+   |__elfSectionHe...[16]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         B9h                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_PROGBITS                            
+      |__elfSectionHe...sh_flags        dq          6h                                      
+      |__elfSectionHe...sh_addr         dq          .text:_start                            
+      |__elfSectionHe...sh_offset       dq          10E0h                                   
+      |__elfSectionHe...sh_size         dq          188h                                    
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          10h                                     
+      |__elfSectionHe...sh_entsize      dq          0h                                      
+   |__elfSectionHe...[17]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         BFh                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_PROGBITS                            
+      |__elfSectionHe...sh_flags        dq          6h                                      
+      |__elfSectionHe...sh_addr         dq          .fini:_fini                             
+      |__elfSectionHe...sh_offset       dq          1268h                                   
+      |__elfSectionHe...sh_size         dq          Dh                                      
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          4h                                      
+      |__elfSectionHe...sh_entsize      dq          0h                                      
+   |__elfSectionHe...[18]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         C5h                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_PROGBITS                            
+      |__elfSectionHe...sh_flags        dq          2h                                      
+      |__elfSectionHe...sh_addr         dq          .rodata:_IO_stdin_used                  
+      |__elfSectionHe...sh_offset       dq          2000h                                   
+      |__elfSectionHe...sh_size         dq          63h                                     
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          8h                                      
+      |__elfSectionHe...sh_entsize      dq          0h                                      
+   |__elfSectionHe...[19]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         CDh                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_PROGBITS                            
+      |__elfSectionHe...sh_flags        dq          2h                                      
+      |__elfSectionHe...sh_addr         dq          .eh_frame_hdr:__GNU_EH_FRAME_HDR        
+      |__elfSectionHe...sh_offset       dq          2064h                                   
+      |__elfSectionHe...sh_size         dq          34h                                     
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          4h                                      
+      |__elfSectionHe...sh_entsize      dq          0h                                      
+   |__elfSectionHe...[20]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         DBh                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_PROGBITS                            
+      |__elfSectionHe...sh_flags        dq          2h                                      
+      |__elfSectionHe...sh_addr         dq          .eh_frame:cie_00102098                  
+      |__elfSectionHe...sh_offset       dq          2098h                                   
+      |__elfSectionHe...sh_size         dq          ACh                                     
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          8h                                      
+      |__elfSectionHe...sh_entsize      dq          0h                                      
+   |__elfSectionHe...[21]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         E5h                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_INIT_ARRAY                          
+      |__elfSectionHe...sh_flags        dq          3h                                      
+      |__elfSectionHe...sh_addr         dq          .init_array:__frame_dummy_init_array_...
+      |__elfSectionHe...sh_offset       dq          2D98h                                   
+      |__elfSectionHe...sh_size         dq          8h                                      
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          8h                                      
+      |__elfSectionHe...sh_entsize      dq          8h                                      
+   |__elfSectionHe...[22]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         F1h                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_FINI_ARRAY                          
+      |__elfSectionHe...sh_flags        dq          3h                                      
+      |__elfSectionHe...sh_addr         dq          .fini_array:__do_global_dtors_aux_fin...
+      |__elfSectionHe...sh_offset       dq          2DA0h                                   
+      |__elfSectionHe...sh_size         dq          8h                                      
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          8h                                      
+      |__elfSectionHe...sh_entsize      dq          8h                                      
+   |__elfSectionHe...[23]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         FDh                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_DYNAMIC                             
+      |__elfSectionHe...sh_flags        dq          3h                                      
+      |__elfSectionHe...sh_addr         dq          .dynamic:_DYNAMIC                       
+      |__elfSectionHe...sh_offset       dq          2DA8h                                   
+      |__elfSectionHe...sh_size         dq          1F0h                                    
+      |__elfSectionHe...sh_link         ddw         7h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          8h                                      
+      |__elfSectionHe...sh_entsize      dq          10h                                     
+   |__elfSectionHe...[24]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         ABh                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_PROGBITS                            
+      |__elfSectionHe...sh_flags        dq          3h                                      
+      |__elfSectionHe...sh_addr         dq          .got:_GLOBAL_OFFSET_TABLE_              
+      |__elfSectionHe...sh_offset       dq          2F98h                                   
+      |__elfSectionHe...sh_size         dq          68h                                     
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          8h                                      
+      |__elfSectionHe...sh_entsize      dq          8h                                      
+   |__elfSectionHe...[25]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         106h                                    
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_PROGBITS                            
+      |__elfSectionHe...sh_flags        dq          3h                                      
+      |__elfSectionHe...sh_addr         dq          .data:data_start                        
+      |__elfSectionHe...sh_offset       dq          3000h                                   
+      |__elfSectionHe...sh_size         dq          10h                                     
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          8h                                      
+      |__elfSectionHe...sh_entsize      dq          0h                                      
+   |__elfSectionHe...[26]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         10Ch                                    
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_NOBITS                              
+      |__elfSectionHe...sh_flags        dq          3h                                      
+      |__elfSectionHe...sh_addr         dq          .bss:completed.0                        
+      |__elfSectionHe...sh_offset       dq          3010h                                   
+      |__elfSectionHe...sh_size         dq          8h                                      
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          1h                                      
+      |__elfSectionHe...sh_entsize      dq          0h                                      
+   |__elfSectionHe...[27]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         111h                                    
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_PROGBITS                            
+      |__elfSectionHe...sh_flags        dq          30h                                     
+      |__elfSectionHe...sh_addr         dq          .comment:ElfComment[0]                  
+      |__elfSectionHe...sh_offset       dq          3010h                                   
+      |__elfSectionHe...sh_size         dq          2Bh                                     
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          1h                                      
+      |__elfSectionHe...sh_entsize      dq          1h                                      
+   |__elfSectionHe...[28]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         1h                                      
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_SYMTAB                              
+      |__elfSectionHe...sh_flags        dq          0h                                      
+      |__elfSectionHe...sh_addr         dq          .symtab:Elf64_Sym_ARRAY_.symtab__0000...
+      |__elfSectionHe...sh_offset       dq          3040h                                   
+      |__elfSectionHe...sh_size         dq          3C0h                                    
+      |__elfSectionHe...sh_link         ddw         1Dh                                     
+      |__elfSectionHe...sh_info         ddw         12h                                     
+      |__elfSectionHe...sh_addralign    dq          8h                                      
+      |__elfSectionHe...sh_entsize      dq          18h                                     
+   |__elfSectionHe...[29]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         9h                                      
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_STRTAB                              
+      |__elfSectionHe...sh_flags        dq          0h                                      
+      |__elfSectionHe...sh_addr         dq          .strtab:DAT_.strtab__00000000           
+      |__elfSectionHe...sh_offset       dq          3400h                                   
+      |__elfSectionHe...sh_size         dq          23Ah                                    
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          1h                                      
+      |__elfSectionHe...sh_entsize      dq          0h                                      
+   |__elfSectionHe...[30]            Elf64_Shdr                                          
+      |__elfSectionHe...sh_name         ddw         11h                                     
+      |__elfSectionHe...sh_type         Elf_Sect...SHT_STRTAB                              
+      |__elfSectionHe...sh_flags        dq          0h                                      
+      |__elfSectionHe...sh_addr         dq          .shstrtab:DAT_.shstrtab__00000000       
+      |__elfSectionHe...sh_offset       dq          363Ah                                   
+      |__elfSectionHe...sh_size         dq          11Ah                                    
+      |__elfSectionHe...sh_link         ddw         0h                                      
+      |__elfSectionHe...sh_info         ddw         0h                                      
+      |__elfSectionHe...sh_addralign    dq          1h                                      
+      |__elfSectionHe...sh_entsize      dq          0h                                      
