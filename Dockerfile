@@ -27,9 +27,11 @@ RUN apt-get update && apt-get install -y \
     bsdmainutils \
     && rm -rf /var/lib/apt/lists/*
 
+ARG HOST_UID=1000
+
 # Create a non-root user with sudo permissions
 ARG USERNAME=ctfplayer
-ARG USER_UID=1000
+ARG USER_UID=$HOST_UID
 ARG USER_GID=$USER_UID
 RUN groupadd --gid $USER_GID $USERNAME \
     && useradd --uid $USER_UID --gid $USER_GID -m $USERNAME \

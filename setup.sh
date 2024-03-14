@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 # Build main docker image
-docker build -t ctfenv .
+docker build --build-arg HOST_UID=$(id -u) -t ctfenv .
 
 # Build docker image for each challenge
 for d in LLM_CTF_Database/{rev}/*; do

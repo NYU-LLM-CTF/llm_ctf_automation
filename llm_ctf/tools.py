@@ -78,6 +78,7 @@ class CommandExec(Tool):
         self.container_name = challenge.container_name
         self.network = challenge.network
         self.volume = challenge.tmpdir
+        print(self.volume)
 
     def setup(self):
         self.start_docker()
@@ -213,6 +214,7 @@ class CreateFile(Tool):
         self.container_name = challenge.container_name
 
     def __call__(self, path=None, contents=None, decode_escapes=None):
+
         if path is None:
             return {"error": "No path provided"}
         if contents is None:
