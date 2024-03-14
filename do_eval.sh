@@ -26,6 +26,8 @@ for category in $categories; do
     for model in gpt-3.5-turbo-1106; do
         for chal in LLM_CTF_Database/"${category}"/*/challenge.json; do
             chalname=$(basename "$(dirname "$chal")")
+            echo $category
+            echo $chalname
             for i in {1..5}; do
                 log="logs/${category}/${chalname}/conversation.${model}.${i}.json"
                 if [ -f "${log}" ]; then

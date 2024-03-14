@@ -1,3 +1,5 @@
 ghidra_11.0_*
 /ghidra_11.0_*
 LLM_CTF_Database
+test.sh
+/logs

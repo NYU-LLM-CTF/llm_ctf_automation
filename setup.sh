@@ -4,7 +4,7 @@
 docker build -t ctfenv .
 
 # Build docker image for each challenge
-for d in chals/{pwn,crypto,web,misc}/*; do
+for d in LLM_CTF_Database/{rev}/*; do
     if [ -d "$d" ]; then
         echo "Building $d"
         image_name=$(jq -r .container_image < "$d"/challenge.json)
