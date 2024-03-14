@@ -1,5 +1,5 @@
-ghidra_11.0_*
-/ghidra_11.0_*
+ghidra_11.0*
+/ghidra_11.0*
 LLM_CTF_Database
 test.sh
 /logs

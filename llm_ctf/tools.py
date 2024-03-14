@@ -12,7 +12,7 @@ if TYPE_CHECKING:
     from llm_ctf_solve import CTFChallenge
 
 SCRIPT_DIR = Path(__file__).parent.parent.resolve()
-GHIDRA = SCRIPT_DIR / 'ghidra_11.0_PUBLIC/support/analyzeHeadless'
+GHIDRA = SCRIPT_DIR / 'ghidra_11.0.1_PUBLIC/support/analyzeHeadless'
 
 class Tool:
     def __init__(self, schema):
