@@ -71,4 +71,5 @@ RUN pip install pwntools ipython gmpy2
 
 # Copy in the entrypoint script
 COPY entrypoint.sh /home/$USERNAME/.entrypoint.sh
+COPY LLM_CTF_Database /home/$USERNAME
 CMD ["bash", "/home/ctfplayer/.entrypoint.sh"]
