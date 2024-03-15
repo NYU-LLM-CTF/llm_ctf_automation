@@ -23,3 +23,8 @@ do
     esac
 done
 
+chal_path="LLM_CTF_Database/$year/$event/$category/$chal"
+cd $chal_path
+echo "Building $d"
+image_name=$(jq -r .name < challenge.json)
+docker build -t "$image_name" "."
