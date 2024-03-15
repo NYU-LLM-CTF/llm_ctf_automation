@@ -23,7 +23,7 @@ done
 docker network create ctfnet
 
 # Download and unpack Ghidra
-if [ ! -d ghidra_11.0_PUBLIC ]; then
+if [ ! -d ghidra_11.0.1_PUBLIC ]; then
     wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_11.0.1_build/ghidra_11.0.1_PUBLIC_20240130.zip
     unzip ghidra_11.0.1_PUBLIC_20240130.zip
     rm ghidra_11.0.1_PUBLIC_20240130.zip
