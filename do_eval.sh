@@ -10,14 +10,8 @@ function cleanup_container {
     done
 }
 
-# if [ $# -eq 0 ]; then
-#     categories="rev pwn web crypto forensics misc"
-# else
-#     categories="$@"
-# fi
-
 if [ $# -eq 0 ]; then
-    categories="rev"
+    categories="rev pwn web crypto forensics misc"
 else
     categories="$@"
 fi
@@ -26,6 +20,7 @@ for category in $categories; do
     for model in gpt-3.5-turbo-1106; do
         for chal in LLM_CTF_Database/"${category}"/*/challenge.json; do
             chalname=$(basename "$(dirname "$chal")")
+            echo $chal
             echo $category
             echo $chalname
             for i in {1..5}; do
