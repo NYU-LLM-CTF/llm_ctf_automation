@@ -1,7 +1,7 @@
 # LLM CTF Automation Guide
 
 Two repositories are used to reproduce the whole experiment: LLM_CTF_Database and llm_ctf_automation. 
-[LLM_CTF_Database](https://github.com/sj2790/LLM_CTF_Database) repository contains all CTF challenges we used for our experiments. 
+[LLM_CTF_Database](https://github.com/sj2790/LLM_CTF_Database) repository contains all CTF challenges. 
 The [llm_ctf_automation](https://github.com/NickNameInvalid/llm_ctf_automation) repository is the framework needed for conducting the experiments.
 
 **Step 1**
