@@ -78,7 +78,6 @@ class CommandExec(Tool):
         self.container_name = challenge.container_name
         self.network = challenge.network
         self.volume = challenge.tmpdir
-        print(self.volume)
 
     def setup(self):
         self.start_docker()
