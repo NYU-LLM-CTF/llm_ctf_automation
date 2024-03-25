@@ -1,6 +1,8 @@
 ghidra_11.0*
 /ghidra_11.0*
+decomp/
 LLM_CTF_Database
 test.sh
 /logs
 *.pyc
+__pycache__/
