@@ -1,38 +1,96 @@
 #!/usr/bin/env python3
 
-import re
 import json
 import subprocess
 import tempfile
-from ctflogging import status
+
+from .utils import CALL_ID
+from .ctflogging import status
+from dataclasses import dataclass
 from pathlib import Path
 
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any, NamedTuple, Optional
 if TYPE_CHECKING:
     from llm_ctf_solve import CTFChallenge
 
 SCRIPT_DIR = Path(__file__).parent.parent.resolve()
 GHIDRA = SCRIPT_DIR / 'ghidra_11.0.1_PUBLIC/support/analyzeHeadless'
 
+# Some helpful classes for tool-related things
+class ToolFunction:
+    def __init__(self, name : str, arguments : Any = None, parsed_arguments : Optional[dict[str,Any]] = None):
+        self.name = name
+        self.arguments = arguments
+        self.parsed_arguments = parsed_arguments
+
+    def clone(self):
+        return ToolFunction(self.name, self.arguments, self.parsed_arguments)
+
+class ToolCall:
+    def __init__(self, name, id, arguments=None, parsed_arguments=None):
+        if id is None:
+            id = CALL_ID()
+        self.id = id
+        self.function = ToolFunction(name, arguments, parsed_arguments)
+        self.type = "function"
+
+    def error(self, message):
+        return ToolResult(self.name, self.id, {"error": message})
+
+    @classmethod
+    def make(cls, name, id, arguments):
+        return cls(name, id, arguments=arguments)
+
+    @classmethod
+    def make_parsed(cls, name, id, parsed_arguments):
+        return cls(name, id, parsed_arguments=parsed_arguments)
+
+    def clone(self):
+        return ToolCall(
+            self.name,
+            self.id,
+            self.function.arguments,
+            self.function.parsed_arguments
+        )
+
+    def __str__(self) -> str:
+        if self.function.parsed_arguments:
+            return f"{self.name}({self.function.parsed_arguments})"
+        elif self.function.arguments:
+            return f"{self.name}({self.function.arguments})"
+        else:
+            return f"{self.name}([arguments unset])"
+
+    @property
+    def name(self):
+        return self.function.name
+
+@dataclass
+class ToolResult:
+    name: str
+    """The name of the tool that was run"""
+    id: str
+    """The ID of the tool call"""
+    result: dict[str, Any]
+    """The result of running the tool"""
+
 class Tool:
-    def __init__(self, schema):
-        self.schema = schema
-        self.name = schema['function']['name']
-        self.description = schema['function']['description']
-        self.parameters = schema['function']['parameters']
+    SCHEMA : dict
+    def __init__(self, challenge: Optional["CTFChallenge"] = None):
+        self.schema = self.SCHEMA
+        self.name = self.schema['function']['name']
+        self.description = self.schema['function']['description']
+        self.parameters = self.schema['function']['parameters']
 
-    def extract_parameters(self, message):
-        """Extract parameters from a message"""
-        arguments = {}
-        for param_name in self.parameters['properties']:
-            arguments[param_name] = message.get(param_name)
-        return arguments
+    def make_call(self, id: Optional[str] = None, **kwargs) -> ToolCall:
+        return ToolCall.make_parsed(self.name, id, kwargs)
 
-    def run(self, message):
+    def run(self, tc : ToolCall) -> ToolResult:
         """Run the tool on a message, returning a JSON string"""
-        arguments = self.extract_parameters(message)
-        result = self(**arguments)
-        return json.dumps(result)
+        if tc.function.parsed_arguments is None:
+            raise ValueError("ToolCall must have parsed_arguments set")
+        result = self(**tc.function.parsed_arguments)
+        return ToolResult(tc.name, tc.id, result)
 
     def setup(self):
         """Setup the tool"""
@@ -49,36 +107,35 @@ class Tool:
     def __repr__(self):
         return f"<Tool {self.name}>"
 
-COMMAND_EXEC_TOOL = {
-    "type": "function",
-    "function": {
-        "name": "run_command",
-        "description": "Execute a command in an Ubuntu container (persistent across calls)",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "command": {
-                    "type": "string",
-                    "description": "the command to run",
-                },
-                "timeout": {
-                    "type": "integer",
-                    "description": "the maximum number of seconds to run the command (defaults to 10)",
-                }
-            },
-            "required": ["command"],
-        },
-    },
-}
 class CommandExec(Tool):
+    SCHEMA = {
+        "type": "function",
+        "function": {
+            "name": "run_command",
+            "description": "Execute a command in an Ubuntu container (persistent across calls)",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "command": {
+                        "type": "string",
+                        "description": "the command to run",
+                    },
+                    "timeout": {
+                        "type": "integer",
+                        "description": "the maximum number of seconds to run the command (defaults to 10)",
+                    }
+                },
+                "required": ["command"],
+            },
+        },
+    }
     def __init__(self, challenge: "CTFChallenge"):
-        super().__init__(COMMAND_EXEC_TOOL)
+        super().__init__()
         self.challenge = challenge
         self.container_image = challenge.container_image
         self.container_name = challenge.container_name
         self.network = challenge.network
         self.volume = challenge.tmpdir
-        print(self.volume)
 
     def setup(self):
         self.start_docker()
@@ -117,11 +174,11 @@ class CommandExec(Tool):
             return None
         return text.decode('utf-8', errors='backslashreplace').replace('\r\n', '\n')
 
-    def run_cmd(self, command, timeout=10):
+    def run_cmd(self, command, timeout=10.0):
         """Run a command in the docker container and return
         {"stdout": stdout, "stderr": stderr, "returncode": returncode, "timed_out": timed_out}
         """
-        if timeout is None: timeout = 10
+        if timeout is None: timeout = 10.0
         status.debug_message(f"Running command with timeout={timeout}:\n{command}")
         try:
             p = subprocess.run(
@@ -140,31 +197,31 @@ class CommandExec(Tool):
             err = self._clean(e.stderr)
             return {"stdout": out, "stderr": err, "returncode": e.returncode, "timed_out": False}
 
-    def __call__(self, command, timeout=10):
+    def __call__(self, command: str, timeout: float = 10.0):
         if command is None:
             return {"error": "No command provided"}
         return self.run_cmd(command, timeout)
 
-CHECKFLAG_TOOL = {
-    "type": "function",
-    "function": {
-        "name": "checkflag",
-        "description": "Check if a flag is correct",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "flag": {
-                    "type": "string",
-                    "description": "the flag to check",
-                },
-            },
-            "required": ["flag"],
-        },
-    },
-}
 class CheckFlag(Tool):
+    SCHEMA = {
+        "type": "function",
+        "function": {
+            "name": "checkflag",
+            "description": "Check if a flag is correct",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "flag": {
+                        "type": "string",
+                        "description": "the flag to check",
+                    },
+                },
+                "required": ["flag"],
+            },
+        },
+    }
     def __init__(self, challenge: "CTFChallenge"):
-        super().__init__(CHECKFLAG_TOOL)
+        super().__init__()
         self.challenge = challenge
         self.real_flag = challenge.real_flag
 
@@ -182,39 +239,38 @@ class CheckFlag(Tool):
             status.print(f"[red bold]Incorrect flag.[/red bold]", markup=True)
             return {"correct": False}
 
-CREATEFILE_TOOL = {
-    "type": "function",
-    "function": {
-        "name": "createfile",
-        "description": "create a file in the container with the given contents",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "path": {
-                    "type": "string",
-                    "description": "path where the file should be created; relative paths will be relative to /home/ctfplayer/",
-                },
-                "contents": {
-                    "type": "string",
-                    "description": "contents of the file",
-                },
-                "decode_escapes": {
-                    "type": "boolean",
-                    "description": "whether to decode escape sequences in the contents (defaults to False)",
-                },
-            },
-            "required": ["path", "contents"],
-        },
-    },
-}
 class CreateFile(Tool):
+    SCHEMA = {
+        "type": "function",
+        "function": {
+            "name": "createfile",
+            "description": "create a file in the container with the given contents",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "path": {
+                        "type": "string",
+                        "description": "path where the file should be created; relative paths will be relative to /home/ctfplayer/",
+                    },
+                    "contents": {
+                        "type": "string",
+                        "description": "contents of the file",
+                    },
+                    "decode_escapes": {
+                        "type": "boolean",
+                        "description": "whether to decode escape sequences in the contents (defaults to False)",
+                    },
+                },
+                "required": ["path", "contents"],
+            },
+        },
+    }
     def __init__(self, challenge: "CTFChallenge"):
-        super().__init__(CREATEFILE_TOOL)
+        super().__init__()
         self.challenge = challenge
         self.container_name = challenge.container_name
 
-    def __call__(self, path=None, contents=None, decode_escapes=None):
-
+    def __call__(self, path: str, contents: str, decode_escapes: bool = False):
         if path is None:
             return {"error": "No path provided"}
         if contents is None:
@@ -264,34 +320,34 @@ class CreateFile(Tool):
             except subprocess.CalledProcessError as e:
                 return {"error": f"Error copying file into container: {e.stderr.decode('utf-8', errors='backslashreplace')}"}
 
-DECOMPILE_TOOL = {
-    "type": "function",
-    "function": {
-        "name": "decompile_function",
-        "description": "Decompile a function from a binary using Ghidra",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "binary": {
-                    "type": "string",
-                    "description": "the binary to decompile",
-                },
-                "function": {
-                    "type": "string",
-                    "description": "the function to decompile (defaults to main)",
-                },
-            },
-            "required": ["binary", "function"],
-        },
-    },
-}
 class Decompile(Tool):
+    SCHEMA = {
+        "type": "function",
+        "function": {
+            "name": "decompile_function",
+            "description": "Decompile a function from a binary using Ghidra",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "binary": {
+                        "type": "string",
+                        "description": "the binary to decompile",
+                    },
+                    "function": {
+                        "type": "string",
+                        "description": "the function to decompile (defaults to main)",
+                    },
+                },
+                "required": ["binary"],
+            },
+        },
+    }
     def __init__(self, challenge: "CTFChallenge"):
-        super().__init__(DECOMPILE_TOOL)
+        super().__init__()
         self.challenge = challenge
         self._decomp_cache = {}
 
-    def __call__(self, binary=None, function=None):
+    def __call__(self, binary: str, function: Optional[str] = 'main'):
         if binary is None:
             return {"error": "No binary provided"}
         if function is None:
@@ -335,38 +391,34 @@ class Decompile(Tool):
             )
             return output.exists()
 
-DISASSEMBLE_TOOL = {
-    "type": "function",
-    "function": {
-        "name": "disassemble_function",
-        "description": "Disassemble a function from a binary using Ghidra",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "binary": {
-                    "type": "string",
-                    "description": "the binary to disassemble",
-                },
-                "function": {
-                    "type": "string",
-                    "description": "the function to disassemble (defaults to main)",
-                },
-            },
-            "required": ["binary", "function"],
-        },
-    },
-}
-
-class GiveUpException(Exception):
-    pass
-
 class Disassemble(Tool):
+    SCHEMA = {
+        "type": "function",
+        "function": {
+            "name": "disassemble_function",
+            "description": "Disassemble a function from a binary using Ghidra",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "binary": {
+                        "type": "string",
+                        "description": "the binary to disassemble",
+                    },
+                    "function": {
+                        "type": "string",
+                        "description": "the function to disassemble (defaults to main)",
+                    },
+                },
+                "required": ["binary"],
+            },
+        },
+    }
     def __init__(self, challenge: "CTFChallenge"):
-        super().__init__(DISASSEMBLE_TOOL)
+        super().__init__()
         self.challenge = challenge
         self._disasm_cache = {}
 
-    def __call__(self, binary=None, function=None):
+    def __call__(self, binary: str, function: Optional[str] = 'main'):
         if function is None:
             function = "main"
         if binary is None:
@@ -411,33 +463,35 @@ class Disassemble(Tool):
             )
             return output.exists()
 
+class GiveUpException(Exception):
+    pass
+
 class GiveUp(Tool):
+    SCHEMA = {
+        "type": "function",
+        "function": {
+            "name": "give_up",
+            "description": "Give up on the challenge",
+            "parameters": {
+                "type": "object",
+                "properties": {
+                    "confirm": {
+                        "type": "boolean",
+                        "description": "a boolean flag to confirm that you want to give up",
+                    },
+                },
+                "required": ["confirm"],
+            },
+        },
+    }
     def __init__(self, challenge: "CTFChallenge"):
-        super().__init__(GIVEUP_TOOL)
+        super().__init__()
         self.challenge = challenge
 
-    def __call__(self, confirm=None):
+    def __call__(self, confirm: bool):
         if not confirm:
             return {"error": "You must confirm that you want to give up"}
         raise GiveUpException()
-
-GIVEUP_TOOL = {
-    "type": "function",
-    "function": {
-        "name": "give_up",
-        "description": "Give up on the challenge",
-        "parameters": {
-            "type": "object",
-            "properties": {
-                "confirm": {
-                    "type": "boolean",
-                    "description": "a boolean flag to confirm that you want to give up",
-                },
-            },
-            "required": ["confirm"],
-        },
-    },
-}
 
 DEFAULT_TOOLSET = [ CommandExec, CheckFlag, CreateFile, Decompile, Disassemble, GiveUp ]
 

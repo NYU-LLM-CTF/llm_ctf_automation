@@ -20,7 +20,7 @@ class Status:
             return
         if not self.quiet:
             self.console.print("\n[Assistant]", style="blue bold")
-            self.console.print(Markdown(message), width=72)
+            self.console.print(Markdown(message, code_theme='default'), width=72)
             self._last = "ASSISTANT"
 
     def user_message(self, message):
@@ -29,13 +29,13 @@ class Status:
         if not self.quiet:
             print()
             self.console.print("\n[User]", style="green bold")
-            self.console.print(Markdown(message), width=72)
+            self.console.print(Markdown(message, code_theme='default'), width=72)
             self._last = "USER"
 
     def system_message(self, message):
         if not self.quiet:
             self.console.print("System Prompt:", style="red bold")
-            self.console.print(Markdown(message), width=72)
+            self.console.print(Markdown(message, code_theme='default'), width=72)
             self._last = "SYSTEM"
 
     def debug_message(self, message, truncate=False):

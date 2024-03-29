@@ -1,2 +1,4 @@
 openai
 rich
+ruamel.yaml
+bs4

@@ -2,33 +2,20 @@ from datetime import datetime
 import re
 import subprocess
 import tempfile
+import time
 from openai import OpenAI
 import json, os
 import argparse
 import shutil
 from pathlib import Path
-from ctflogging import status
-from tools import TOOLSETS, GiveUpException
+from llm_ctf.backends.backend import Role
+from llm_ctf.ctflogging import status
+from llm_ctf.backends import Backend
+from llm_ctf.formatters import Formatter
+from llm_ctf.tools import TOOLSETS, GiveUpException
 import traceback as tb
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
-
-MODELS = [
-    "gpt-4-1106-preview",
-    "gpt-4-0125-preview",
-    "gpt-3.5-turbo-1106",
-]
-# MODEL = "gpt-4-1106-preview"
-OPENAI_API_KEY = open(os.path.expanduser("~/.openai/api_key"), "r").read().strip()
-client = OpenAI(
-    api_key=OPENAI_API_KEY
-)
-
-# MODEL = "mistralai/Mixtral-8x7B-Instruct-v0.1"
-# client = OpenAI(
-#     api_key="EMPTY",
-#     base_url="https://aa8569654293.ngrok.app/v1"
-# )
 
 category_friendly = {
     "rev": "reverse engineering",
@@ -103,6 +90,7 @@ class CTFChallenge:
             return self.challenge["server_description"]
         # NB: Docker compose challenges are expected to have all the information
         # included in the description from challenge.json
+        # TODO: simplify this / make it consistent
         if self.challenge_container:
             if self.category == "web" or self.category == "misc" and self.challenge.get("proto") != "nc":
                 return f"The challenge web server is running on `{self.challenge_container}` port `{self.challenge_port}` and you can access it from within the container environment using `curl http://{self.challenge_container}:{self.challenge_port}`.\n\n"
@@ -186,74 +174,49 @@ class CTFConversation:
     def __init__(self, challenge : CTFChallenge, args : argparse.Namespace):
         self.args = args
         self.chal = challenge
-        self.messages = [
-            {"role": "system", "content": SYSTEM_MESSAGE},
-        ]
+        # List of messages in the conversation; will be initialized in __enter__
+        # so that tools can be initialized first
+        self.messages = None
         self.tool_choice = "auto"
         self.volume = self.chal.tmpdir
         self.available_functions = {}
         for tool in TOOLSETS.get(self.chal.category, TOOLSETS['default']):
             tool_instance = tool(self.chal)
             self.available_functions[tool_instance.name] = tool_instance
-        self.tool_schemas = [tool.schema for tool in self.available_functions.values()]
         self.rounds = 0
         self.start_time = datetime.now()
         self.finish_reason = "unknown"
+        self.backend = Backend.from_name(args.backend)(
+            SYSTEM_MESSAGE,
+            self.available_functions.values(),
+            self.args,
+        )
+        self.times = {
+            'model_time': 0.0,
+            'tool_time': 0.0,
+        }
 
     def __enter__(self):
-        status.system_message(SYSTEM_MESSAGE)
         for tool in self.available_functions.values():
             tool.setup()
+        self.backend.setup()
+        status.system_message(SYSTEM_MESSAGE)
         return self
 
-    def run_tools(self, tool_calls):
-        tool_results = []
-        for tool_call in tool_calls:
-            function_name = tool_call.function.name
-            tool = self.available_functions.get(function_name)
-            if not tool:
-                function_response = json.dumps({"error": f"Unknown function {function_name}"})
-            else:
-                try:
-                    function_args = json.loads(tool_call.function.arguments)
-                    status.debug_message(f"Calling {function_name}({function_args})")
-                    function_response = tool.run(function_args)
-                    status.debug_message(f"=> {function_response}", truncate=True)
-                except json.JSONDecodeError as e:
-                    status.debug_message(f"Error decoding arguments for {function_name}: {e}")
-                    status.debug_message(f"Arguments: {tool_call.function.arguments}")
-                    function_response = json.dumps(
-                        {"error": f"{type(e).__name__} decoding arguments for {function_name}: {e}"}
-                    )
-            tool_results.append({
-                "tool_call_id": tool_call.id,
-                "role": "tool",
-                "name": function_name,
-                "content": function_response,
-            })
-        return tool_results
-
-    def run_conversation_step(self, message):
-        self.messages.append({"role": "user", "content": message})
+    def run_conversation_step(self, message: str):
         status.user_message(message)
         # Step 1: send the initial message to the model
-        response = client.chat.completions.create(
-            model=self.args.model,
-            messages=self.messages,
-            tools=self.tool_schemas,
-            tool_choice=self.tool_choice,
-        )
-        response_message = response.choices[0].message
-        tool_calls = response_message.tool_calls
-        yield response_message.content
-        if not response_message.content:
+        st = time.time()
+        content, tool_calls = self.backend.send(message)
+        self.times['model_time'] += time.time() - st
+        if not content:
             if tool_calls:
                 status.assistant_message("🤔 ...thinking... 🤔")
             else:
                 status.assistant_message("[ no response ]")
         else:
-            status.assistant_message(response_message.content)
-        self.messages.append(response_message)  # extend conversation with assistant's reply
+            status.assistant_message(content)
+        yield content
 
         # Check if the conversation has gone on too long
         self.rounds += 1
@@ -268,31 +231,22 @@ class CTFConversation:
         # Step 2: if the model wants to call functions, call them and send back the results,
         # repeating until the model doesn't want to call any more functions
         while tool_calls:
-            tool_results = self.run_tools(tool_calls)
-            self.messages.extend(tool_results)
+            st = time.time()
+            content, tool_calls = self.backend.run_tools()
+            self.times['tool_time'] += time.time() - st
             # Send the tool results back to the model
-            response = client.chat.completions.create(
-                model=self.args.model,
-                messages=self.messages,
-                tools=self.tool_schemas,
-                tool_choice=self.tool_choice,
-            )
-            response_message = response.choices[0].message
-            tool_calls = response_message.tool_calls
-            if not response_message.content:
+            st = time.time()
+            self.times['model_time'] += time.time() - st
+            if not content:
                 if tool_calls:
                     status.assistant_message("🤔 ...thinking... 🤔")
                 else:
                     status.assistant_message("[ no response ]")
             else:
-                status.assistant_message(response_message.content)
-            # extend conversation with assistant's reply; we do this before yielding
-            # the response so that if we end up exiting the conversation loop, the
-            # conversation will be saved with the assistant's reply
-            self.messages.append(response_message)
+                status.assistant_message(content)
 
             # Return control to the caller so they can check the response for the flag
-            yield response_message.content
+            yield content
 
             # Check if the conversation has gone on too long
             self.rounds += 1
@@ -334,10 +288,7 @@ class CTFConversation:
         logfilename.write_text(json.dumps(
             {
                 "args": vars(self.args),
-                "messages": [
-                    (m if isinstance(m, dict) else m.model_dump())
-                    for m in self.messages
-                ],
+                "messages": self.backend.get_message_log(),
                 "challenge": self.chal.challenge,
                 "solved": self.chal.solved,
                 "rounds": self.rounds,
@@ -345,6 +296,7 @@ class CTFConversation:
                 "start_time": self.start_time.isoformat(),
                 "end_time": self.end_time.isoformat(),
                 "runtime_seconds": (self.end_time - self.start_time).total_seconds(),
+                "times": self.times,
                 "exception_info": exception_info,
                 "finish_reason": self.finish_reason,
             },
@@ -363,11 +315,15 @@ def main():
     parser.add_argument("challenge_json", help="path to the JSON file describing the challenge")
     parser.add_argument("-q", "--quiet", action="store_true", help="don't print messages to the console")
     parser.add_argument("-d", "--debug", action="store_true", help="print debug messages")
-    parser.add_argument("-M", "--model", choices=MODELS, default=MODELS[0], help="the model to use")
+    parser.add_argument("-M", "--model", help="the model to use (default is backend-specific)")
     parser.add_argument("-C", "--container-image", default="ctfenv", help="the Docker image to use for the CTF environment")
     parser.add_argument("-N", "--network", default="ctfnet", help="the Docker network to use for the CTF environment")
     parser.add_argument("-m", "--max-rounds", type=int, default=100, help="maximum number of rounds to run")
     parser.add_argument("-L", "--logfile", default=None, help="log file to write to")
+    parser.add_argument("--api-key", default=None, help="API key to use when calling the model")
+    parser.add_argument("--api-endpoint", default=None, help="API endpoint URL to use when calling the model")
+    parser.add_argument("--backend", default="openai", choices=Backend.registry.keys(), help="model backend to use")
+    parser.add_argument("--formatter", default="xml", choices=Formatter.registry.keys(), help="prompt formatter to use")
     args = parser.parse_args()
     status.set(quiet=args.quiet, debug=args.debug)
     challenge_json = Path(args.challenge_json).resolve()
@@ -407,6 +363,9 @@ def main():
                 markup=True
             )
             convo.finish_reason = "user_cancel"
+            if args.debug:
+                # Print traceback
+                tb.print_exc()
             return 0
 
 if __name__ == "__main__":
