@@ -40,6 +40,10 @@ class MixtralBackend(Backend):
         )
         self.system_message = system_message
 
+    @classmethod
+    def get_models(cls):
+        return MODELS
+
     def setup(self):
         self.messages = self.get_initial_messages(self.system_message)
 
@@ -113,13 +117,9 @@ class MixtralBackend(Backend):
                 continue
 
             # Tool execution
-            try:
-                status.debug_message(f"Calling {parsed_tc}")
-                result = tool.run(parsed_tc)
-                status.debug_message(f"=> {result.result}", truncate=True)
-            except Exception as e:
-                status.debug_message(f"Error running {function_name}: {e}")
-                result = tool_call.error(f"{type(e).__name__} running {function_name}: {e}")
+            status.debug_message(f"Calling {parsed_tc}")
+            result = tool.run(parsed_tc)
+            status.debug_message(f"=> {result.result}", truncate=True)
             tool_results.append(result)
         return tool_results
 

@@ -55,5 +55,13 @@ class Backend(ABC):
         raise NotImplementedError
 
     @classmethod
+    @abstractmethod
+    def get_models(cls) -> List[str]:
+        """
+        Get the available models for this backend.
+        """
+        raise NotImplementedError
+
+    @classmethod
     def from_name(cls, name : str) -> Type['Backend']:
         return cls.registry[name.lower()]

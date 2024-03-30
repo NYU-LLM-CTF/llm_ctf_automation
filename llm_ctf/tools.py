@@ -86,7 +86,7 @@ class Tool:
         return ToolCall.make_parsed(self.name, id, kwargs)
 
     def run(self, tc : ToolCall) -> ToolResult:
-        """Run the tool on a message, returning a JSON string"""
+        """Run the tool on a ToolCall, returning a ToolResult"""
         if tc.function.parsed_arguments is None:
             raise ValueError("ToolCall must have parsed_arguments set")
         result = self(**tc.function.parsed_arguments)
@@ -225,7 +225,7 @@ class CheckFlag(Tool):
         self.challenge = challenge
         self.real_flag = challenge.real_flag
 
-    def __call__(self, flag=None):
+    def __call__(self, flag: str):
         if flag is None:
             return {"error": "No flag provided"}
         status.print(f"Checking flag:")

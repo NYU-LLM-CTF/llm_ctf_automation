@@ -17,6 +17,7 @@ MODELS = [
     "gpt-4-0125-preview",
     "gpt-3.5-turbo-1106",
 ]
+API_KEY_PATH = "~/.openai/api_key"
 
 def get_tool_calls(otc_calls : List[OAIToolCall]) -> List[ToolCall]:
     return [ToolCall.make(otc.function.name, otc.id, otc.function.arguments) for otc in otc_calls]
@@ -36,10 +37,10 @@ class OpenAIBackend(Backend):
         if args.api_key is None:
             if "OPENAI_API_KEY" in os.environ:
                 api_key = os.environ["OPENAI_API_KEY"]
-            elif os.path.exists(os.path.expanduser("~/.openai/api_key")):
-                api_key = open(os.path.expanduser("~/.openai/api_key"), "r").read().strip()
+            elif os.path.exists(os.path.expanduser(API_KEY_PATH)):
+                api_key = open(os.path.expanduser(API_KEY_PATH), "r").read().strip()
             else:
-                raise ValueError("No OpenAI API key provided and none found in OPENAI_API_KEY or ~/.openai/api_key")
+                raise ValueError(f"No OpenAI API key provided and none found in OPENAI_API_KEY or {API_KEY_PATH}")
         self.client = OpenAI(api_key=api_key)
         self.tools = {tool.name: tool for tool in tools}
         self.tool_schemas = [ChatCompletionToolParam(**tool.schema) for tool in tools]
@@ -59,6 +60,10 @@ class OpenAIBackend(Backend):
         return [
             self._system_message(system_message),
         ]
+
+    @classmethod
+    def get_models(cls):
+        return MODELS
 
     def _call_model(self) -> ChatCompletionMessage:
         return self.client.chat.completions.create(
@@ -115,6 +120,8 @@ class OpenAIBackend(Backend):
                 tool_results.append(make_call_result(tool_res))
                 continue
 
+            # Tool execution
+            status.debug_message(f"Calling {arguments}")
             tool_res_plain = tool.run(arguments)
             status.debug_message(f"=> {tool_res_plain.result}", truncate=True)
             try:
