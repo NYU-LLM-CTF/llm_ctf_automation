@@ -1,4 +1,3 @@
-import inspect
 from .ctflogging import status
 
 class CallIDGenerator:

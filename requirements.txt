@@ -1,4 +1,6 @@
 openai
+anthropic
 rich
 ruamel.yaml
 bs4
+ToolDefGenerator @ git+https://github.com/moyix/ToolDefGenerator@main
