@@ -109,7 +109,7 @@ class YAMLFormatter(Formatter):
                     yaml_lines.insert(i+1, ' '*indent + "# ...")
                     break
             yaml_str = '\n'.join(yaml_lines)
-        return f"{TOOL_USE_START}\n" + _md(yaml_str) + f"\n\n{TOOL_USE_STOP}\n"
+        return f"{TOOL_USE_START}\n" + _md(yaml_str) + f"\n{TOOL_USE_STOP}"
 
     def extract_content(self, message):
         content = message.split(TOOL_USE_START)[0].strip()

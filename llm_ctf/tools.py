@@ -145,27 +145,6 @@ class Tool:
 
 class CommandExec(Tool):
     NAME = "run_command"
-    # SCHEMA = {
-    #     "type": "function",
-    #     "function": {
-    #         "name": "run_command",
-    #         "description": "Execute a command in an Ubuntu container (persistent across calls)",
-    #         "parameters": {
-    #             "type": "object",
-    #             "properties": {
-    #                 "command": {
-    #                     "type": "string",
-    #                     "description": "the command to run",
-    #                 },
-    #                 "timeout": {
-    #                     "type": "integer",
-    #                     "description": "the maximum number of seconds to run the command (defaults to 10)",
-    #                 }
-    #             },
-    #             "required": ["command"],
-    #         },
-    #     },
-    # }
     def __init__(self, challenge: "CTFChallenge"):
         super().__init__()
         self.challenge = challenge
@@ -242,23 +221,6 @@ class CommandExec(Tool):
         return self.run_cmd(command, timeout)
 
 class CheckFlag(Tool):
-    # SCHEMA = {
-    #     "type": "function",
-    #     "function": {
-    #         "name": "checkflag",
-    #         "description": "Check if a flag is correct",
-    #         "parameters": {
-    #             "type": "object",
-    #             "properties": {
-    #                 "flag": {
-    #                     "type": "string",
-    #                     "description": "the flag to check",
-    #                 },
-    #             },
-    #             "required": ["flag"],
-    #         },
-    #     },
-    # }
     NAME = "check_flag"
     def __init__(self, challenge: "CTFChallenge"):
         super().__init__()
@@ -281,31 +243,6 @@ class CheckFlag(Tool):
             return {"correct": False}
 
 class CreateFile(Tool):
-    # SCHEMA = {
-    #     "type": "function",
-    #     "function": {
-    #         "name": "createfile",
-    #         "description": "create a file in the container with the given contents",
-    #         "parameters": {
-    #             "type": "object",
-    #             "properties": {
-    #                 "path": {
-    #                     "type": "string",
-    #                     "description": "path where the file should be created; relative paths will be relative to /home/ctfplayer/",
-    #                 },
-    #                 "contents": {
-    #                     "type": "string",
-    #                     "description": "contents of the file",
-    #                 },
-    #                 "decode_escapes": {
-    #                     "type": "boolean",
-    #                     "description": "whether to decode escape sequences in the contents (defaults to False)",
-    #                 },
-    #             },
-    #             "required": ["path", "contents"],
-    #         },
-    #     },
-    # }
     NAME = "createfile"
     def __init__(self, challenge: "CTFChallenge"):
         super().__init__()
@@ -367,27 +304,6 @@ class CreateFile(Tool):
                 return {"error": f"Error copying file into container: {e.stderr.decode('utf-8', errors='backslashreplace')}"}
 
 class Decompile(Tool):
-    # SCHEMA = {
-    #     "type": "function",
-    #     "function": {
-    #         "name": "decompile_function",
-    #         "description": "Decompile a function from a binary using Ghidra",
-    #         "parameters": {
-    #             "type": "object",
-    #             "properties": {
-    #                 "path": {
-    #                     "type": "string",
-    #                     "description": "path to the binary to decompile",
-    #                 },
-    #                 "function": {
-    #                     "type": "string",
-    #                     "description": "the function to decompile (defaults to main)",
-    #                 },
-    #             },
-    #             "required": ["binary"],
-    #         },
-    #     },
-    # }
     NAME = "decompile_function"
     def __init__(self, challenge: "CTFChallenge"):
         super().__init__()
@@ -442,27 +358,6 @@ class Decompile(Tool):
             return output.exists()
 
 class Disassemble(Tool):
-    # SCHEMA = {
-    #     "type": "function",
-    #     "function": {
-    #         "name": "disassemble_function",
-    #         "description": "Disassemble a function from a binary using Ghidra",
-    #         "parameters": {
-    #             "type": "object",
-    #             "properties": {
-    #                 "path": {
-    #                     "type": "string",
-    #                     "description": "path to the binary to disassemble",
-    #                 },
-    #                 "function": {
-    #                     "type": "string",
-    #                     "description": "the function to disassemble (defaults to main)",
-    #                 },
-    #             },
-    #             "required": ["binary"],
-    #         },
-    #     },
-    # }
     NAME = "disassemble_function"
     def __init__(self, challenge: "CTFChallenge"):
         super().__init__()
@@ -521,23 +416,6 @@ class GiveUpException(Exception):
     pass
 
 class GiveUp(Tool):
-    # SCHEMA = {
-    #     "type": "function",
-    #     "function": {
-    #         "name": "give_up",
-    #         "description": "Give up on the challenge",
-    #         "parameters": {
-    #             "type": "object",
-    #             "properties": {
-    #                 "confirm": {
-    #                     "type": "boolean",
-    #                     "description": "a boolean flag to confirm that you want to give up",
-    #                 },
-    #             },
-    #             "required": ["confirm"],
-    #         },
-    #     },
-    # }
     NAME = "give_up"
     def __init__(self, challenge: "CTFChallenge"):
         super().__init__()

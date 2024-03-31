@@ -7,12 +7,6 @@ from typing import List, Tuple
 TOOL_USE_START = '<function_calls>'
 TOOL_USE_STOP = '</function_calls>'
 
-
-def pretty_xml(xml: str) -> str:
-    """Return a pretty-printed version of the XML string."""
-    soup = BeautifulSoup(xml, "html.parser")
-    return soup.prettify()
-
 class XMLFormatter(Formatter):
     NAME = 'xml'
 
@@ -44,7 +38,7 @@ class XMLFormatter(Formatter):
         return constructed_prompt
 
     def format_tools(self, tools : List[Tool]) -> str:
-        return pretty_xml("<tools>\n" + '\n'.join([self.format_tool(tool) for tool in tools]) + "</tools>")
+        return "<tools>\n" + '\n'.join([self.format_tool(tool) for tool in tools]) + "</tools>"
 
     def format_result(self, tr : ToolResult) -> str:
         res = "\n".join([f"<{key}>{value}</{key}>" for key, value in tr.result.items()])
