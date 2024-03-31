@@ -10,6 +10,7 @@ from pathlib import Path
 from ctflogging import status
 from tools import TOOLSETS, GiveUpException
 import traceback as tb
+from utils.config import Config
 
 SCRIPT_DIR = Path(__file__).parent.parent.resolve()
 
@@ -23,6 +24,9 @@ OPENAI_API_KEY = open(os.path.expanduser("~/.openai/api_key"), "r").read().strip
 client = OpenAI(
     api_key=OPENAI_API_KEY
 )
+
+GPT_CONFIG_DIR = Path(__file__).parent.parent.parent.joinpath("config")
+gpt_config = Config(GPT_CONFIG_DIR.joinpath("config_gpt.json"))
 
 # MODEL = "mistralai/Mixtral-8x7B-Instruct-v0.1"
 # client = OpenAI(
