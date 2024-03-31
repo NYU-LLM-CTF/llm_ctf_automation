@@ -6,6 +6,9 @@ import subprocess
 import tempfile
 from ctflogging import status
 from pathlib import Path
+from googlesearch import search
+import requests
+import bs4
 
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
@@ -48,6 +51,70 @@ class Tool:
 
     def __repr__(self):
         return f"<Tool {self.name}>"
+    
+WEB_SEARCH_TOOL = {
+    "type": "function",
+    "function": {
+        "name": "search_web",
+        "description": "Search the web for external access",
+        "parameters": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "query setence to search the web",
+                },
+                "number": {
+                    "type": "integer",
+                    "description": "number of results returned",
+                },
+                "pause": {
+                    "type": "integer",
+                    "description": "lapse to wait between HTTP requests"
+                },
+                "timeout": {
+                    "type": "integer",
+                    "description": "maximum time to request the web resouce",
+                }
+            },
+            "required": ["query"],
+        },
+    },
+}
+class WebSearch(Tool):
+    def __init__(self, challenge: "CTFChallenge"):
+        super().__init__(WEB_SEARCH_TOOL)
+        self.challenge = challenge
+        
+    def _get_webs(self, query, number=3, pause=2):
+        return [j for j in search(query=query, num=number, stop=number, pause=2)]
+    
+    def search_web(self, query, number=3, pause=2, timeout=30):
+        web_contents = []
+        urls = self._get_webs(query, number, pause)
+        for i in urls:
+            web_body = self._parse_web(i, timeout)
+            if web_body:
+                web_contents.append(web_contents)
+        return urls, web_contents
+    
+    def _parse_web(self, url, timeout=30):
+        try:
+            res = requests.get(url, timeout=timeout)
+            soup  = bs4.BeautifulSoup(res.text, 'html.parser')
+            elems = soup.select('body')
+            if elems:
+                return elems
+            else:
+                status.debug_message(f"No main body in {url}")
+                return None
+        except requests.exceptions.Timeout:
+            print(f"Timeout on {url}, skipping")
+            return None
+
+    def __call__(self, query, number=3, pause=2, timeout=30):
+        urls, webs = self.search_web(query, number, pause, timeout)
+        return {"url": "\n".join(urls), "contents": "\n".join(webs)}
 
 COMMAND_EXEC_TOOL = {
     "type": "function",
@@ -284,6 +351,7 @@ DECOMPILE_TOOL = {
         },
     },
 }
+
 class Decompile(Tool):
     def __init__(self, challenge: "CTFChallenge"):
         super().__init__(DECOMPILE_TOOL)
