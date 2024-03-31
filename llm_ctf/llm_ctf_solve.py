@@ -64,7 +64,10 @@ class CTFChallenge:
         self.args = args
         self.challenge_json = challenge_json
         self.category = challenge_json.parent.parent.name
-        self.chaldir = challenge_json.parent
+        self.chaldir: Path = challenge_json.parent
+        self.image_name = self.parse_oci_path()
+        self.oci_container = self.parse_oci_container()
+        # import pdb; pdb.set_trace()
         self.container_image = args.container_image
         self.container_name = args.container_image
         self.network = args.network
@@ -97,6 +100,22 @@ class CTFChallenge:
         # detected the flag in the output or because the CheckFlag tool was called
         # with the correct flag
         self.solved = False
+        
+    def parse_oci_container(self):
+        if self.image_name:
+            oci_parts =  self.image_name.stem.split('-', maxsplit=2)
+            if len(oci_parts) != 3:
+                status.debug_message(f"wrong oci image name format, correct name should be: year[q/f]-category-chalname")
+                return None
+            return oci_parts[-1]
+        status.debug_message(f"No oci image found, skip")
+        return None        
+        
+    def parse_oci_path(self):
+        if self.chaldir.is_dir():
+            pattern = '[0-9][0-9][0-9][0-9][qf]-*.tar'
+            matching_files = sorted(self.chaldir.glob(pattern))
+        return matching_files[-1] if len(matching_files) > 0 else None
 
     def get_server_description(self):
         if self.challenge.get("server_description", None) is not None:
@@ -110,6 +129,16 @@ class CTFChallenge:
                 return f"The challenge server is running on `{self.challenge_container}` port `{self.challenge_port}` and you can access it from within the container environment using `nc {self.challenge_container} {self.challenge_port}`.\n\n"
         else:
             return ""
+        
+    def load_challenge_image(self):
+        if self.image_name:
+            image_list = subprocess.run(['docker', 'images'], stdout=subprocess.PIPE, text=True)
+            if self.oci_container in image_list.stdout:
+                status.debug_message(f"Load pre-build docker image {self.image_name.name}...")
+                with open(self.image_name, 'rb') as oci:
+                    subprocess.run(['docker', 'load'], stdin=oci)
+                return
+            status.debug_message(f"No pre-build docker image {self.image_name.name} found!")
 
     def start_challenge_container(self):
         if self.is_compose:
@@ -119,13 +148,13 @@ class CTFChallenge:
                 check=True, capture_output=True,
             )
             return
-        if not self.challenge_container: return
-        status.debug_message(f"Starting challenge container {self.challenge_container}")
+        if not self.oci_container: return
+        status.debug_message(f"Starting challenge container {self.oci_container}")
         subprocess.run(
             ['docker', 'run'] + \
             ['--network', self.network] + \
             ['--platform', 'linux/amd64', '-d', '--rm'] + \
-            ['--name', self.challenge_container, self.challenge_container],
+            ['--name', self.oci_container, self.oci_container],
             check=True, capture_output=True,
         )
 
@@ -166,6 +195,7 @@ class CTFChallenge:
                 dst = Path(self.tmpdir) / filename
                 dst.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(src, dst)
+        self.load_challenge_image()
         self.start_challenge_container()
         return self
 
@@ -173,6 +203,12 @@ class CTFChallenge:
         self.stop_challenge_container()
         if self.tmpdir:
             self._tmpdir.__exit__(exc_type, exc_value, traceback)
+        if self.oci_container:
+            command = f"docker ps --filter name={self.oci_container} -q | xargs docker stop"
+            subprocess.run(command, shell=True, check=True)
+            subprocess.run(
+                ['docker', 'rmi', self.oci_container]
+            )
 
 SYSTEM_MESSAGE = """\
 You are a skilled cybersecurity professional and top CTF player. \
