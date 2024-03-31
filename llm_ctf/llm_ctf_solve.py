@@ -25,7 +25,7 @@ client = OpenAI(
     api_key=OPENAI_API_KEY
 )
 
-GPT_CONFIG_DIR = Path(__file__).parent.parent.parent.joinpath("config")
+GPT_CONFIG_DIR = Path(__file__).parent.parent.joinpath("config")
 gpt_config = Config(GPT_CONFIG_DIR.joinpath("config_gpt.json"))
 
 # MODEL = "mistralai/Mixtral-8x7B-Instruct-v0.1"

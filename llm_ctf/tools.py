@@ -102,15 +102,15 @@ class WebSearch(Tool):
         try:
             res = requests.get(url, timeout=timeout)
             soup  = bs4.BeautifulSoup(res.text, 'html.parser')
-            elems = soup.select('body')
+            elems = re.sub(r'\n\n+', '\n', soup.find('body').get_text())
             if elems:
                 return elems
             else:
                 status.debug_message(f"No main body in {url}")
-                return None
+                return
         except requests.exceptions.Timeout:
             print(f"Timeout on {url}, skipping")
-            return None
+            return
 
     def __call__(self, query, number=3, pause=2, timeout=30):
         urls, webs = self.search_web(query, number, pause, timeout)
@@ -506,14 +506,14 @@ GIVEUP_TOOL = {
     },
 }
 
-DEFAULT_TOOLSET = [ CommandExec, CheckFlag, CreateFile, Decompile, Disassemble, GiveUp ]
+DEFAULT_TOOLSET = [ CommandExec, WebSearch, CheckFlag, CreateFile, Decompile, Disassemble, GiveUp ]
 
 # Predefined sets of tools for different categories
 TOOLSETS = {
     # No binaries in the misc, forensics, or crypto categories
-    "crypto": [ CommandExec, CheckFlag, CreateFile, GiveUp ],
-    "misc": [ CommandExec, CheckFlag, CreateFile, GiveUp ],
-    "forensics": [ CommandExec, CheckFlag, CreateFile, GiveUp ],
+    "crypto": [ CommandExec, WebSearch, CheckFlag, CreateFile, GiveUp ],
+    "misc": [ CommandExec, WebSearch, CheckFlag, CreateFile, GiveUp ],
+    "forensics": [ CommandExec, WebSearch, CheckFlag, CreateFile, GiveUp ],
     "default": DEFAULT_TOOLSET,
 }
 
