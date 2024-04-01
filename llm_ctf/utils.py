@@ -1,3 +1,4 @@
+from datetime import datetime
 from .ctflogging import status
 
 class CallIDGenerator:
@@ -13,3 +14,7 @@ CALL_ID = CallIDGenerator()
 def str2bool(s  : str) -> bool:
     """Convert a string to a boolean, with some reasonable variants on 'true'."""
     return str(s).strip().lower() in {"true", "1", "t", "y", "yes"}
+
+def timestamp() -> str:
+    """Return a timestamp string."""
+    return datetime.now().astimezone().isoformat()

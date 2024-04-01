@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
-from typing import Tuple, Type, List
+from typing import Any, Tuple, Type, List
+from ..utils import timestamp
+from ..ctflogging import status
 
 class Backend(ABC):
     """
@@ -10,8 +12,12 @@ class Backend(ABC):
     NAME: str
     """The name of the backend. This should be unique."""
 
-    # message : Message
-    # """The message type to use for this backend."""
+    timestamps = []
+    messages : List[Any] = []
+    """
+    The messages that have been sent and received so far. Each message is a
+    tuple of the time it was sent/received and the content of the message.
+    """
 
     registry = {}
 
@@ -51,8 +57,24 @@ class Backend(ABC):
     def get_message_log(self) -> List[dict]:
         """
         Get the messages that have been sent and received so far.
+        Subclasses should override this to format their message log
+        for dumping to JSON.
         """
         raise NotImplementedError
+
+    def add_message(self, message):
+        """Add a message to the log."""
+        self.timestamps.append(timestamp())
+        self.messages.append(message)
+
+    def get_timestamped_messages(self):
+        """Get the converted messages in the log with timestamps."""
+        messages = self.get_message_log()
+        if len(self.timestamps) != len(messages):
+            status.debug_message(f"{len(self.timestamps)=}, {len(messages)=}", truncate=False)
+            status.debug_message(f"Timestamps: {self.timestamps}", truncate=False)
+            status.debug_message(f"Messages: {messages}", truncate=False)
+        return list(zip(self.timestamps, messages))
 
     @classmethod
     @abstractmethod
@@ -65,3 +87,13 @@ class Backend(ABC):
     @classmethod
     def from_name(cls, name : str) -> Type['Backend']:
         return cls.registry[name.lower()]
+
+    @classmethod
+    def names(cls) -> List[str]:
+        """Get a list of available backend names"""
+        return list(cls.registry.keys())
+
+    @classmethod
+    def classes(cls) -> List[Type['Backend']]:
+        """Get a list of available backend classes"""
+        return list(cls.registry.values())

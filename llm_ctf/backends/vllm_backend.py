@@ -87,7 +87,9 @@ class VLLMBackend(Backend):
         return MODELS
 
     def setup(self):
-        self.messages = self.get_initial_messages()
+        self.messages = []
+        for m in self.get_initial_messages():
+            self.add_message(m)
 
     def make_demonstration_messages(self) -> List[ChatCompletionMessage|dict[str,str]]:
         run_command = self.tools['run_command']
@@ -232,17 +234,18 @@ class VLLMBackend(Backend):
             status.debug_message(f"Error extracting tool calls: {e}")
             tool_calls = []
         tool_results = self._run_tools_internal(tool_calls)
-        self.messages.append(self.tool_result_message(tool_results))
+        self.add_message(self.tool_result_message(tool_results))
         response, content, has_tool_calls = self._call_model()
-        self.messages.append(response)
+        self.add_message(response)
         return content, has_tool_calls
 
     # TODO: make generation parameters configurable
     def send(self, message : str) -> Tuple[Optional[str],bool]:
-        self.messages.append(self.user_message(message))
+        status.debug_message(f"User message:\n{message}", truncate=False)
+        self.add_message(self.user_message(message))
         response, content, has_tool_calls = self._call_model()
         status.debug_message(f"Response:\n{response.content}", truncate=False)
-        self.messages.append(response)
+        self.add_message(response)
         return content, has_tool_calls
 
     def get_message_log(self) -> List[dict]:

@@ -1,5 +1,8 @@
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, List, Dict, Any, Tuple, Type
+from typing import List, Tuple, Type
+
+from ..ctflogging import status
+from ..utils import str2bool
 from ..tools import Tool, ToolCall, ToolResult
 
 class Formatter(ABC):
@@ -69,3 +72,53 @@ class Formatter(ABC):
     def from_name(cls, name : str) -> Type['Formatter']:
         """Get a formatter class by name"""
         return cls.registry[name.lower()]
+
+    @classmethod
+    def names(cls) -> List[str]:
+        """Get a list of available formatter names"""
+        return list(cls.registry.keys())
+
+    @classmethod
+    def classes(cls) -> List[Type['Formatter']]:
+        """Get a list of available formatter classes"""
+        return list(cls.registry.values())
+
+    @classmethod
+    def validate_args(cls, tool : Tool, tool_call: ToolCall):
+        """Validate the arguments of a parsed tool call.
+
+        This function raises ValueError for missing arguments and prints a warning
+        for extra arguments. If you want to do additional validation, override this
+        method in a subclass.
+        """
+        params = set(tool.parameters.keys())
+        required = tool.required_parameters
+        args = set(tool_call.function.parsed_arguments.keys())
+        # Check for missing required arguments
+        if missing := (required - args):
+            raise ValueError(f"Missing required arguments in call to {tool.name}: {missing}")
+        # Check for extra arguments
+        if extra := (args - params):
+            status.debug_message(f"Warning: extra arguments in call to {tool.name}: {extra}")
+
+    @classmethod
+    def convert_args(cls, tool : Tool, tool_call: ToolCall):
+        """Convert the parsed arguments of a tool call to the correct types.
+
+        This function assumes that the arguments have already been validated,
+        and that they are either already converted or are strings.
+
+        Modifies the invocation in place.
+        """
+        conversions = {
+            (str,bool) : str2bool,
+        }
+        parsed_args = tool_call.function.parsed_arguments
+        for k,v in parsed_args.items():
+            python_type = tool.parameters[k]['python_type']
+            if not isinstance(type(v), python_type):
+                if (type(v),python_type) in conversions:
+                    parsed_args[k] = conversions[(type(v),python_type)](v)
+                else:
+                    # Fall back to just using the annotation's type
+                    parsed_args[k] = python_type(v)

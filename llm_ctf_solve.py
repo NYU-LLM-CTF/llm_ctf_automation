@@ -287,7 +287,7 @@ class CTFConversation:
         logfilename.write_text(json.dumps(
             {
                 "args": vars(self.args),
-                "messages": self.backend.get_message_log(),
+                "messages": self.backend.get_timestamped_messages(),
                 "challenge": self.chal.challenge,
                 "solved": self.chal.solved,
                 "rounds": self.rounds,

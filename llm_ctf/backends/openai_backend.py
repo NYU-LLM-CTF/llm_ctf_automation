@@ -5,6 +5,8 @@ import json
 from openai import OpenAI
 import os
 from typing import List, Optional, Tuple
+
+from ..formatters import Formatter
 from .backend import Backend
 from ..tools import Tool, ToolCall, ToolResult
 from ..ctflogging import status
@@ -54,7 +56,8 @@ class OpenAIBackend(Backend):
             args.model = self.model
 
         self.system_message = system_message
-        self.messages = self.get_initial_messages(self.system_message)
+        for m in self.get_initial_messages(self.system_message):
+            self.add_message(m)
 
     def get_initial_messages(self, system_message : str):
         return [
@@ -86,9 +89,9 @@ class OpenAIBackend(Backend):
         return self._message(content, "system")
 
     def send(self, message : str) -> Tuple[Optional[str],bool]:
-        self.messages.append(self._user_message(message))
+        self.add_message(self._user_message(message))
         response = self._call_model()
-        self.messages.append(response)
+        self.add_message(response)
         return response.content, bool(response.tool_calls)
 
     def run_tools(self) -> Tuple[Optional[str],bool]:
@@ -137,9 +140,10 @@ class OpenAIBackend(Backend):
                     f"{type(e).__name__} running {function_name}: {e}"
                 ))
             tool_results.append(tool_res)
-        self.messages += tool_results
+        for t in tool_results:
+            self.add_message(t)
         response = self._call_model()
-        self.messages.append(response)
+        self.add_message(response)
         return response.content, bool(response.tool_calls)
 
     def get_message_log(self) -> List[dict]:
@@ -148,15 +152,9 @@ class OpenAIBackend(Backend):
     @staticmethod
     def extract_parameters(tool : Tool, tc : ToolCall) -> ToolCall:
         """Extract and validate parameters from a tool call args"""
+        status.debug_message(f"Extracting parameters from {repr(tc)}")
         parsed = json.loads(tc.function.arguments)
-        parsed_arguments = {}
-        for param_name in tool.parameters['properties']:
-            if param_name in tool.parameters['required'] and param_name not in parsed:
-                raise ValueError(f"Missing required parameter {param_name}")
-            parsed_arguments[param_name] = parsed.get(param_name)
-        for param_name,value in parsed.items():
-            if param_name not in tool.parameters['properties']:
-                status.debug_message(f"WARNING: Model used unknown parameter {param_name}={value} in call to {tool.name}")
-        parsed_tc = tc.clone()
-        parsed_tc.function.parsed_arguments = parsed_arguments
+        parsed_tc = tc.parsed(parsed)
+        Formatter.validate_args(tool, parsed_tc)
+        Formatter.convert_args(tool, parsed_tc)
         return parsed_tc

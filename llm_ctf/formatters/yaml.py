@@ -26,7 +26,7 @@ class YAMLFormatter(Formatter):
         self.tools = tools
         self._tool_string_param_names = set()
         for tool in tools:
-            for param_name, param_props in tool.parameters['properties'].items():
+            for param_name, param_props in tool.parameters.items():
                 if param_props['type'] == 'string':
                     self._tool_string_param_names.add(param_name)
 
@@ -42,14 +42,16 @@ class YAMLFormatter(Formatter):
         tool_dict["name"] = tool.name
         tool_dict["description"] = tool.description
         tool_dict["parameters"] = {}
-        for parameter, props in tool.parameters['properties'].items():
+        for name, info in tool.parameters.items():
             param = {}
-            param["type"] = props['type']
-            param["description"] = props['description']
-            param["required"] = parameter in tool.parameters['required']
-            tool_dict["parameters"][parameter] = param
+            param["type"] = info['type']
+            param["description"] = info['description']
+            param["required"] = info['required']
+            tool_dict["parameters"][name] = param
             return tool_dict
 
+    # adapted from AlphaCodium:
+    #   https://github.com/Codium-ai/AlphaCodium/blob/3f8ef0054c17c3924efab828ceaedd57bb78aa9a/alpha_codium/gen/utils.py#L133
     def _try_fix_yaml(self, response_text: str, original_exception: Exception):
         response_text_lines = response_text.split('\n')
 
@@ -152,17 +154,11 @@ class YAMLFormatter(Formatter):
 
     def extract_params(self, tool : Tool, tc: ToolCall) -> ToolCall:
         """Extract and validate parameters from a tool call args"""
-        invocation = tc.function.arguments
-        arguments = {}
-        for param_name in tool.parameters['properties']:
-            if param_name in tool.parameters['required'] and param_name not in invocation:
-                raise ValueError(f"Missing required parameter {param_name}")
-            arguments[param_name] = invocation.get(param_name)
-        for param_name,value in invocation.items():
-            if param_name not in tool.parameters['properties']:
-                status.debug_message(f"WARNING: Model used unknown parameter {param_name}={value} in call to {tool.name}")
-        parsed_tc = tc.clone()
-        parsed_tc.function.parsed_arguments = arguments
+        args = tc.function.arguments
+        # The args coming out of the YAML should already be parsed
+        parsed_tc = ToolCall.make_parsed(tc.name, tc.id, args)
+        self.validate_args(tool, parsed_tc)
+        self.convert_args(tool, parsed_tc)
         return parsed_tc
 
     def get_delimiters(self):

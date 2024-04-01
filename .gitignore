@@ -3,4 +3,6 @@ ghidra_11.0*
 LLM_CTF_Database
 test.sh
 /logs
-*.pyc
+__pycache__/
+*.py[cod]
+*$py.class

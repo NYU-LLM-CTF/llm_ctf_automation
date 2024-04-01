@@ -2,6 +2,8 @@ from argparse import Namespace
 import os
 from typing import List, Optional, Tuple, Union
 
+from llm_ctf.utils import timestamp
+
 from .backend import Backend
 from ..tools import Tool, ToolCall, ToolResult
 from ..formatters.formatter import Formatter
@@ -78,7 +80,7 @@ class AnthropicBackend(Backend):
         self.system_message += "\n\n" + tool_use_system_prompt
 
         for m in self.get_initial_messages():
-            self.append(m)
+            self.add_message(m)
 
     def get_initial_messages(self):
         # Create demonstration messages
@@ -170,21 +172,23 @@ class AnthropicBackend(Backend):
             has_tool_calls = True
         else:
             has_tool_calls = False
-
+        status.debug_message(f"Response:\n{response.content[0].text}", truncate=False)
         content = self.formatter.extract_content(response.content[0].text)
         return response, content, has_tool_calls
 
     # Anthropic doesn't accept their own response object as a message, so we need to convert it.
     # We keep the original around for logging purposes.
-    def append(self, message : Union[dict,AnthropicMessage]):
+    def add_message(self, message : Union[dict,AnthropicMessage]):
+        ts = timestamp()
+        self.timestamps.append(ts)
         if isinstance(message, dict):
-            self.messages.append(message)
-            self.original_messages.append(message)
+            conv_message = message
         elif isinstance(message, AnthropicMessage):
-            self.messages.append(self.response_to_message(message))
-            self.original_messages.append(message)
+            conv_message = self.response_to_message(message)
         else:
             raise ValueError(f"Unknown message type: {type(message)}")
+        self.original_messages.append(message)
+        self.messages.append(conv_message)
 
     def run_tools(self):
         try:
@@ -193,20 +197,22 @@ class AnthropicBackend(Backend):
             status.debug_message(f"Error extracting tool calls: {e}")
             tool_calls = []
         tool_results = self._run_tools_internal(tool_calls)
-        self.append(self.tool_result_message(tool_results))
+        self.add_message(self.tool_result_message(tool_results))
         response, content, has_tool_calls = self._call_model()
-        self.append(response)
+        self.add_message(response)
         return content, has_tool_calls
 
     def send(self, message : str) -> Tuple[Optional[str],bool]:
         reminder = f"Remember, the tools you have available are: {', '.join(self.tools.keys())}"
-        self.append(self.user_message(message + '\n\n' + reminder))
+        self.add_message(self.user_message(message + '\n\n' + reminder))
         response, content, has_tool_calls = self._call_model()
-        status.debug_message(f"Response:\n{response.content}", truncate=False)
-        self.append(response)
+        self.add_message(response)
         return content, has_tool_calls
 
     def get_message_log(self) -> List[dict]:
-        # Include the system message at the beginning since it's not included in the messages list
+        # Since we're adding the system message to the log, we need to add a timestamp for it
+        first_ts = self.timestamps[0]
+        self.timestamps.insert(0, first_ts)
+
         return [ {"role": "system", "content": self.system_message } ] + \
             [ m if isinstance(m,dict) else m.model_dump() for m in self.original_messages ]
