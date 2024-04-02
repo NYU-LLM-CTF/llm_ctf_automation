@@ -1,6 +1,8 @@
 from argparse import Namespace
 from io import StringIO
 import re
+
+from ..prompts import PromptManager
 from ..tools import Tool, ToolCall, ToolResult
 from ..utils import CALL_ID
 from ..ctflogging import status
@@ -19,7 +21,7 @@ TOOL_USE_STOP = '----- END TOOL CALLS -----'
 class YAMLFormatter(Formatter):
     NAME = 'yaml'
 
-    def __init__(self, tools: List[Tool] = []):
+    def __init__(self, tools: List[Tool] = [], prompt_set='default'):
         self.yaml = YAML()
         # Need to have the list of possible tools so we can use param names to try and
         # fix up the YAML if it's broken
@@ -29,6 +31,10 @@ class YAMLFormatter(Formatter):
             for param_name, param_props in tool.parameters.items():
                 if param_props['type'] == 'string':
                     self._tool_string_param_names.add(param_name)
+        self.prompt_manager = PromptManager(prompt_set)
+        self.render_delimiters = True
+        self.code_blocks = True
+        self.delims_in_code_blocks = False
 
     def _dump(self, data: dict) -> str:
         o = StringIO()
@@ -70,6 +76,7 @@ class YAMLFormatter(Formatter):
 
     def format_tools(self, tools : List[Tool]) -> str:
         tools_list = [ self._tool_dict(tool) for tool in tools ]
+        return self._dump(tools_list)
         return _md(self._dump(tools_list))
 
     def format_results(self, results : List[ToolResult]):
@@ -86,7 +93,7 @@ class YAMLFormatter(Formatter):
             for k,v in d.items():
                 if k not in ["tool_name", "call_id"] and isinstance(v, str):
                     d[k] = LiteralScalarString(d[k])
-        return _md(self._dump(result_dicts))
+        return self._dump(result_dicts)
 
     def format_tool_calls(self, tool_calls : List[ToolCall], placeholder : bool = False):
         tool_call_list = []
@@ -111,7 +118,7 @@ class YAMLFormatter(Formatter):
                     yaml_lines.insert(i+1, ' '*indent + "# ...")
                     break
             yaml_str = '\n'.join(yaml_lines)
-        return f"{TOOL_USE_START}\n" + _md(yaml_str) + f"\n{TOOL_USE_STOP}"
+        return yaml_str
 
     def extract_content(self, message):
         content = message.split(TOOL_USE_START)[0].strip()
@@ -149,14 +156,14 @@ class YAMLFormatter(Formatter):
             del item["call_id"]
             del item["tool_name"]
             arguments = item
-            tool_calls.append(ToolCall.make(name, id, arguments))
+            tool_calls.append(ToolCall.create_unparsed(name, id, arguments))
         return tool_calls
 
     def extract_params(self, tool : Tool, tc: ToolCall) -> ToolCall:
         """Extract and validate parameters from a tool call args"""
         args = tc.function.arguments
         # The args coming out of the YAML should already be parsed
-        parsed_tc = ToolCall.make_parsed(tc.name, tc.id, args)
+        parsed_tc = ToolCall.create_parsed(tc.name, tc.id, args)
         self.validate_args(tool, parsed_tc)
         self.convert_args(tool, parsed_tc)
         return parsed_tc

@@ -69,16 +69,16 @@ class ToolCall:
         return ToolResult(self.name, self.id, {"error": message})
 
     @classmethod
-    def make(cls, name, id, arguments):
+    def create_unparsed(cls, name, id, arguments):
         """Create a ToolCall with arguments set."""
         return cls(name, id, arguments=arguments)
 
     @classmethod
-    def make_parsed(cls, name, id, parsed_arguments):
+    def create_parsed(cls, name, id, parsed_arguments):
         """Create a ToolCall with parsed_arguments set."""
         return cls(name, id, parsed_arguments=parsed_arguments)
 
-    def parsed(self, parsed_arguments) -> "ToolCall":
+    def parsed_copy(self, parsed_arguments) -> "ToolCall":
         """Returns a copy of this ToolCall with parsed_arguments set."""
         return ToolCall(
             self.name,
@@ -112,9 +112,30 @@ class ToolCall:
     def parsed_arguments(self, value):
         self.function.parsed_arguments = value
 
+    def model_dump(self):
+        # Serialize in OpenAI format
+        if self.parsed_arguments is not None:
+            args = json.dumps(self.parsed_arguments)
+        else:
+            # Trickier; could be anything
+            try:
+                args = json.dumps(self.arguments)
+            except Exception as e:
+                args = json.dumps(str(self.arguments))
+        return {
+            "id": self.id,
+            "function": {
+                "name": self.name,
+                "arguments": args,
+            },
+            "type": self.type,
+        }
+
     @property
     def name(self):
         return self.function.name
+
+
 
 @dataclass
 class ToolResult:
@@ -125,6 +146,14 @@ class ToolResult:
     result: dict[str, Any]
     """The result of running the tool"""
 
+    # Serialize in OpenAI format
+    def model_dump(self):
+        return dict(
+            name=self.name,
+            role="tool",
+            content=json.dumps(self.result),
+            tool_call_id=self.id,
+        )
 class AllCategories:
     """A class that can be used to indicate that a tool should be available in all categories."""
     pass
@@ -174,7 +203,7 @@ class Tool:
     @classmethod
     def make_call(cls, id: Optional[str] = None, **kwargs) -> ToolCall:
         """Create a ToolCall for this tool, instantiating the function with the given arguments"""
-        return ToolCall.make_parsed(cls.name, id, kwargs)
+        return ToolCall.create_parsed(cls.name, id, kwargs)
 
     def run(self, tc : ToolCall) -> ToolResult:
         """Run the tool on a parsed ToolCall, returning a ToolResult"""
@@ -223,6 +252,8 @@ class CommandExec(Tool):
             volumes = ['-v', f'{self.volume}:/home/ctfplayer/ctf_files']
         else:
             volumes = []
+        if self.challenge.args.disable_docker:
+            return
         subprocess.run(
             ['docker', 'run'] + \
                 volumes + \
@@ -243,6 +274,8 @@ class CommandExec(Tool):
 
     def stop_docker(self):
         status.debug_message("Stopping docker container...")
+        if self.challenge.args.disable_docker:
+            return
         subprocess.run(['docker', 'stop', self.container_name], capture_output=True)
 
     @staticmethod
@@ -256,7 +289,6 @@ class CommandExec(Tool):
         {"stdout": stdout, "stderr": stderr, "returncode": returncode, "timed_out": timed_out}
         """
         if timeout is None: timeout = 10.0
-        status.debug_message(f"Running command with timeout={timeout}:\n{command}")
         try:
             p = subprocess.run(
                 ['docker', 'exec', self.container_name, 'bash', '-c', command],

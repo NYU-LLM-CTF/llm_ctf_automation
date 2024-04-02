@@ -2,6 +2,8 @@ from argparse import Namespace
 import inspect
 import json
 import re
+
+from ..prompts import PromptManager
 from .formatter import Formatter
 from ..tools import Tool, ToolCall, ToolResult
 from typing import List, get_type_hints
@@ -122,8 +124,12 @@ def repr_raw_heredoc(s : str) -> str:
 
 class VBPYFormatter(Formatter):
     NAME = 'vbpy'
-    def __init__(self, tools: List[Tool] = []):
+    def __init__(self, tools: List[Tool] = [], prompt_set='default'):
         self.tools = { tool.name : tool for tool in tools }
+        self.prompt_manager = PromptManager(prompt_set)
+        self.render_delimiters = True
+        self.code_blocks = True
+        self.delims_in_code_blocks = False
 
     @classmethod
     def _make_docstring(cls, tool: Tool) -> str:
@@ -192,14 +198,10 @@ class VBPYFormatter(Formatter):
         return fmt
 
     def format_tool_calls(self, tool_calls : List[ToolCall], placeholder : bool = False) -> str:
-        return (TOOL_USE_START + '\n'
-                f'```\n'
-                + '\n'.join(
-                    self.format_tool_call(tool_call, placeholder)
-                    for tool_call in tool_calls
-                )
-                + f'\n```\n'
-                + TOOL_USE_STOP)
+        return '\n'.join(
+            self.format_tool_call(tool_call, placeholder)
+            for tool_call in tool_calls
+        )
 
     def extract_content(self, message):
         return message.split(TOOL_USE_START)[0].strip()
@@ -212,7 +214,7 @@ class VBPYFormatter(Formatter):
                 call_name = m.group(1)
             else:
                 call_name = "[not provided]"
-            tool_calls.append(ToolCall.make(call_name, None, tc_str))
+            tool_calls.append(ToolCall.create_unparsed(call_name, None, tc_str))
         return tool_calls
 
     def extract_params(self, tool : Tool, tc: ToolCall) -> ToolCall:
@@ -230,7 +232,7 @@ class VBPYFormatter(Formatter):
             status.debug_message(f"Overlap in args/kwargs for {name}: {overlap}; preferring kwargs.")
         args_dict.update(kwargs)
 
-        parsed_tc = ToolCall.make_parsed(tc.name, tc.id, args_dict)
+        parsed_tc = ToolCall.create_parsed(tc.name, tc.id, args_dict)
         self.validate_args(tool, parsed_tc)
         self.convert_args(tool, parsed_tc)
         return parsed_tc

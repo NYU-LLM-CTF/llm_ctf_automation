@@ -1,12 +1,17 @@
 from abc import ABC, abstractmethod
 from typing import List, Tuple, Type
 
+from ..prompts import PromptManager
 from ..ctflogging import status
 from ..utils import str2bool
 from ..tools import Tool, ToolCall, ToolResult
 
 class Formatter(ABC):
     NAME : str
+    prompt_manager : PromptManager = None
+    render_delimiters = True
+    code_blocks = True
+    delims_in_code_block = False
 
     registry = {}
     def __init_subclass__(cls, **kwargs):
@@ -40,6 +45,23 @@ class Formatter(ABC):
         </invoke>
         """
         raise NotImplementedError
+
+    def tool_use_prompt(self) -> str:
+        """Generate a tool use prompt"""
+        prompt = self.prompt_manager.tool_use(
+            self,
+            self.tools.values(),
+            ToolCall.create_parsed("$TOOL_NAME", "$CALL_ID", {"$PARAMETER_NAME": "$PARAMETER_VALUE"})
+        )
+        return prompt
+
+    def tool_call_prompt(self, tool_calls : List[ToolCall]) -> str:
+        """Generate a tool calls prompt"""
+        return self.prompt_manager.tool_calls(self, tool_calls)
+
+    def tool_result_prompt(self, results : List[ToolResult]) -> str:
+        """Generate a tool result prompt"""
+        return self.prompt_manager.tool_results(self, results)
 
     @abstractmethod
     def extract_content(self, message) -> str:
@@ -82,6 +104,18 @@ class Formatter(ABC):
     def classes(cls) -> List[Type['Formatter']]:
         """Get a list of available formatter classes"""
         return list(cls.registry.values())
+
+    @property
+    def name(self):
+        return self.NAME
+
+    @property
+    def start_seqs(self):
+        return self.get_delimiters()[0]
+
+    @property
+    def stop_seqs(self):
+        return self.get_delimiters()[1]
 
     @classmethod
     def validate_args(cls, tool : Tool, tool_call: ToolCall):

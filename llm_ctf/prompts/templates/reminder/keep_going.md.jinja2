@@ -1,0 +1,4 @@
+{% include "../default/keep_going.md.jinja2" +%}
+
+Remember, the tools you have available are:
+{{- tools|map(attribute='name')|join(', ') }}

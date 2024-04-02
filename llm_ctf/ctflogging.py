@@ -2,16 +2,20 @@ from rich.console import Console
 from rich.markdown import Markdown
 
 class Status:
+    WIDTH = 72
+    THEME = "default"
     def __init__(self, quiet=False, debug=False):
         self.quiet = quiet
         self.debug = debug
+        self.disable_markdown = False
         self._last = None
         self.console = Console(markup=False, highlight=False, color_system="256")
         self.debug_log = []
 
-    def set(self, quiet=None, debug=None):
+    def set(self, quiet=None, debug=None, disable_markdown=None):
         if quiet is not None: self.quiet = quiet
         if debug is not None: self.debug = debug
+        if disable_markdown is not None: self.disable_markdown = disable_markdown
 
     # Helper functions for printing messages, with colors
     # and nice wrapping
@@ -20,7 +24,11 @@ class Status:
             return
         if not self.quiet:
             self.console.print("\n[Assistant]", style="blue bold")
-            self.console.print(Markdown(message, code_theme='default'), width=72)
+            if not self.disable_markdown:
+                m = Markdown(message, code_theme=self.THEME)
+            else:
+                m = message
+            self.console.print(m, width=self.WIDTH)
             self._last = "ASSISTANT"
 
     def user_message(self, message):
@@ -29,13 +37,21 @@ class Status:
         if not self.quiet:
             print()
             self.console.print("\n[User]", style="green bold")
-            self.console.print(Markdown(message, code_theme='default'), width=72)
+            if not self.disable_markdown:
+                m = Markdown(message, code_theme=self.THEME)
+            else:
+                m = message
+            self.console.print(m, width=self.WIDTH)
             self._last = "USER"
 
     def system_message(self, message):
         if not self.quiet:
             self.console.print("System Prompt:", style="red bold")
-            self.console.print(Markdown(message, code_theme='default'), width=72)
+            if not self.disable_markdown:
+                m = Markdown(message, code_theme=self.THEME)
+            else:
+                m = message
+            self.console.print(m, width=self.WIDTH)
             self._last = "SYSTEM"
 
     def debug_message(self, message, truncate=False):

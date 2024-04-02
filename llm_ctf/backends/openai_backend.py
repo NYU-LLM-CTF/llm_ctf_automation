@@ -22,7 +22,7 @@ MODELS = [
 API_KEY_PATH = "~/.openai/api_key"
 
 def get_tool_calls(otc_calls : List[OAIToolCall]) -> List[ToolCall]:
-    return [ToolCall.make(otc.function.name, otc.id, otc.function.arguments) for otc in otc_calls]
+    return [ToolCall.create_unparsed(otc.function.name, otc.id, otc.function.arguments) for otc in otc_calls]
 
 def make_call_result(res : ToolResult):
     return dict(
@@ -35,7 +35,8 @@ def make_call_result(res : ToolResult):
 class OpenAIBackend(Backend):
     NAME = 'openai'
 
-    def __init__(self, system_message: str, tools : List[Tool], args : Namespace):
+    def __init__(self, system_message : str, tools : List[Tool], args : Namespace):
+        self.args = args
         if args.api_key is None:
             if "OPENAI_API_KEY" in os.environ:
                 api_key = os.environ["OPENAI_API_KEY"]
@@ -54,14 +55,12 @@ class OpenAIBackend(Backend):
             self.model = MODELS[0]
             # Update the args object so that the model name will be included in the logs
             args.model = self.model
-
         self.system_message = system_message
-        for m in self.get_initial_messages(self.system_message):
-            self.add_message(m)
+        self.messages += self.get_initial_messages()
 
-    def get_initial_messages(self, system_message : str):
+    def get_initial_messages(self):
         return [
-            self._system_message(system_message),
+            self._system_message(self.system_message),
         ]
 
     @classmethod
@@ -89,9 +88,9 @@ class OpenAIBackend(Backend):
         return self._message(content, "system")
 
     def send(self, message : str) -> Tuple[Optional[str],bool]:
-        self.add_message(self._user_message(message))
+        self.messages.append(self._user_message(message))
         response = self._call_model()
-        self.add_message(response)
+        self.messages.append(response)
         return response.content, bool(response.tool_calls)
 
     def run_tools(self) -> Tuple[Optional[str],bool]:
@@ -140,21 +139,10 @@ class OpenAIBackend(Backend):
                     f"{type(e).__name__} running {function_name}: {e}"
                 ))
             tool_results.append(tool_res)
-        for t in tool_results:
-            self.add_message(t)
+        self.messages += tool_results
         response = self._call_model()
-        self.add_message(response)
+        self.messages.append(response)
         return response.content, bool(response.tool_calls)
 
-    def get_message_log(self) -> List[dict]:
-        return [ m if isinstance(m,dict) else m.model_dump() for m in self.messages]
-
-    @staticmethod
-    def extract_parameters(tool : Tool, tc : ToolCall) -> ToolCall:
-        """Extract and validate parameters from a tool call args"""
-        status.debug_message(f"Extracting parameters from {repr(tc)}")
-        parsed = json.loads(tc.function.arguments)
-        parsed_tc = tc.parsed(parsed)
-        Formatter.validate_args(tool, parsed_tc)
-        Formatter.convert_args(tool, parsed_tc)
-        return parsed_tc
+    def convert_message(self, m):
+        return m if isinstance(m,dict) else m.model_dump()

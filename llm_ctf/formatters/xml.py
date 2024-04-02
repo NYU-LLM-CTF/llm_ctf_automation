@@ -1,6 +1,8 @@
+from argparse import Namespace
 from bs4 import BeautifulSoup
 from .formatter import Formatter
 from ..tools import Tool, ToolCall, ToolResult
+from ..prompts import PromptManager
 from typing import List, Tuple
 
 TOOL_USE_START = '<function_calls>'
@@ -9,8 +11,12 @@ TOOL_USE_STOP = '</function_calls>'
 class XMLFormatter(Formatter):
     NAME = 'xml'
 
-    def __init__(self, tools: List[Tool] = []):
-        self.tools = tools
+    def __init__(self, tools: List[Tool] = [], prompt_set='default'):
+        self.tools = { t.name: t for t in tools}
+        self.prompt_manager = PromptManager(prompt_set)
+        self.render_delimiters = False
+        self.code_blocks = True
+        self.delims_in_code_block = True
 
     def format_tool(self, tool : Tool) -> str:
         for name, info in tool.parameters.items():
@@ -46,7 +52,7 @@ class XMLFormatter(Formatter):
     def format_results(self, results : List[ToolResult]):
         return ("<function_results>\n" +
                 '\n'.join([self.format_result(result) for result in results]) +
-                "</function_results>")
+                "\n</function_results>")
 
     def extract_tool_calls(self, message) -> List[ToolCall]:
         soup = BeautifulSoup(message, "lxml")
@@ -63,7 +69,7 @@ class XMLFormatter(Formatter):
                 id = None
             # Defer parsing of parameters until we're actually ready to call the tools
             arguments = invocation
-            tool_calls.append(ToolCall.make(name, id, arguments))
+            tool_calls.append(ToolCall.create_unparsed(name, id, arguments))
         return tool_calls
 
     def format_tool_call(self, tool_call : ToolCall, placeholder : bool = False):
@@ -101,7 +107,7 @@ class XMLFormatter(Formatter):
             if elem := invocation.find(param_name):
                 value = elem.text
                 extracted_parameters[param_name] = value
-        parsed_tc = ToolCall.make_parsed(tc.name, tc.id, extracted_parameters)
+        parsed_tc = ToolCall.create_parsed(tc.name, tc.id, extracted_parameters)
         self.validate_args(tool, parsed_tc)
         self.convert_args(tool, parsed_tc)
         return parsed_tc

@@ -1,0 +1,21 @@
+{% macro render_content(content, formatter) %}
+{% if formatter.render_delimiters and not formatter.delims_in_code_block %}
+{{ formatter.start_seqs[0] }}
+{% endif %}
+{% if formatter.code_blocks %}
+```{{ formatter.NAME }}
+{% endif %}
+{% if formatter.render_delimiters and formatter.delims_in_code_block %}
+{{ formatter.start_seqs[0] }}
+{% endif %}
+{{ content }}
+{% if formatter.render_delimiters and formatter.delims_in_code_block %}
+{{ formatter.stop_seqs[0] }}
+{% endif %}
+{% if formatter.code_blocks %}
+```
+{% endif %}
+{% if formatter.render_delimiters and not formatter.delims_in_code_block %}
+{{ formatter.stop_seqs[0] }}
+{% endif %}
+{% endmacro %}
