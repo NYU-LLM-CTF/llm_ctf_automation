@@ -1,4 +1,5 @@
 from argparse import Namespace
+import re
 from bs4 import BeautifulSoup
 from .formatter import Formatter
 from ..tools import Tool, ToolCall, ToolResult
@@ -11,8 +12,8 @@ TOOL_USE_STOP = '</function_calls>'
 class XMLFormatter(Formatter):
     NAME = 'xml'
 
-    def __init__(self, tools: List[Tool] = [], prompt_set='default'):
-        self.tools = { t.name: t for t in tools}
+    def __init__(self, tools: dict[str,Tool], prompt_set='default'):
+        self.tools = tools
         self.prompt_manager = PromptManager(prompt_set)
         self.render_delimiters = False
         self.code_blocks = True
@@ -96,7 +97,7 @@ class XMLFormatter(Formatter):
         ]) + f"\n{TOOL_USE_STOP}\n"
 
     def extract_content(self, message) -> str:
-        content = message.split(TOOL_USE_START)[0].strip()
+        content = re.split(r'(```xml\s*)?' + re.escape(TOOL_USE_START), message)[0].strip()
         if not content: content = None
         return content
 

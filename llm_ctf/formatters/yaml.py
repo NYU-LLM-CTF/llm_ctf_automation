@@ -21,13 +21,13 @@ TOOL_USE_STOP = '----- END TOOL CALLS -----'
 class YAMLFormatter(Formatter):
     NAME = 'yaml'
 
-    def __init__(self, tools: List[Tool] = [], prompt_set='default'):
+    def __init__(self, tools: dict[str,Tool], prompt_set='default'):
         self.yaml = YAML()
         # Need to have the list of possible tools so we can use param names to try and
         # fix up the YAML if it's broken
         self.tools = tools
         self._tool_string_param_names = set()
-        for tool in tools:
+        for tool in tools.values():
             for param_name, param_props in tool.parameters.items():
                 if param_props['type'] == 'string':
                     self._tool_string_param_names.add(param_name)
@@ -77,7 +77,6 @@ class YAMLFormatter(Formatter):
     def format_tools(self, tools : List[Tool]) -> str:
         tools_list = [ self._tool_dict(tool) for tool in tools ]
         return self._dump(tools_list)
-        return _md(self._dump(tools_list))
 
     def format_results(self, results : List[ToolResult]):
         result_dicts = [

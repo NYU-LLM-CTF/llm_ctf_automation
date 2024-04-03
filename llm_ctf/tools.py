@@ -135,8 +135,6 @@ class ToolCall:
     def name(self):
         return self.function.name
 
-
-
 @dataclass
 class ToolResult:
     name: str
@@ -157,12 +155,13 @@ class ToolResult:
 class AllCategories:
     """A class that can be used to indicate that a tool should be available in all categories."""
     pass
+ALL = AllCategories()
 
 class Tool:
     # Attributes that must be set by subclasses
     NAME : str
     """The name of the tool as it should be displayed to the model"""
-    CATEGORIES : Set[CTFCategories]|AllCategories = AllCategories
+    CATEGORIES : Set[CTFCategories]|AllCategories = ALL
     """The categories in which the tool should be available"""
 
     # Automatically generated attributes
@@ -529,7 +528,7 @@ class GiveUp(Tool):
 DEFAULT_TOOLSET = Tool.__subclasses__()
 categories = { "rev", "pwn", "crypto", "misc", "forensics", "web" }
 TOOLSETS = {
-    cat : [ t for t in DEFAULT_TOOLSET if t.CATEGORIES is AllCategories or cat in t.CATEGORIES ]
+    cat : [ t for t in DEFAULT_TOOLSET if t.CATEGORIES is ALL or cat in t.CATEGORIES ]
     for cat in CTFCategories
 }
 TOOLSETS["default"] = DEFAULT_TOOLSET

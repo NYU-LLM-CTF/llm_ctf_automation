@@ -1,16 +1,18 @@
 from argparse import Namespace
-from collections import defaultdict
-from enum import Enum
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Callable, List, Literal, Sequence, Tuple, Optional, NamedTuple, Union
+from typing import Any, Callable, List, Literal, Tuple, Optional, NamedTuple, Union
 import re
+import os
+
+from anthropic import Anthropic
+from anthropic.types.content_block import ContentBlock as AnthropicMessage
 
 from llm_ctf.formatters.vbpy import VBPYFormatter
 from ..formatters.formatter import Formatter
 from ..tools import Tool, ToolCall, ToolResult
 from ..ctflogging import status
 from .backend import (AssistantMessage, Backend, ErrorToolCalls, FakeToolCalls,
-                      IterKind, SystemMessage, TimestampedList, UnparsedToolCalls, UserMessage)
+                      SystemMessage, UnparsedToolCalls, UserMessage)
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessage
 from functools import partial
@@ -32,11 +34,6 @@ def fix_xml_tag_names(s : str) -> str:
 def fix_xml_seqs(seqs : List[str]) -> List[str]:
     return list(set(seqs +[fix_xml_tag_names(seq) for seq in seqs]))
 
-MODELS = [
-    "mistralai/Mixtral-8x7B-Instruct-v0.1",
-    "deepseek-ai/deepseek-coder-33b-instruct",
-]
-
 class ModelQuirks(NamedTuple):
     """Model-specific quirks for the VLLM backend."""
     # Whether the model supports system messages
@@ -52,35 +49,52 @@ class ModelQuirks(NamedTuple):
     # Function to run to augment the start sequences from the formatter
     augment_start_sequences: Optional[Callable[[List[str]], List[str]]] = None
 
-QUIRKS = {
-    "mistralai/Mixtral-8x7B-Instruct-v0.1": ModelQuirks(
-        supports_system_messages=False,
-        needs_tool_use_demonstrations=True,
-        clean_content=fix_xml_tag_names,
-        clean_tool_use=fix_xml_tag_names,
-        augment_stop_sequences=fix_xml_seqs,
-        augment_start_sequences=fix_xml_seqs,
-    ),
-}
 NO_QUIRKS = ModelQuirks(supports_system_messages=True)
 
 class VLLMBackend(Backend):
     NAME = 'vllm'
-    def __init__(self, system_message : str, tools : List[Tool], args : Namespace):
+    MODELS = [
+        "mistralai/Mixtral-8x7B-Instruct-v0.1",
+        "deepseek-ai/deepseek-coder-33b-instruct",
+    ]
+    QUIRKS = {
+        "mistralai/Mixtral-8x7B-Instruct-v0.1": ModelQuirks(
+            supports_system_messages=False,
+            needs_tool_use_demonstrations=True,
+            clean_content=fix_xml_tag_names,
+            clean_tool_use=fix_xml_tag_names,
+            augment_stop_sequences=fix_xml_seqs,
+            augment_start_sequences=fix_xml_seqs,
+        ),
+    }
+
+    def __init__(self, system_message : str, tools: dict[str,Tool], args : Namespace):
         self.args = args
         self.formatter : Formatter = Formatter.from_name(args.formatter)(tools, args.prompt_set)
         self.prompt_manager = self.formatter.prompt_manager
+        self.tools = tools
 
-        self.tools = {tool.name: tool for tool in tools}
         if args.model:
-            if args.model not in MODELS:
-                raise ValueError(f"Invalid model {args.model} for VLLM backend. Must be one of {MODELS}")
+            if args.model not in self.MODELS:
+                raise ValueError(f"Invalid model {args.model} for backend. Must be one of {self.MODELS}")
             self.model = args.model
         else:
-            self.model = MODELS[0]
+            self.model = self.MODELS[0]
             # Update the args object so that the model name will be included in the logs
             args.model = self.model
 
+        self.client_setup(args)
+        self.quirks = self.QUIRKS.get(self.model, NO_QUIRKS)
+        self.system_message_content = system_message
+
+        # Get the vbpy formatter so we can use it to represent a tool call as a
+        # nice Python string
+        self.python_formatter = VBPYFormatter(tools, args.prompt_set)
+
+        self.outgoing_messages = []
+        self.last_tool_calls = None
+
+    def client_setup(self, args):
         if args.api_endpoint:
             base_url = args.api_endpoint
         else:
@@ -89,19 +103,10 @@ class VLLMBackend(Backend):
             api_key = "EMPTY",
             base_url=base_url
         )
-        self.quirks = QUIRKS.get(self.model, NO_QUIRKS)
-        self.system_message = system_message
-
-        # Get the vbpy formatter so we can use it to represent a tool call as a
-        # nice Python string
-        self.python_formatter = VBPYFormatter(tools, args.prompt_set)
-
-        self.model_messages = []
-        self.last_tool_calls = None
 
     @classmethod
     def get_models(cls):
-        return MODELS
+        return cls.MODELS
 
     def setup(self):
         self.add_initial_messages()
@@ -123,13 +128,13 @@ class VLLMBackend(Backend):
             render_tool_calls=render_tool_calls,
         )
         self.messages.append(FakeToolCalls(tool_calls))
-        self.append_cleaned(self.assistant_message(tool_calls_content))
-        tool_results = self._run_tools_internal(tool_calls)
-        self.append_cleaned(self.tool_results_message(tool_results))
+        self.append(self.assistant_message(tool_calls_content))
+        tool_results = self.run_tools_internal(tool_calls)
+        self.append(self.tool_results_message(tool_results))
         # NB: the tool results are not added to self.messages because they are
         # added inside of _run_tools_internal.
 
-    def make_demo_from_templates(self):
+    def make_demonstration_messages(self):
         role_states = {
             'user': {'assistant', 'tool'},
             'tool': {'assistant', 'tool'},
@@ -169,62 +174,32 @@ class VLLMBackend(Backend):
                 case "user":
                     content = self.prompt_manager.render(template_stem)
                     self.messages.append(UserMessage(content))
-                    self.append_cleaned(self.user_message(content))
+                    self.append(self.user_message(content))
                 case "assistant":
                     content = self.prompt_manager.render(template_stem)
                     self.messages.append(AssistantMessage(content))
-                    self.append_cleaned(self.assistant_message(content))
+                    self.append(self.assistant_message(content))
                 case "tool":
                     self.tool_demo(template_stem)
 
-    # TODO: it would be nice to move these into a template
-    def make_demonstration_messages(self):
-        # Include an example of a tool call
-        msg = ("First let's make sure you know how to use tools. What are the current user, "
-               "CPU architecture, and Linux distribution in your environment?")
-        self.messages.append(UserMessage(msg))
-        self.append_cleaned(self.user_message(msg))
-        run_command = self.tools['run_command']
-        uname_whoami_tc = [
-            run_command.make_call(command="uname -a"),
-            run_command.make_call(command="whoami"),
-        ]
-        self.messages.append(FakeToolCalls(uname_whoami_tc))
-        uname_whoami_content = self.formatter.tool_call_prompt(uname_whoami_tc)
-        self.append_cleaned(self.assistant_message(uname_whoami_content))
-        uname_whoami_calls = self.formatter.extract_tool_calls(uname_whoami_content)
-        uname_whoami_tr = self._run_tools_internal(uname_whoami_calls)
-        self.append_cleaned(self.tool_results_message(uname_whoami_tr))
-        cat_call_tc = [
-            run_command.make_call(command="cat /etc/os-release"),
-        ]
-        self.messages.append(FakeToolCalls(cat_call_tc))
-        cat_calls_content = self.formatter.tool_call_prompt(cat_call_tc)
-        self.append_cleaned(self.assistant_message(cat_calls_content))
-        cat_calls = self.formatter.extract_tool_calls(cat_calls_content)
-        cat_calls_tr = self._run_tools_internal(cat_calls)
-        self.append_cleaned(self.tool_results_message(cat_calls_tr))
-        msg = ("The current user is `ctfplayer`, the CPU architecture is `x86_64`, and the Linux "
-               "distribution is `Ubuntu 22.04.3 LTS`.")
-        self.messages.append(AssistantMessage(msg))
-
     def add_initial_messages(self):
         tool_use_prompt = self.formatter.tool_use_prompt()
-        self.messages.append(SystemMessage(self.system_message, tool_use_prompt))
-        self.system_message += '\n\n' + tool_use_prompt
+        status.debug_message(f"Tool use prompt:\n{tool_use_prompt}")
+        self.messages.append(SystemMessage(self.system_message_content, tool_use_prompt))
+        self.system_message_content += '\n\n' + tool_use_prompt
 
         if self.quirks.supports_system_messages:
             system_messages = [
-                self.system_message(self.system_message),
+                self.system_message(self.system_message_content),
             ]
         else:
             system_messages = [
-                self.user_message(self.system_message),
+                self.user_message(self.system_message_content),
                 self.assistant_message("Understood."),
             ]
 
         for sm in system_messages:
-            self.append_cleaned(sm)
+            self.append(sm)
 
         if self.quirks.needs_tool_use_demonstrations:
             self.make_demonstration_messages()
@@ -244,8 +219,30 @@ class VLLMBackend(Backend):
     def tool_calls_message(self, tool_calls : List[ToolCall]):
         return self.assistant_message(self.formatter.tool_call_prompt(tool_calls))
 
+    def call_model_internal(self, start_seqs, stop_seqs):
+        response = self.client.chat.completions.create(
+            model=self.model,
+            messages=self.outgoing_messages,
+            temperature=0.6,
+            max_tokens=1024,
+            stop=stop_seqs,
+            # frequency_penalty=-0.2,
+            # Not supported in OpenAI module but VLLM supports it
+            extra_body={'repetition_penalty': 1.0},
+        )
+        # Check if the model wants to run more tools and add the stop sequence
+        if response.choices[0].finish_reason == "stop" and any(s in response.choices[0].message.content for s in start_seqs):
+            # Add the stop sequence to the content
+            response.choices[0].message.content += "\n" + stop_seqs[0] + "\n"
+            has_tool_calls = True
+        else:
+            has_tool_calls = False
+        message = response.choices[0].message
+        content = message.content
+        return response, content, message, has_tool_calls
+
     # TODO: make generation parameters configurable
-    def _call_model(self):
+    def call_model(self):
         # Get the delimiters from the formatter
         start_seqs, stop_seqs = self.formatter.get_delimiters()
         if self.quirks.augment_stop_sequences:
@@ -254,27 +251,8 @@ class VLLMBackend(Backend):
             start_seqs = self.quirks.augment_start_sequences(start_seqs)
 
         # Make the actual call to the LLM
-        response = self.client.chat.completions.create(
-            model=self.model,
-            messages=self.model_messages,
-            temperature=0.6,
-            max_tokens=1024,
-            stop=stop_seqs,
-            # frequency_penalty=-0.2,
-            # Not supported in OpenAI module but VLLM supports it
-            extra_body={'repetition_penalty': 1.0},
-        )
-
-        # Check if the model wants to run more tools and add the stop sequence
-        if response.choices[0].finish_reason == "stop" and any(s in response.choices[0].message.content for s in start_seqs):
-            # Add the stop sequence to the content
-            response.choices[0].message.content += "\n" + stop_seqs[0] + "\n"
-            has_tool_calls = True
-        else:
-            has_tool_calls = False
-
-        message = response.choices[0].message
-        original_content = message.content
+        (original_response, original_content,
+         message, has_tool_calls) = self.call_model_internal(start_seqs, stop_seqs)
 
         # Some models consistently mess up their output in a predictable and fixable way;
         # apply a fix if one is available.
@@ -287,20 +265,21 @@ class VLLMBackend(Backend):
         extracted_content = self.formatter.extract_content(fixed_content)
 
         # Add the cleaned message to the log since the next part may fail
-        self.append_cleaned(message)
+        self.append(message)
+
         if has_tool_calls:
             # Extract tool calls (but don't parse yet)
             try:
                 tool_calls = self.formatter.extract_tool_calls(fixed_content)
-                self.messages.append(UnparsedToolCalls(response, tool_calls, extracted_content))
+                self.messages.append(UnparsedToolCalls(original_response, tool_calls, extracted_content))
                 self.last_tool_calls = tool_calls
             except Exception as e:
                 estr = f'{type(e).__name__}: {e}'
                 status.debug_message(f"Error extracting tool calls: {estr}")
                 tool_calls = []
                 self.last_tool_calls = None
-                self.messages.append(ErrorToolCalls(response, estr, extracted_content))
-                self.append_cleaned(
+                self.messages.append(ErrorToolCalls(original_response, estr, extracted_content))
+                self.append(
                     self.tool_results_message([
                         ToolResult(
                             name="[error]",
@@ -311,7 +290,7 @@ class VLLMBackend(Backend):
                 )
         else:
             self.last_tool_calls = None
-            self.messages.append(AssistantMessage(extracted_content, response))
+            self.messages.append(AssistantMessage(extracted_content, original_response))
         return message, extracted_content, has_tool_calls
 
     def tool_lookup(self, tool_call : ToolCall) -> Tuple[bool,ToolCall|ToolResult]:
@@ -349,7 +328,7 @@ class VLLMBackend(Backend):
             status.debug_message(msg)
             return False, tool_call.error(msg)
 
-    def _run_tools_internal(self, tool_calls : List[ToolCall]) -> List[ToolResult]:
+    def run_tools_internal(self, tool_calls : List[ToolCall]) -> List[ToolResult]:
         tool_results = []
         for tool_call in tool_calls:
 
@@ -390,18 +369,18 @@ class VLLMBackend(Backend):
         return tool_results
 
     def run_tools(self):
-        tool_results = self._run_tools_internal(self.last_tool_calls)
-        self.append_cleaned(self.tool_results_message(tool_results))
-        _, content, has_tool_calls = self._call_model()
+        tool_results = self.run_tools_internal(self.last_tool_calls)
+        self.append(self.tool_results_message(tool_results))
+        _, content, has_tool_calls = self.call_model()
         return content, has_tool_calls
 
     def send(self, message : str) -> Tuple[Optional[str],bool]:
-        self.append_cleaned(self.user_message(message))
+        self.append(self.user_message(message))
         self.messages.append(UserMessage(message))
-        _, content, has_tool_calls = self._call_model()
+        _, content, has_tool_calls = self.call_model()
         return content, has_tool_calls
 
-    def append_cleaned(self, message : Union[dict,ChatCompletionMessage,List[ToolResult]]):
+    def append(self, message : Union[dict,ChatCompletionMessage,List[ToolResult]]):
         if isinstance(message, dict):
             conv_message = message
         elif isinstance(message, ChatCompletionMessage):
@@ -411,4 +390,68 @@ class VLLMBackend(Backend):
         else:
             raise ValueError(f"Unknown message type: {type(message)}")
         # Save the message to the log we pass back to the model
-        self.model_messages.append(conv_message)
+        self.outgoing_messages.append(conv_message)
+
+    def get_system_message(self):
+        return self.system_message_content
+
+class AnthropicBackend(VLLMBackend):
+    NAME = 'anthropic'
+    MODELS = [
+        "claude-3-haiku-20240307",
+        "claude-3-sonnet-20240229",
+        "claude-3-opus-20240229",
+    ]
+    QUIRKS = {
+        "claude-3-haiku-20240307": NO_QUIRKS,
+        "claude-3-sonnet-20240229": NO_QUIRKS,
+        "claude-3-opus-20240229": NO_QUIRKS,
+    }
+    API_KEY_PATH = "~/.config/anthropic/api_key"
+
+    def client_setup(self, args):
+        if args.api_key is None:
+            if "ANTHROPIC_API_KEY" in os.environ:
+                api_key = os.environ["ANTHROPIC_API_KEY"]
+            elif os.path.exists(os.path.expanduser(self.API_KEY_PATH)):
+                api_key = open(os.path.expanduser(self.API_KEY_PATH), "r").read().strip()
+            else:
+                raise ValueError(f"No Anthropic API key provided and none found in ANTHROPIC_API_KEY or {self.API_KEY_PATH}")
+        os.environ["ANTHROPIC_API_KEY"] = api_key
+        self.client = Anthropic(api_key=api_key)
+
+    def append(self, message : dict|AnthropicMessage|List[ToolResult]):
+        if isinstance(message, dict):
+            conv_message = message
+        elif isinstance(message, list):
+            conv_message = self.tool_results_message(message)
+        elif isinstance(message, AnthropicMessage):
+            conv_message = {
+                "role": "assistant",
+                "content": message.text,
+            }
+        else:
+            raise ValueError(f"Unknown message type: {type(message)}")
+        self.outgoing_messages.append(conv_message)
+        self.messages.append(message)
+
+    def call_model_internal(self, start_seqs, stop_seqs):
+        start_seqs, stop_seqs = self.formatter.get_delimiters()
+        response = self.client.messages.create(
+            model=self.model,
+            messages=self.outgoing_messages[1:], # Skip system message
+            temperature=1,
+            max_tokens=1024,
+            stop_sequences=stop_seqs,
+            system=self.get_system_message(),
+        )
+        if response.stop_reason == "stop_sequence":
+            response.content[0].text += response.stop_sequence
+
+        if any(s in response.content[0].text for s in start_seqs):
+            has_tool_calls = True
+        else:
+            has_tool_calls = False
+        status.debug_message(f"Response:\n{response.content[0].text}", truncate=False)
+        message = response.content[0]
+        return response, message.text, message, has_tool_calls

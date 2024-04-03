@@ -37,6 +37,7 @@ class CTFChallenge:
         # Load in all the challenge information from the challenge.json file
         self.challenge_json = challenge_json
         self.category = challenge_json.parent.parent.name
+        self.category_friendly = category_friendly.get(self.category, self.category)
         self.chaldir = challenge_json.parent
         self.challenge = json.loads(challenge_json.read_text())
         self.points = self.challenge.get("points", self.challenge.get("initial", 0))

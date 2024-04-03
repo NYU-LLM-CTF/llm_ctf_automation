@@ -4,7 +4,7 @@ import random
 import sys
 
 from .prompts import PromptManager
-from ..backends.vllm_backend import VLLMBackend, MODELS
+from ..backends.vllm_backend import VLLMBackend
 from ..formatters import Formatter
 from ..challenge import CTFChallenge
 from ..ctflogging import status
@@ -47,7 +47,7 @@ if __name__ == "__main__":
         disable_docker=False,
         prompt_set=args.prompt_set,
         formatter=args.formatter,
-        model=MODELS[0],
+        model=VLLMBackend.MODELS[0],
         api_endpoint="http://example.com",
         debug=not args.no_debug,
     )
@@ -106,7 +106,7 @@ if __name__ == "__main__":
         # Get the VLLM backend
         backend = VLLMBackend(system_message=pc.render("system"), tools=tools, args=fake_args)
         backend.make_demo_from_templates()
-        for message in backend.model_messages:
+        for message in backend.outgoing_messages:
             if message['role'] == 'user':
                 status.user_message(message['content'])
             elif message['role'] == 'assistant':

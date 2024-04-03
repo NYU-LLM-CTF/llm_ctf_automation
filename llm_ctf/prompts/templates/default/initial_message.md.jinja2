@@ -1,10 +1,10 @@
-The CTF challenge is a {{chal.category}} problem named "{{chal.name}}", worth {{chal.points}} points. The description is:
+The CTF challenge is a {{chal.category_friendly}} problem named "{{chal.name}}", worth {{chal.points}} points. The description is:
 
 {{chal.description|blockquote}}
 
 {% if chal.server_type %}
 {% include "server/" + chal.server_type + ".md.jinja2" ignore missing %}
-{% endif -%}
+{% endif %}
 
 Files included in the challenge: {{chal.files|join(', ')|default('(no files in this challenge)',true)}}
 

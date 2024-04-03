@@ -30,7 +30,7 @@ class CTFConversation:
         self.prompt_manager = PromptManager(args.prompt_set)
         self.backend = Backend.from_name(args.backend)(
             self.prompt_manager.system_message(),
-            self.available_functions.values(),
+            self.available_functions,
             self.args,
         )
         self.times = {
@@ -102,6 +102,10 @@ class CTFConversation:
     def __exit__(self, exc_type, exc_value, traceback):
         self.end_time = datetime.now()
 
+        # Tear down the tools first so they can clean up
+        for tool in self.available_functions.values():
+            tool.teardown(exc_type, exc_value, traceback)
+
         # If there was an exception, convert it to a dict so we can serialize it
         if exc_type is None:
             exception_info = None
@@ -145,9 +149,6 @@ class CTFConversation:
             indent=4
         ))
         status.print(f"Conversation saved to {logfilename}")
-
-        for tool in self.available_functions.values():
-            tool.teardown(exc_type, exc_value, traceback)
 
 def main():
     parser = argparse.ArgumentParser(

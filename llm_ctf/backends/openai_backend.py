@@ -14,11 +14,6 @@ from openai.types.chat import ChatCompletionMessage
 from openai.types.chat.chat_completion_message_tool_call import ChatCompletionMessageToolCall as OAIToolCall
 from openai.types.chat.chat_completion_tool_param import ChatCompletionToolParam
 
-MODELS = [
-    "gpt-4-1106-preview",
-    "gpt-4-0125-preview",
-    "gpt-3.5-turbo-1106",
-]
 API_KEY_PATH = "~/.openai/api_key"
 
 def get_tool_calls(otc_calls : List[OAIToolCall]) -> List[ToolCall]:
@@ -34,8 +29,13 @@ def make_call_result(res : ToolResult):
 
 class OpenAIBackend(Backend):
     NAME = 'openai'
+    MODELS = [
+        "gpt-4-1106-preview",
+        "gpt-4-0125-preview",
+        "gpt-3.5-turbo-1106",
+    ]
 
-    def __init__(self, system_message : str, tools : List[Tool], args : Namespace):
+    def __init__(self, system_message : str, tools: dict[str,Tool], args : Namespace):
         self.args = args
         if args.api_key is None:
             if "OPENAI_API_KEY" in os.environ:
@@ -45,14 +45,14 @@ class OpenAIBackend(Backend):
             else:
                 raise ValueError(f"No OpenAI API key provided and none found in OPENAI_API_KEY or {API_KEY_PATH}")
         self.client = OpenAI(api_key=api_key)
-        self.tools = {tool.name: tool for tool in tools}
-        self.tool_schemas = [ChatCompletionToolParam(**tool.schema) for tool in tools]
+        self.tools = tools
+        self.tool_schemas = [ChatCompletionToolParam(**tool.schema) for tool in tools.values()]
         if args.model:
-            if args.model not in MODELS:
-                raise ValueError(f"Invalid model {args.model}. Must be one of {MODELS}")
+            if args.model not in self.MODELS:
+                raise ValueError(f"Invalid model {args.model}. Must be one of {self.MODELS}")
             self.model = args.model
         else:
-            self.model = MODELS[0]
+            self.model = self.MODELS[0]
             # Update the args object so that the model name will be included in the logs
             args.model = self.model
         self.system_message = system_message
@@ -65,7 +65,7 @@ class OpenAIBackend(Backend):
 
     @classmethod
     def get_models(cls):
-        return MODELS
+        return cls.MODELS
 
     def _call_model(self) -> ChatCompletionMessage:
         return self.client.chat.completions.create(
@@ -144,5 +144,12 @@ class OpenAIBackend(Backend):
         self.messages.append(response)
         return response.content, bool(response.tool_calls)
 
-    def convert_message(self, m):
-        return m if isinstance(m,dict) else m.model_dump()
+    def extract_parameters(self, tool : Tool, tool_call : ToolCall) -> dict:
+        parsed_arguments = json.loads(tool_call.arguments)
+        tool_call.parsed_arguments = parsed_arguments
+        Formatter.validate_args(tool, tool_call)
+        Formatter.convert_args(tool, tool_call)
+        return tool_call
+
+    def get_system_message(self):
+        self.system_message

@@ -36,7 +36,7 @@ def print_run_command(args, result):
         print(f"==> stderr:\n{stderr}")
 
 def print_decompile(args, result):
-    binary = args['binary']
+    binary = args.get('binary',args['path'])
     function = args.get('function', 'main')
     code = result['decompilation']
     print(f"Decompiled {binary} function {function}:")
@@ -45,7 +45,7 @@ def print_decompile(args, result):
     print(highlight(code, lexer, formatter))
 
 def print_disassemble(args, result):
-    binary = args['binary']
+    binary = args.get('binary',args['path'])
     function = args.get('function', 'main')
     code = result['disassembly']
     print(f"Disassembled {binary} function {function}:")
@@ -100,7 +100,7 @@ if 'exception_info' in js and js['exception_info']:
                             markup=True)
     print()
 print("*"*80)
-for message in js['messages']:
+for timestamp,message in js['messages']:
     if message['content']:
         if message['role'] == 'system':
             status.system_message(message['content'])

@@ -1,13 +1,10 @@
 from abc import ABC, abstractmethod
-from collections.abc import Iterator
 from dataclasses import dataclass
 from enum import Enum
-from types import NoneType
 from typing import Any, Literal, Optional, Tuple, Type, List, Union
 
 from llm_ctf.tools import ToolCall, ToolResult
 from ..utils import timestamp
-from ..ctflogging import status
 
 class IterKind(Enum):
     # May be skipped in iteration if item.skips is True
@@ -18,46 +15,94 @@ class IterKind(Enum):
     # item.finish_collect will be called with all items of the same kind
     COLLECT = 3
 
+# Our log format expects the messages to follow the chat completion message format
+# from OpenAI; we allow an 'extra' field for storing information about the original
+# message from non-OpenAI backends.
+
 @dataclass
 class FakeToolCalls:
     """ToolCalls that were created for a demo message; they lack a response"""
     tool_calls : List[ToolCall]
     content : Optional[str] = None
 
+    def model_dump(self):
+        return {
+            'role': 'tool',
+            'content': self.content,
+            'tool_calls': [tc.model_dump() for tc in self.tool_calls],
+        }
+
+def make_extra(obj, *fields):
+    extra_fields = {}
+    for field in fields:
+        data = getattr(obj, field)
+        data = data.model_dump() if hasattr(data, 'model_dump') else data
+        data_type = type(data).__name__
+        extra_fields[field] = {'type': data_type, 'data': data}
+    return {
+        'type': type(obj).__name__,
+        **extra_fields,
+    }
+
 @dataclass
 class UnparsedToolCalls:
     response: Any
     tool_calls: List[ToolCall]
     content: Optional[str] = None
+    def model_dump(self):
+        return {
+            'role': 'tool',
+            'content': self.content,
+            'tool_calls': [tc.model_dump() for tc in self.tool_calls],
+            'extra': make_extra(self, 'response'),
+        }
 
-@dataclass
-class ParsedToolCalls:
-    response: Any
-    tool_calls: List[ToolCall]
-    content: Optional[str] = None
+class ParsedToolCalls(UnparsedToolCalls):
+    pass
 
 @dataclass
 class ErrorToolCalls:
     response: Any
     error: str
     content: Optional[str] = None
+    def model_dump(self):
+        return {
+            'role': 'tool',
+            'content': self.content,
+            'tool_calls': [],
+            'extra': make_extra(self, 'response', 'error'),
+        }
 
 @dataclass
 class UserMessage:
     content: str
     role: Literal["user"] = "user"
+    def model_dump(self):
+        return vars(self)
 
 @dataclass
 class SystemMessage:
     content: str
     role: Literal["system"] = "system"
     tool_use_prompt: Optional[str] = None
+    def model_dump(self):
+        return {
+            'role': 'system',
+            'content': self.content,
+            'extra': make_extra(self, 'tool_use_prompt'),
+        }
 
 @dataclass
 class AssistantMessage:
     content: str
     role: Literal["assistant"] = "assistant"
     response: Optional[Any] = None
+    def model_dump(self):
+        return {
+            'role': 'assistant',
+            'content': self.content,
+            'extra': make_extra(self, 'response'),
+        }
 
 MessageTypes = Union[FakeToolCalls, UnparsedToolCalls, ParsedToolCalls, ToolResult,
                      ErrorToolCalls, UserMessage, SystemMessage, AssistantMessage]
@@ -176,22 +221,14 @@ class Backend(ABC):
 
     def get_timestamped_messages(self):
         """Get the converted messages in the log with timestamps."""
-        def convert(m):
-            if hasattr(m, 'model_dump'):
-                conv = m.model_dump()
-            elif hasattr(m, 'tool_calls'):
-                conv = {'tool_calls': [tc.model_dump() for tc in m.tool_calls]}
-            elif isinstance(m, MessageTypes):
-                conv = {k:convert(v) for k,v in vars(m).items()}
-            else:
-                conv = m
-            return conv
         converted = []
         for ts,m in self.messages.get_timestamped():
-            converted.append((ts, convert(m)))
+            converted.append((ts, m.model_dump() if hasattr(m, 'model_dump') else m))
         # Add the system message if the first message isn't a system message
         if converted[0][1]['role'] != 'system':
-            converted.insert(0, (converted[0][0], {'role': 'system', 'content': self.system_message}))
+            converted.insert(
+                0, (converted[0][0], {'role': 'system', 'content': self.get_system_message()})
+            )
         return converted
 
     @classmethod
@@ -223,10 +260,18 @@ class Backend(ABC):
     def messages(self, value):
         self._messages = TimestampedList(value)
 
+    @abstractmethod
+    def get_system_message(self):
+        raise NotImplementedError
+
+class NotGiven:
+    pass
+NOT_GIVEN = NotGiven()
+
 @dataclass
 class SamplingParams:
-    temperature: Optional[float] = None
-    frequency_penalty: Optional[float] = None
-    max_tokens: Optional[int] = None
-    presence_penalty: Optional[float] = None
-    top_p: Optional[int] = None
+    temperature: Optional[float|NotGiven] = NOT_GIVEN
+    frequency_penalty: Optional[float|NotGiven] = NOT_GIVEN
+    max_tokens: Optional[int|NotGiven] = NOT_GIVEN
+    presence_penalty: Optional[float|NotGiven] = NOT_GIVEN
+    top_p: Optional[int|NotGiven] = NOT_GIVEN

@@ -124,8 +124,8 @@ def repr_raw_heredoc(s : str) -> str:
 
 class VBPYFormatter(Formatter):
     NAME = 'vbpy'
-    def __init__(self, tools: List[Tool] = [], prompt_set='default'):
-        self.tools = { tool.name : tool for tool in tools }
+    def __init__(self, tools: dict[str,Tool], prompt_set='default'):
+        self.tools = tools
         self.prompt_manager = PromptManager(prompt_set)
         self.render_delimiters = True
         self.code_blocks = True
