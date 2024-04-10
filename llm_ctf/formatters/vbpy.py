@@ -148,9 +148,9 @@ class VBPYFormatter(Formatter):
     def _make_signature(cls, tool: Tool) -> str:
         def param_str(name):
             info = tool.parameters[name]
-            ps = f'{name}: {info['python_type'].__name__}'
+            ps = f"{name}: {info['python_type'].__name__}"
             if 'default' in info:
-                ps += f' = {repr(info['default'])}'
+                ps += f" = {repr(info['default'])}"
             return ps
         return f'{tool.name}(' + ', '.join(param_str(name) for name in tool.parameters) + ')'
 

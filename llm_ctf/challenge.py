@@ -3,6 +3,7 @@ import re
 import shutil
 import subprocess
 import tempfile
+from .utilities.dockertool import DockerClient
 
 from pathlib import Path
 from .ctflogging import status
@@ -19,6 +20,7 @@ category_friendly = {
 class CTFChallenge:
     def __init__(self, challenge_json, args):
         self.args = args
+        self.docker = DockerClient()
         self.load_challenge(Path(challenge_json))
 
         # Docker container information
@@ -46,13 +48,49 @@ class CTFChallenge:
         self.challenge_container = self.challenge.get("container_image")
         self.challenge_port = self.challenge.get("internal_port")
         self.server_description = self.challenge.get("server_description")
+        self.image_name = self.parse_oci_path()
+        self.oci_info = self.parse_oci_container()
+        self.oci_container = None if not self.oci_info else self.oci_info[-1]
+        self.oci_fullname = None if not self.oci_info else "-".join(self.oci_info)
+        self.asi_oci_fullname = None if not self.oci_info else "asibench_" + self.oci_fullname
+        self.real_oci = self.oci_container
         self.server_type = self.get_server_type()
         self.description = self.challenge['description'].format(box=self.challenge_container, port=self.challenge_port)
         self.files = self.challenge.get("files", [])
+        
+    def load_challenge_image(self):
+        if self.image_name:
+            # image_list = subprocess.run(['docker', 'images'], stdout=subprocess.PIPE, text=True)
+            image_list = self.docker.get_images()
+            if self.oci_container not in image_list \
+                and self.oci_fullname not in image_list \
+                    and self.asi_oci_fullname not in image_list:
+                status.debug_message(f"Load pre-build docker image {self.image_name.name}...")
+                with open(self.image_name, 'rb') as oci:
+                    subprocess.run(['docker', 'load'], stdin=oci)
+                image_list = subprocess.run(['docker', 'images'], stdout=subprocess.PIPE, text=True)
+                return
+            status.debug_message(f"No pre-build docker image {self.image_name.name} found!")
+        
+    def parse_oci_container(self):
+        if self.image_name:
+            oci_parts =  self.image_name.stem.split('-', maxsplit=2)
+            if len(oci_parts) != 3:
+                status.debug_message(f"wrong oci image name format, correct name should be: year[q/f]-category-chalname")
+                return None
+            return oci_parts
+        status.debug_message(f"No oci image found, skip")
+        return None        
+
+    def parse_oci_path(self):
+        if self.chaldir.is_dir():
+            pattern = '[0-9][0-9][0-9][0-9][qf]-*.tar'
+            matching_files = sorted(self.chaldir.glob(pattern))
+        return matching_files[-1] if len(matching_files) > 0 else None
 
     def get_server_type(self):
         # TODO: simplify this / make it consistent
-        if not self.challenge_container:
+        if not self.challenge_container and not self.oci_container:
             return None
         if self.category == "web" or self.category == "misc" and self.challenge.get("proto") != "nc":
             return "web"
@@ -84,15 +122,28 @@ class CTFChallenge:
                 check=True, capture_output=True,
             )
             return
-        if not self.challenge_container: return
-        status.debug_message(f"Starting challenge container {self.challenge_container}")
+        # if not self.challenge_container: return
+        if not self.oci_container and not self.challenge_container: return
+        status.debug_message(f"Starting challenge container {self.oci_container}")
+        image_list = self.docker.get_images()
+        if self.real_oci not in image_list:
+            self.real_oci = self.oci_fullname
+        if self.real_oci not in image_list:
+            self.real_oci = self.asi_oci_fullname
         subprocess.run(
             ['docker', 'run'] + \
             ['--network', self.network] + \
             ['--platform', 'linux/amd64', '-d', '--rm'] + \
-            ['--name', self.challenge_container, self.challenge_container],
-            check=True, capture_output=True,
+            ['--name', self.real_oci, self.real_oci],
+            check=True, capture_output=True
         )
+        # subprocess.run(
+        #     ['docker', 'run'] + \
+        #     ['--network', self.network] + \
+        #     ['--platform', 'linux/amd64', '-d', '--rm'] + \
+        #     ['--name', self.challenge_container, self.challenge_container],
+        #     check=True, capture_output=True,
+        # )
 
     def stop_challenge_container(self):
         if self.args.disable_docker:
@@ -137,6 +188,7 @@ class CTFChallenge:
                 dst = Path(self.tmpdir) / filename
                 dst.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(src, dst)
+        self.load_challenge_image()
         self.start_challenge_container()
         return self
 
@@ -144,3 +196,9 @@ class CTFChallenge:
         self.stop_challenge_container()
         if self.tmpdir:
             self._tmpdir.__exit__(exc_type, exc_value, traceback)
+        if self.real_oci:
+            command = f"docker ps --filter name={self.real_oci} -q | xargs docker stop"
+            subprocess.run(command, shell=True, check=True)
+            subprocess.run(
+                ['docker', 'rmi', self.real_oci]
+            )

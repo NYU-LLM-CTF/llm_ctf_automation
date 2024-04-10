@@ -23,6 +23,10 @@ import inspect
 import json
 import subprocess
 import tempfile
+from googlesearch import search
+import requests
+import bs4
+import re
 
 from .utils import CALL_ID
 from .ctflogging import status
@@ -508,6 +512,42 @@ class Disassemble(Tool):
 
 class GiveUpException(Exception):
     pass
+
+# class WebSearch(Tool):
+#     NAME = "web_search"
+#     def __init__(self, challenge: "CTFChallenge"):
+#         super().__init__()
+#         self.challenge = challenge
+        
+#     def _get_webs(self, query, number=3, pause=2):
+#         return [j for j in search(query=query, num=number, stop=number, pause=2)]
+    
+#     def search_web(self, query, number=3, pause=2, timeout=30):
+#         web_contents = []
+#         urls = self._get_webs(query, number, pause)
+#         for i in urls:
+#             web_body = self._parse_web(i, timeout)
+#             if web_body:
+#                 web_contents.append(web_contents)
+#         return urls, web_contents
+    
+#     def _parse_web(self, url, timeout=30):
+#         try:
+#             res = requests.get(url, timeout=timeout)
+#             soup  = bs4.BeautifulSoup(res.text, 'html.parser')
+#             elems = re.sub(r'\n\n+', '\n', soup.find('body').get_text())
+#             if elems:
+#                 return elems
+#             else:
+#                 status.debug_message(f"No main body in {url}")
+#                 return
+#         except requests.exceptions.Timeout:
+#             print(f"Timeout on {url}, skipping")
+#             return
+
+#     def __call__(self, query, number=3, pause=2, timeout=30):
+#         urls, webs = self.search_web(query, number, pause, timeout)
+#         return {"url": "\n".join(urls), "contents": "\n".join(webs)}
 
 class GiveUp(Tool):
     NAME = "give_up"

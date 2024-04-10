@@ -19,11 +19,17 @@ for d in LLM_CTF_Database/{rev}/*; do
     fi
 done
 
+networkname="ctfnet"
+network_exists=$(docker network ls | grep $networkname)
 # Create network
-docker network create ctfnet
+if [ -z "$network_exists" ]; then
+    docker network create ctfnet
+else
+    echo "Network ${networkname} already exists, skip!"
+fi
 
 # Download and unpack Ghidra
-if [ ! -d ghidra_11.0_PUBLIC ]; then
+if [ ! -d ghidra_11.0.1_PUBLIC ]; then
     wget https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_11.0.1_build/ghidra_11.0.1_PUBLIC_20240130.zip
     unzip ghidra_11.0.1_PUBLIC_20240130.zip
     rm ghidra_11.0.1_PUBLIC_20240130.zip

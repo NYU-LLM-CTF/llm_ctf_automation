@@ -323,8 +323,7 @@ class VLLMBackend(Backend):
             tool_call.parsed_arguments = parsed_tc.parsed_arguments
             return True, tool_call
         except ValueError as e:
-            msg = f"{type(e).__name__} extracting parameters for {
-                tool_call.name}: {e}"
+            msg = f"{type(e).__name__} extracting parameters for {tool_call.name}: {e}"
             status.debug_message(msg)
             return False, tool_call.error(msg)
 
