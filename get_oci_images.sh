@@ -62,3 +62,56 @@ cp ${data_dir}/${event}/2022f-cry-the_lengths_we_extend_ourselves.tar ./LLM_CTF_
 cp ${data_dir}/${event}/2022f-for-corporate_ntk_problems.tar ./LLM_CTF_Database/2022/CSAW-Finals/forensics/"Corporate NTK Problems"
 cp ${data_dir}/${event}/2022f-for-oh_shucks_i_need_tosleep_osint.tar ./LLM_CTF_Database/2022/CSAW-Finals/forensics/"Oh Shucks I Need Tosleep (OSINT)"
 
+cp ${data_dir}/${event}/2022f-msc-embrey0_leak.tar ./LLM_CTF_Database/2022/CSAW-Finals/misc/"eMbrEy0 LEaK"
+cp ${data_dir}/${event}/2022f-msc-impromptu.tar ./LLM_CTF_Database/2022/CSAW-Finals/misc/ImPROMPTu
+cp ${data_dir}/${event}/2022f-msc-impromptu.tar ./LLM_CTF_Database/2022/CSAW-Finals/misc/ImPROMPTu
+cp ${data_dir}/${event}/2022f-msc-super_guesser_g_me.tar ./LLM_CTF_Database/2022/CSAW-Finals/misc/"SupEr GUeSsEr G@me"
+cp ${data_dir}/${event}/2022f-pwn-cryptopwn.tar ./LLM_CTF_Database/2022/CSAW-Finals/pwn/CryptoPwn
+cp ${data_dir}/${event}/2022f-pwn-master_0f_h0le.tar ./LLM_CTF_Database/2022/CSAW-Finals/pwn/"mAsTeR 0F h0Le"
+cp ${data_dir}/${event}/2022f-pwn-salt_server.tar ./LLM_CTF_Database/2022/CSAW-Finals/pwn/"Salt Server"
+cp ${data_dir}/${event}/2022f-pwn-smoothie_operator.tar ./LLM_CTF_Database/2022/CSAW-Finals/pwn/"smoothie operator"
+cp ${data_dir}/${event}/2022f-pwn-when_to_hit.tar ./LLM_CTF_Database/2022/CSAW-Finals/pwn/when_to_h1t
+cp ${data_dir}/${event}/2022f-rev-babyauth.tar ./LLM_CTF_Database/2022/CSAW-Finals/rev/babyauth
+cp ${data_dir}/${event}/2022f-rev-colorblind.tar ./LLM_CTF_Database/2022/CSAW-Finals/rev/Colorblind
+cp ${data_dir}/${event}/2022f-rev-roulette.tar ./LLM_CTF_Database/2022/CSAW-Finals/rev/roulette
+
+cp ${data_dir}/${event}/2022f-web-doompdf.tar ./LLM_CTF_Database/2022/CSAW-Finals/rev/DOOMPDF
+cp ${data_dir}/${event}/2022f-web-homeworkme.tar ./LLM_CTF_Database/2022/CSAW-Finals/rev/homeworkme
+cp ${data_dir}/${event}/2022f-web-potion_seller.tar ./LLM_CTF_Database/2022/CSAW-Finals/rev/"Potion Seller"
+
+event=2022q
+cp ${data_dir}/${event}/2022q-cry-beyond_quantum.tar ./LLM_CTF_Database/2022/CSAW-Quals/crypto/Beyond-Quantum
+cp ${data_dir}/${event}/2022q-cry-gifts_shop.tar ./LLM_CTF_Database/2022/CSAW-Quals/crypto/gift-shop
+cp ${data_dir}/${event}/2022q-cry-gotta_crack_them_all.tar ./LLM_CTF_Database/2022/CSAW-Quals/crypto/gotta-crack-them-all
+cp ${data_dir}/${event}/2022q-cry-too_much_in_common.tar ./LLM_CTF_Database/2022/CSAW-Quals/crypto/too-much-in-common
+
+cp ${data_dir}/${event}/2022q-for-our_spy_in_new_terrain.tar ./LLM_CTF_Database/2022/CSAW-Quals/forensics/our_spy_in_new_terrain
+
+cp ${data_dir}/${event}/2022q-msc-cattheflag.tar ./LLM_CTF_Database/2022/CSAW-Quals/misc/CatTheFlag
+cp ${data_dir}/${event}/2022q-msc-donate_more.tar ./LLM_CTF_Database/2022/CSAW-Quals/misc/Donate-More
+
+cp ${data_dir}/${event}/2022q-pwn-ezrop.tar ./LLM_CTF_Database/2022/CSAW-Quals/pwn/ezROP
+cp ${data_dir}/${event}/2022q-pwn-unsafe_linking.tar ./LLM_CTF_Database/2022/CSAW-Quals/pwn/unsafe-linking
+
+cp ${data_dir}/${event}/2022q-rev-anyagacha.tar ./LLM_CTF_Database/2022/CSAW-Quals/rev/AnyaGacha
+cp ${data_dir}/${event}/2022q-rev-dockreleakage.tar ./LLM_CTF_Database/2022/CSAW-Quals/rev/dockREleakage
+cp ${data_dir}/${event}/2022q-rev-game.tar ./LLM_CTF_Database/2022/CSAW-Quals/rev/game
+cp ${data_dir}/${event}/2022q-rev-the_big_bang.tar ./LLM_CTF_Database/2022/CSAW-Quals/rev/the_big_bang
+
+cp ${data_dir}/${event}/2022q-web-good_intentions.tar ./LLM_CTF_Database/2022/CSAW-Quals/web/good_intentions
+cp ${data_dir}/${event}/2022q-web-lost_in_amazon.tar ./LLM_CTF_Database/2022/CSAW-Quals/web/Lost_In_Amazon
+cp ${data_dir}/${event}/2022q-web-pdf_thingy.tar ./LLM_CTF_Database/2022/CSAW-Quals/web/pdf_thingy
+cp ${data_dir}/${event}/2022q-web-search_for_pi.tar ./LLM_CTF_Database/2022/CSAW-Quals/web/search_for_pi
+cp ${data_dir}/${event}/2022q-web-smuggling_mail.tar ./LLM_CTF_Database/2022/CSAW-Quals/web/smuggling-mail
+
+
+
+
+
+
+
+
+
+
+
+
