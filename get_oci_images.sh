@@ -60,5 +60,5 @@ cp ${data_dir}/${event}/2022f-cry-open_ellipti_ph.tar ./LLM_CTF_Database/2022/CS
 cp ${data_dir}/${event}/2022f-cry-polly_crack_this.tar ./LLM_CTF_Database/2022/CSAW-Finals/crypto/polly-crack-this
 cp ${data_dir}/${event}/2022f-cry-the_lengths_we_extend_ourselves.tar ./LLM_CTF_Database/2022/CSAW-Finals/crypto/"The Lengths we Extend Ourselves"
 cp ${data_dir}/${event}/2022f-for-corporate_ntk_problems.tar ./LLM_CTF_Database/2022/CSAW-Finals/forensics/"Corporate NTK Problems"
-cp ${data_dir}/${event}/2022f-for-oh_shucks_i_need_tosleep_osint.tar ./LLM_CTF_Database/2022/CSAW-Finals/forensics/
+cp ${data_dir}/${event}/2022f-for-oh_shucks_i_need_tosleep_osint.tar ./LLM_CTF_Database/2022/CSAW-Finals/forensics/"Oh Shucks I Need Tosleep (OSINT)"
 
