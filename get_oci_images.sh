@@ -104,14 +104,7 @@ cp ${data_dir}/${event}/2022q-web-pdf_thingy.tar ./LLM_CTF_Database/2022/CSAW-Qu
 cp ${data_dir}/${event}/2022q-web-search_for_pi.tar ./LLM_CTF_Database/2022/CSAW-Quals/web/search_for_pi
 cp ${data_dir}/${event}/2022q-web-smuggling_mail.tar ./LLM_CTF_Database/2022/CSAW-Quals/web/smuggling-mail
 
-
-
-
-
-
-
-
-
-
-
+event=2021f
+cp ${data_dir}/${event}/2021f-web-smuggling_mail.tar ./LLM_CTF_Database/2022/CSAW-Quals/web/smuggling-mail
+cp ${data_dir}/${event}/2021f-web-smuggling_mail.tar ./LLM_CTF_Database/2022/CSAW-Quals/web/smuggling-mail
 
