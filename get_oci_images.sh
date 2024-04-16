@@ -105,6 +105,47 @@ cp ${data_dir}/${event}/2022q-web-search_for_pi.tar ./LLM_CTF_Database/2022/CSAW
 cp ${data_dir}/${event}/2022q-web-smuggling_mail.tar ./LLM_CTF_Database/2022/CSAW-Quals/web/smuggling-mail
 
 event=2021f
-cp ${data_dir}/${event}/2021f-web-smuggling_mail.tar ./LLM_CTF_Database/2022/CSAW-Quals/web/smuggling-mail
-cp ${data_dir}/${event}/2021f-web-smuggling_mail.tar ./LLM_CTF_Database/2022/CSAW-Quals/web/smuggling-mail
+cp ${data_dir}/${event}/2021f-cry-abolish_tables.tar ./LLM_CTF_Database/2021/CSAW-Finals/cry/aBoLiSh_taBLeS
+cp ${data_dir}/${event}/2021f-cry-ibad.tar ./LLM_CTF_Database/2021/CSAW-Finals/cry/iBad
+cp ${data_dir}/${event}/2021f-cry-interoperable.tar ./LLM_CTF_Database/2021/CSAW-Finals/cry/Interoperable
+cp ${data_dir}/${event}/2021f-cry-losing_my_marbles.tar ./LLM_CTF_Database/2021/CSAW-Finals/cry/losing-my-marbles
+cp ${data_dir}/${event}/2021f-for-no_time_to_register.tar ./LLM_CTF_Database/2021/CSAW-Finals/forensics/No-Time-to-Register
+cp ${data_dir}/${event}/2021f-msc-terminal_velocity.tar ./LLM_CTF_Database/2021/CSAW-Finals/misc/terminal-velocity
+cp ${data_dir}/${event}/2021f-pwn-baby_mqtt.tar ./LLM_CTF_Database/2021/CSAW-Finals/pwn/baby_mqtt
+cp ${data_dir}/${event}/2021f-pwn-chaff_mqtt.tar ./LLM_CTF_Database/2021/CSAW-Finals/pwn/chaff_mqtt
+cp ${data_dir}/${event}/2021f-rev-maze.tar ./LLM_CTF_Database/2021/CSAW-Finals/rev/maze
+cp ${data_dir}/${event}/2021f-rev-sfc.tar ./LLM_CTF_Database/2021/CSAW-Finals/rev/sfc
+cp ${data_dir}/${event}/2021f-web-portfolio_pollution.tar ./LLM_CTF_Database/2021/CSAW-Finals/web/portfolio-pollution
+cp ${data_dir}/${event}/2021f-web-united.tar ./LLM_CTF_Database/2021/CSAW-Finals/web/United
 
+event=2021q
+cp ${data_dir}/${event}/2021q-cry-bits.tar ./LLM_CTF_Database/2021/CSAW-Quals/cry/Bits
+cp ${data_dir}/${event}/2021q-cry-ecc_pop_quiz.tar ./LLM_CTF_Database/2021/CSAW-Quals/cry/ECC-Pop-Quiz
+cp ${data_dir}/${event}/2021q-cry-forgery.tar ./LLM_CTF_Database/2021/CSAW-Quals/cry/Forgery
+cp ${data_dir}/${event}/2021q-cry-gotta_decrypt_them_all.tar ./LLM_CTF_Database/2021/CSAW-Quals/cry/Gotta-Decrypt-Them-All
+cp ${data_dir}/${event}/2021q-cry-rsa_pop_quiz.tar ./LLM_CTF_Database/2021/CSAW-Quals/cry/RSA-Pop-Quiz
+cp ${data_dir}/${event}/2021q-msc-save_the_tristate.tar ./LLM_CTF_Database/2021/CSAW-Quals/misc/Save-the-Tristate
+cp ${data_dir}/${event}/2021q-pwn-alien_math.tar ./LLM_CTF_Database/2021/CSAW-Quals/pwn/alien-math
+cp ${data_dir}/${event}/2021q-pwn-cold.tar ./LLM_CTF_Database/2021/CSAW-Quals/pwn/cold
+cp ${data_dir}/${event}/2021q-pwn-haystack.tar ./LLM_CTF_Database/2021/CSAW-Quals/pwn/haystack
+cp ${data_dir}/${event}/2021q-pwn-krypto.tar ./LLM_CTF_Database/2021/CSAW-Quals/pwn/krypto
+cp ${data_dir}/${event}/2021q-pwn-password_checker.tar ./LLM_CTF_Database/2021/CSAW-Quals/pwn/Password-Checker
+cp ${data_dir}/${event}/2021q-pwn-procrastination_simulator.tar ./LLM_CTF_Database/2021/CSAW-Quals/pwn/procrastination-simulator
+cp ${data_dir}/${event}/2021q-pwn-word_games.tar ./LLM_CTF_Database/2021/CSAW-Quals/pwn/word-games
+cp ${data_dir}/${event}/2021q-rev-ncore.tar ./LLM_CTF_Database/2021/CSAW-Quals/pwn/ncore
+cp ${data_dir}/${event}/2021q-rev-ransomware.tar ./LLM_CTF_Database/2021/CSAW-Quals/rev/ransomware
+cp ${data_dir}/${event}/2021q-web-gatekeeping.tar ./LLM_CTF_Database/2021/CSAW-Quals/web/gatekeeping
+cp ${data_dir}/${event}/2021q-web-ninja.tar ./LLM_CTF_Database/2021/CSAW-Quals/web/ninja
+cp ${data_dir}/${event}/2021q-web-no_pass_needed.tar ./LLM_CTF_Database/2021/CSAW-Quals/web/no-pass-needed
+cp ${data_dir}/${event}/2021q-web-poem_collection.tar ./LLM_CTF_Database/2021/CSAW-Quals/web/poem-collection
+cp ${data_dir}/${event}/2021q-web-securinotes.tar ./LLM_CTF_Database/2021/CSAW-Quals/web/securinotes
+
+event=2018f
+cp ${data_dir}/${event}/2018f-pwn-es1337.tar ./LLM_CTF_Database/2018/CSAW-Finals/pwn/ES1337
+
+event=2014f
+cp ${data_dir}/${event}/2014f-pwn-krakme.tar ./LLM_CTF_Database/2014/CSAW-Finals/pwn/krakme
+
+event=2013f
+cp ${data_dir}/${event}/2013f-pwn-itsy.tar ./LLM_CTF_Database/2013/CSAW-Finals/pwn/itsy
+cp ${data_dir}/${event}/2013f-web-historypeats.tar ./LLM_CTF_Database/2013/CSAW-Finals/web/historypeats
