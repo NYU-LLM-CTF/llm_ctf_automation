@@ -70,7 +70,7 @@ cp ${data_dir}/${event}/2022f-pwn-cryptopwn.tar ./LLM_CTF_Database/2022/CSAW-Fin
 cp ${data_dir}/${event}/2022f-pwn-master_0f_h0le.tar ./LLM_CTF_Database/2022/CSAW-Finals/pwn/"mAsTeR 0F h0Le"
 cp ${data_dir}/${event}/2022f-pwn-salt_server.tar ./LLM_CTF_Database/2022/CSAW-Finals/pwn/"Salt Server"
 cp ${data_dir}/${event}/2022f-pwn-smoothie_operator.tar ./LLM_CTF_Database/2022/CSAW-Finals/pwn/"smoothie operator"
-cp ${data_dir}/${event}/2022f-pwn-when_to_hit.tar ./LLM_CTF_Database/2022/CSAW-Finals/pwn/when_to_h1t
+cp ${data_dir}/${event}/2022f-pwn-when_to_h1t.tar ./LLM_CTF_Database/2022/CSAW-Finals/pwn/when_to_h1t
 cp ${data_dir}/${event}/2022f-rev-babyauth.tar ./LLM_CTF_Database/2022/CSAW-Finals/rev/babyauth
 cp ${data_dir}/${event}/2022f-rev-colorblind.tar ./LLM_CTF_Database/2022/CSAW-Finals/rev/Colorblind
 cp ${data_dir}/${event}/2022f-rev-roulette.tar ./LLM_CTF_Database/2022/CSAW-Finals/rev/roulette
@@ -81,7 +81,7 @@ cp ${data_dir}/${event}/2022f-web-potion_seller.tar ./LLM_CTF_Database/2022/CSAW
 
 event=2022q
 cp ${data_dir}/${event}/2022q-cry-beyond_quantum.tar ./LLM_CTF_Database/2022/CSAW-Quals/crypto/Beyond-Quantum
-cp ${data_dir}/${event}/2022q-cry-gifts_shop.tar ./LLM_CTF_Database/2022/CSAW-Quals/crypto/gift-shop
+cp ${data_dir}/${event}/2022q-cry-gift_shop.tar ./LLM_CTF_Database/2022/CSAW-Quals/crypto/gift-shop
 cp ${data_dir}/${event}/2022q-cry-gotta_crack_them_all.tar ./LLM_CTF_Database/2022/CSAW-Quals/crypto/gotta-crack-them-all
 cp ${data_dir}/${event}/2022q-cry-too_much_in_common.tar ./LLM_CTF_Database/2022/CSAW-Quals/crypto/too-much-in-common
 
@@ -105,10 +105,10 @@ cp ${data_dir}/${event}/2022q-web-search_for_pi.tar ./LLM_CTF_Database/2022/CSAW
 cp ${data_dir}/${event}/2022q-web-smuggling_mail.tar ./LLM_CTF_Database/2022/CSAW-Quals/web/smuggling-mail
 
 event=2021f
-cp ${data_dir}/${event}/2021f-cry-abolish_tables.tar ./LLM_CTF_Database/2021/CSAW-Finals/cry/aBoLiSh_taBLeS
-cp ${data_dir}/${event}/2021f-cry-ibad.tar ./LLM_CTF_Database/2021/CSAW-Finals/cry/iBad
-cp ${data_dir}/${event}/2021f-cry-interoperable.tar ./LLM_CTF_Database/2021/CSAW-Finals/cry/Interoperable
-cp ${data_dir}/${event}/2021f-cry-losing_my_marbles.tar ./LLM_CTF_Database/2021/CSAW-Finals/cry/losing-my-marbles
+cp ${data_dir}/${event}/2021f-cry-abolish_tables.tar ./LLM_CTF_Database/2021/CSAW-Finals/crypto/aBoLiSh_taBLeS
+cp ${data_dir}/${event}/2021f-cry-ibad.tar ./LLM_CTF_Database/2021/CSAW-Finals/crypto/iBad
+cp ${data_dir}/${event}/2021f-cry-interoperable.tar ./LLM_CTF_Database/2021/CSAW-Finals/crypto/Interoperable
+cp ${data_dir}/${event}/2021f-cry-losing_my_marbles.tar ./LLM_CTF_Database/2021/CSAW-Finals/crypto/losing-my-marbles
 cp ${data_dir}/${event}/2021f-for-no_time_to_register.tar ./LLM_CTF_Database/2021/CSAW-Finals/forensics/No-Time-to-Register
 cp ${data_dir}/${event}/2021f-msc-terminal_velocity.tar ./LLM_CTF_Database/2021/CSAW-Finals/misc/terminal-velocity
 cp ${data_dir}/${event}/2021f-pwn-baby_mqtt.tar ./LLM_CTF_Database/2021/CSAW-Finals/pwn/baby_mqtt
@@ -119,11 +119,11 @@ cp ${data_dir}/${event}/2021f-web-portfolio_pollution.tar ./LLM_CTF_Database/202
 cp ${data_dir}/${event}/2021f-web-united.tar ./LLM_CTF_Database/2021/CSAW-Finals/web/United
 
 event=2021q
-cp ${data_dir}/${event}/2021q-cry-bits.tar ./LLM_CTF_Database/2021/CSAW-Quals/cry/Bits
-cp ${data_dir}/${event}/2021q-cry-ecc_pop_quiz.tar ./LLM_CTF_Database/2021/CSAW-Quals/cry/ECC-Pop-Quiz
+cp ${data_dir}/${event}/2021q-cry-bits.tar ./LLM_CTF_Database/2021/CSAW-Quals/crypto/Bits
+cp ${data_dir}/${event}/2021q-cry-ecc_pop_quiz.tar ./LLM_CTF_Database/2021/CSAW-Quals/crypto/ECC-Pop-Quiz
 cp ${data_dir}/${event}/2021q-cry-forgery.tar ./LLM_CTF_Database/2021/CSAW-Quals/cry/Forgery
-cp ${data_dir}/${event}/2021q-cry-gotta_decrypt_them_all.tar ./LLM_CTF_Database/2021/CSAW-Quals/cry/Gotta-Decrypt-Them-All
-cp ${data_dir}/${event}/2021q-cry-rsa_pop_quiz.tar ./LLM_CTF_Database/2021/CSAW-Quals/cry/RSA-Pop-Quiz
+cp ${data_dir}/${event}/2021q-cry-gotta_decrypt_them_all.tar ./LLM_CTF_Database/2021/CSAW-Quals/crypto/Gotta-Decrypt-Them-All
+cp ${data_dir}/${event}/2021q-cry-rsa_pop_quiz.tar ./LLM_CTF_Database/2021/CSAW-Quals/crypto/RSA-Pop-Quiz
 cp ${data_dir}/${event}/2021q-msc-save_the_tristate.tar ./LLM_CTF_Database/2021/CSAW-Quals/misc/Save-the-Tristate
 cp ${data_dir}/${event}/2021q-pwn-alien_math.tar ./LLM_CTF_Database/2021/CSAW-Quals/pwn/alien-math
 cp ${data_dir}/${event}/2021q-pwn-cold.tar ./LLM_CTF_Database/2021/CSAW-Quals/pwn/cold
