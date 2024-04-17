@@ -199,30 +199,30 @@ cp ${data_dir}/${event}/2019f-web-biometric-biometric_server.tar ./LLM_CTF_Datab
 cp ${data_dir}/${event}/2019f-web-very_saasy-sql-challenge.tar ./LLM_CTF_Database/2019/CSAW-Finals/web/very_SaaSy
 
 event=2019q
-cp ${data_dir}/${event}2019q/2019q-cry-brillouin.tar ./LLM_CTF_Database/2019/CSAW-Quals/crypto/brillouin 
-cp ${data_dir}/${event}2019q/2019q-cry-byte_me.tar ./LLM_CTF_Database/2019/CSAW-Quals/crypto/byte_me
-cp ${data_dir}/${event}2019q/2019q-cry-count_on_me.tar ./LLM_CTF_Database/2019/CSAW-Quals/crypto/count_on_me
-cp ${data_dir}/${event}2019q/2019q-cry-super_curve.tar ./LLM_CTF_Database/2019/CSAW-Quals/crypto/super_curve
-cp ${data_dir}/${event}2019q/2019q-cry-time_lie.tar ./LLM_CTF_Database/2019/CSAW-Quals/crypto/time.lie
+cp ${data_dir}/${event}/2019q-cry-brillouin.tar ./LLM_CTF_Database/2019/CSAW-Quals/crypto/brillouin 
+cp ${data_dir}/${event}/2019q-cry-byte_me.tar ./LLM_CTF_Database/2019/CSAW-Quals/crypto/byte_me
+cp ${data_dir}/${event}/2019q-cry-count_on_me.tar ./LLM_CTF_Database/2019/CSAW-Quals/crypto/count_on_me
+cp ${data_dir}/${event}/2019q-cry-super_curve.tar ./LLM_CTF_Database/2019/CSAW-Quals/crypto/super_curve
+cp ${data_dir}/${event}/2019q-cry-time_lie.tar ./LLM_CTF_Database/2019/CSAW-Quals/crypto/time.lie
 
-cp ${data_dir}/${event}2019q/2019q-pwn-baby_boi.tar ./LLM_CTF_Database/2019/CSAW-Quals/pwn/baby_boi
-cp ${data_dir}/${event}2019q/2019q-pwn-got_milk.tar ./LLM_CTF_Database/2019/CSAW-Quals/pwn/got_milk
-cp ${data_dir}/${event}2019q/2019q-pwn-popping_caps_2.tar ./LLM_CTF_Database/2019/CSAW-Quals/pwn/popping_caps_2
-cp ${data_dir}/${event}2019q/2019q-pwn-popping_caps.tar ./LLM_CTF_Database/2019/CSAW-Quals/pwn/popping_caps
-cp ${data_dir}/${event}2019q/2019q-pwn-small_boi.tar ./LLM_CTF_Database/2019/CSAW-Quals/pwn/small_boi
-cp ${data_dir}/${event}2019q/2019q-pwn-traveller.tar ./LLM_CTF_Database/2019/CSAW-Quals/pwn/traveller
-cp ${data_dir}/${event}2019q/2019q-pwn-tvm.tar ./LLM_CTF_Database/2019/CSAW-Quals/pwn/tvm
-cp ${data_dir}/${event}2019q/2019q-pwn-twitch_plays_shellcode.tar ./LLM_CTF_Database/2019/CSAW-Quals/pwn/twitch_plays_shellcode
+cp ${data_dir}/${event}/2019q-pwn-baby_boi.tar ./LLM_CTF_Database/2019/CSAW-Quals/pwn/baby_boi
+cp ${data_dir}/${event}/2019q-pwn-got_milk.tar ./LLM_CTF_Database/2019/CSAW-Quals/pwn/got_milk
+cp ${data_dir}/${event}/2019q-pwn-popping_caps_2.tar ./LLM_CTF_Database/2019/CSAW-Quals/pwn/popping_caps_2
+cp ${data_dir}/${event}/2019q-pwn-popping_caps.tar ./LLM_CTF_Database/2019/CSAW-Quals/pwn/popping_caps
+cp ${data_dir}/${event}/2019q-pwn-small_boi.tar ./LLM_CTF_Database/2019/CSAW-Quals/pwn/small_boi
+cp ${data_dir}/${event}/2019q-pwn-traveller.tar ./LLM_CTF_Database/2019/CSAW-Quals/pwn/traveller
+cp ${data_dir}/${event}/2019q-pwn-tvm.tar ./LLM_CTF_Database/2019/CSAW-Quals/pwn/tvm
+cp ${data_dir}/${event}/2019q-pwn-twitch_plays_shellcode.tar ./LLM_CTF_Database/2019/CSAW-Quals/pwn/twitch_plays_shellcode
 
-cp ${data_dir}/${event}2019q/2019q-rev-call_site.tar ./LLM_CTF_Database/2019/CSAW-Quals/rev/call_site
-cp ${data_dir}/${event}2019q/2019q-rev-gibberish_check.tar ./LLM_CTF_Database/2019/CSAW-Quals/rev/gibberish_check
-cp ${data_dir}/${event}2019q/2019q-rev-wizkid.tar ./LLM_CTF_Database/2019/CSAW-Quals/rev/wizkid
+cp ${data_dir}/${event}/2019q-rev-call_site.tar ./LLM_CTF_Database/2019/CSAW-Quals/rev/call_site
+cp ${data_dir}/${event}/2019q-rev-gibberish_check.tar ./LLM_CTF_Database/2019/CSAW-Quals/rev/gibberish_check
+cp ${data_dir}/${event}/2019q-rev-wizkid.tar ./LLM_CTF_Database/2019/CSAW-Quals/rev/wizkid
 
-cp ${data_dir}/${event}2019q/2019q-web-babycsp.tar ./LLM_CTF_Database/2019/CSAW-Quals/web/babycsp
-cp ${data_dir}/${event}2019q/2019q-web-buyify.tar ./LLM_CTF_Database/2019/CSAW-Quals/web/buyify
-cp ${data_dir}/${event}2019q/2019q-web-saasy-sql-challenge.tar ./LLM_CTF_Database/2019/CSAW-Quals/web/saasy
-cp ${data_dir}/${event}2019q/2019q-web-secure_file_store.tar ./LLM_CTF_Database/2019/CSAW-Quals/web/secure_file_store
-cp ${data_dir}/${event}2019q/2019q-web-unagi.tar ./LLM_CTF_Database/2019/CSAW-Quals/web/unagi
+cp ${data_dir}/${event}/2019q-web-babycsp.tar ./LLM_CTF_Database/2019/CSAW-Quals/web/babycsp
+cp ${data_dir}/${event}/2019q-web-buyify.tar ./LLM_CTF_Database/2019/CSAW-Quals/web/buyify
+cp ${data_dir}/${event}/2019q-web-saasy-sql-challenge.tar ./LLM_CTF_Database/2019/CSAW-Quals/web/saasy
+cp ${data_dir}/${event}/2019q-web-secure_file_store.tar ./LLM_CTF_Database/2019/CSAW-Quals/web/secure_file_store
+cp ${data_dir}/${event}/2019q-web-unagi.tar ./LLM_CTF_Database/2019/CSAW-Quals/web/unagi
 
 event=2018f
 cp ${data_dir}/${event}/2018f-pwn-es1337.tar ./LLM_CTF_Database/2018/CSAW-Finals/pwn/ES1337
