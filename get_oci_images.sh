@@ -22,8 +22,8 @@ cp ${data_dir}/${event}/2023f-pwn-virtualization_pwn.tar ./LLM_CTF_Database/2023
 cp ${data_dir}/${event}/2023f-rev-cell.tar ./LLM_CTF_Database/2023/CSAW-Finals/rev/cell
 
 cp ${data_dir}/${event}/2023f-web-dinoauth.tar ./LLM_CTF_Database/2023/CSAW-Finals/web/dinoauth
-cp ${data_dir}/${event}/2023f-web-ntf-db.tar ./LLM_CTF_Database/2023/CSAW-Finals/web/nft-world
-cp ${data_dir}/${event}/2023f-web-ntf-server.tar ./LLM_CTF_Database/2023/CSAW-Finals/web/nft-world
+cp ${data_dir}/${event}/2023f-web-nft-db.tar ./LLM_CTF_Database/2023/CSAW-Finals/web/nft-world
+cp ${data_dir}/${event}/2023f-web-nft-server.tar ./LLM_CTF_Database/2023/CSAW-Finals/web/nft-world
 cp ${data_dir}/${event}/2023f-web-shreeramquest-nginx.tar ./LLM_CTF_Database/2023/CSAW-Finals/web/SheeRamQuest
 cp ${data_dir}/${event}/2023f-web-shreeramquest-nodeserver.tar ./LLM_CTF_Database/2023/CSAW-Finals/web/SheeRamQuest
 cp ${data_dir}/${event}/2023f-web-triathlon_or_sprint-clientcontainer.tar ./LLM_CTF_Database/2023/CSAW-Finals/web/triathlon_or_sprint
