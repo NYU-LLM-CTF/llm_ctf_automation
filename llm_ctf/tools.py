@@ -32,7 +32,15 @@ from .utils import CALL_ID
 from .ctflogging import status
 from dataclasses import dataclass
 from pathlib import Path
-from enum import StrEnum
+
+try:
+    from enum import StrEnum
+except ImportError:
+    # Required for older python versions <=3.10
+    from enum import Enum
+    class StrEnum(str, Enum):
+        pass
+
 
 from typing import TYPE_CHECKING, Any, Optional, Set, get_type_hints
 from typing_extensions import Annotated
