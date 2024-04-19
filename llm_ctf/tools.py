@@ -448,7 +448,7 @@ class Decompile(Tool):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
             subprocess.run(
-                [GHIDRA, tmpdir, "DummyProj", "-scriptpath", SCRIPT_DIR / 'ghidra_scripts',
+                [GHIDRA, tmpdir, "DummyProj", "-scriptpath", SCRIPT_DIR / 'llm_ctf/ghidra_scripts',
                  "-import", real_binary, "-postscript", "DecompileToJson.java", output],
                 check=False, capture_output=True,
             )
@@ -504,7 +504,7 @@ class Disassemble(Tool):
         with tempfile.TemporaryDirectory() as tmpdir:
             tmpdir = Path(tmpdir)
             subprocess.run(
-                [GHIDRA, tmpdir, "DummyProj", "-scriptpath", SCRIPT_DIR / 'ghidra_scripts',
+                [GHIDRA, tmpdir, "DummyProj", "-scriptpath", SCRIPT_DIR / 'llm_ctf/ghidra_scripts',
                  "-import", real_binary, "-postscript", "DisassembleToJson.java", output],
                 check=False, capture_output=True,
             )
