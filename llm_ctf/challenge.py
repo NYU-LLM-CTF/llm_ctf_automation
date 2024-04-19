@@ -45,7 +45,7 @@ class CTFChallenge:
         self.points = self.challenge.get("points", self.challenge.get("initial", 0))
         self.name = self.challenge["name"]
         self.real_flag = self.challenge["flag"] if isinstance(self.challenge["flag"], str) else self.challenge['flag']['content']
-        self.challenge_container = self.challenge.get("container_image")
+        self.challenge_container = self.challenge.get("container_image", "")
         self.challenge_port = self.challenge.get("internal_port")
         self.server_description = self.challenge.get("server_description")
         self.image_name = self.parse_oci_path()
@@ -55,7 +55,7 @@ class CTFChallenge:
         self.asi_oci_fullname = None if not self.oci_info else "asibench_" + self.oci_fullname
         self.real_oci = self.oci_container
         self.server_type = self.get_server_type()
-        self.description = self.challenge['description'].format(box=self.challenge_container, port=self.challenge_port)
+        self.description = self.challenge['description'].replace("{", "{{").replace("}", "}}").format(box=self.challenge_container, port=self.challenge_port)
         self.files = self.challenge.get("files", [])
         
     def load_challenge_image(self):
