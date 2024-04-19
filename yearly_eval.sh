@@ -24,6 +24,7 @@ for dir in "${dir_list[@]}"; do
     # array=(${dir//\// })
     IFS='/' read -ra array <<< "$dir"
     # 0: database 1: year 2: event 3: category 4: challenge
-    bash ./llm_solve.sh -y ${array[1]} -e ${array[2]} -t ${array[3]} -c ${array[4]} -m ${MODEL}
+    echo Solving $dir
+    bash ./llm_solve.sh -y ${array[1]} -e ${array[2]} -t ${array[3]} -c "${array[4]}" -m ${MODEL}
     # echo ${array[4]}
 done
