@@ -108,7 +108,8 @@ public class DisassembleToJson extends GhidraScript {
     public void export(String filename) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         File outputFile = new File(filename);
-        HashMap<String, String> json_dict = new HashMap<String, String>();
+        HashMap<String, String> function_map = new HashMap<String, String>();
+        HashMap<String, String> address_map = new HashMap<String, String>();
 
         // Formatter for disassembled code
         TemplateSimplifier simplifier = new TemplateSimplifier();
@@ -158,7 +159,7 @@ public class DisassembleToJson extends GhidraScript {
             lastFunc = func;
 			boolean isFunctionEntryPoint = func.getEntryPoint().equals(currentAddress);
             // Get the code for this function so far, or create a new one
-            String code = json_dict.getOrDefault(func.getName(), "");
+            String code = function_map.getOrDefault(func.getName(), "");
 
             // If this is the first code unit in the function, add preamble
             if (isFunctionEntryPoint) {
@@ -235,11 +236,16 @@ public class DisassembleToJson extends GhidraScript {
             }
 
             // Update the code for this function
-            json_dict.put(func.getName(), code);
+            function_map.put(func.getName(), code);
+            // Add the address to map
+            address_map.put(func.getEntryPoint().toString(), func.getName());
         }
 
+        HashMap<String, HashMap<String, String>> json_data = new HashMap<String, HashMap<String, String>>();
+        json_data.put("functions", function_map);
+        json_data.put("addresses", address_map);
         // Convert the HashMap to JSON
-        String json = gson.toJson(json_dict);
+        String json = gson.toJson(json_data);
 
         // Write JSON to file
         try (FileWriter writer = new FileWriter(outputFile)) {

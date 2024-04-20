@@ -425,6 +425,23 @@ class Decompile(Tool):
             function = "main"
         return self.decompile(path, function)
 
+    def find_function(self, dis, function):
+        if function in dis["functions"]:
+            return dis["functions"][function]
+        # Looking for main entry point, so try other names also
+        if function == "main":
+            if "_start" in dis["functions"]:
+                return dis["functions"]["_start"]
+            if "invoke_main" in dis["functions"]:
+                return dis["functions"]["invoke_main"]
+        # Check if requesting radare2 unnamed function with address
+        if re.match(r"fcn\.[0-9a-f]+$", function):
+            addr = function[4:]
+            if addr in dis["addresses"]:
+                return dis["functions"][dis["addresses"][addr]]
+        # Nothing found
+        return None
+
     def decompile(self, binary, function):
         # Look for the decompilation output in "decomp"
         basename = Path(binary).name
@@ -437,13 +454,11 @@ class Decompile(Tool):
                 if not self.run_ghidra(basename, decomp_output):
                     return {"error": f"Decompilation for {binary} not available"}
                 self._decomp_cache[basename] = json.loads(decomp_output.read_text())
-        if function not in self._decomp_cache[basename]:
-            # If they're trying to find main, try again with _start instead
-            if function == "main":
-                return self.decompile(binary, "_start")
-            else:
-                return {"error": f"Function {function} not found in {binary}"}
-        return {"decompilation": self._decomp_cache[basename][function]}
+
+        if found := self.find_function(self._decomp_cache[basename], function):
+            return {"decompilation": found}
+        else:
+            return {"error": f"Function {function} not found in {binary}"}
 
     def run_ghidra(self, binary, output):
         status.debug_message(f"Running Ghidra to decompile {binary}...")
@@ -480,6 +495,23 @@ class Disassemble(Tool):
             return {"error": "No binary provided"}
         return self.disassemble(path, function)
 
+    def find_function(self, dis, function):
+        if function in dis["functions"]:
+            return dis["functions"][function]
+        # Looking for main entry point, so try other names also
+        if function == "main":
+            if "_start" in dis["functions"]:
+                return dis["functions"]["_start"]
+            if "invoke_main" in dis["functions"]:
+                return dis["functions"]["invoke_main"]
+        # Check if requesting radare2 unnamed function with address
+        if re.match(r"fcn\.[0-9a-f]+$", function):
+            addr = function[4:]
+            if addr in dis["addresses"]:
+                return dis["functions"][dis["addresses"][addr]]
+        # Nothing found
+        return None
+
     def disassemble(self, binary, function):
         # Look for the disassembly output in "decomp"
         basename = Path(binary).name
@@ -493,13 +525,10 @@ class Disassemble(Tool):
                     return {"error": f"Disassembly for {binary} not available"}
                 self._disasm_cache[basename] = json.loads(disasm_output.read_text())
 
-        if function not in self._disasm_cache[basename]:
-            # If they're trying to find main, try again with _start instead
-            if function == "main":
-                return self.disassemble(binary, "_start")
-            else:
-                return {"error": f"Function {function} not found in {binary}"}
-        return {"disassembly": self._disasm_cache[basename][function]}
+        if found := self.find_function(self._disasm_cache[basename], function):
+            return {"disassembly": found}
+        else:
+            return {"error": f"Function {function} not found in {binary}"}
 
     def run_ghidra(self, binary, output):
         status.debug_message(f"Running Ghidra to disassemble {binary}...")

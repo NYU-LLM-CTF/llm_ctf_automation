@@ -22,7 +22,8 @@ public class DecompileToJson extends GhidraScript {
     public void export(String filename) {
         Gson gson = new GsonBuilder().setPrettyPrinting().create();
         File outputFile = new File(filename);
-        HashMap<String, String> json_dict = new HashMap<String, String>();
+        HashMap<String, String> function_map = new HashMap<String, String>();
+        HashMap<String, String> address_map = new HashMap<String, String>();
         DecompInterface ifc = new DecompInterface();
         ifc.openProgram(currentProgram);
 
@@ -33,11 +34,16 @@ public class DecompileToJson extends GhidraScript {
                 continue;
             }
             String code = res.getDecompiledFunction().getC();
-            json_dict.put(func.getName(), code);
+            function_map.put(func.getName(), code);
+            address_map.put(func.getEntryPoint().toString(), func.getName());
             System.out.println(func.getName());
         }
+
+        HashMap<String, HashMap<String, String>> json_data = new HashMap<String, HashMap<String, String>>();
+        json_data.put("functions", function_map);
+        json_data.put("addresses", address_map);
         // Convert the HashMap to JSON
-        String json = gson.toJson(json_dict);
+        String json = gson.toJson(json_data);
 
         // Write JSON to file
         try (FileWriter writer = new FileWriter(outputFile)) {
