@@ -121,7 +121,7 @@ cp ${data_dir}/${event}/2021f-web-united.tar ./LLM_CTF_Database/2021/CSAW-Finals
 event=2021q
 cp ${data_dir}/${event}/2021q-cry-bits.tar ./LLM_CTF_Database/2021/CSAW-Quals/crypto/Bits
 cp ${data_dir}/${event}/2021q-cry-ecc_pop_quiz.tar ./LLM_CTF_Database/2021/CSAW-Quals/crypto/ECC-Pop-Quiz
-cp ${data_dir}/${event}/2021q-cry-forgery.tar ./LLM_CTF_Database/2021/CSAW-Quals/cry/Forgery
+cp ${data_dir}/${event}/2021q-cry-forgery.tar ./LLM_CTF_Database/2021/CSAW-Quals/crypto/Forgery
 cp ${data_dir}/${event}/2021q-cry-gotta_decrypt_them_all.tar ./LLM_CTF_Database/2021/CSAW-Quals/crypto/Gotta-Decrypt-Them-All
 cp ${data_dir}/${event}/2021q-cry-rsa_pop_quiz.tar ./LLM_CTF_Database/2021/CSAW-Quals/crypto/RSA-Pop-Quiz
 cp ${data_dir}/${event}/2021q-msc-save_the_tristate.tar ./LLM_CTF_Database/2021/CSAW-Quals/misc/Save-the-Tristate
