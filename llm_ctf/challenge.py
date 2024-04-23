@@ -1,4 +1,5 @@
 import json
+import os
 import re
 import shutil
 import subprocess
@@ -25,7 +26,7 @@ class CTFChallenge:
 
         # Docker container information
         self.container_image = args.container_image
-        self.container_name = args.container_image
+        self.container_name = args.container_name
         self.network = args.network
         self.is_compose = self.challenge.get("compose", False)
         self.tmpdir = None
@@ -183,6 +184,8 @@ class CTFChallenge:
         if self.has_files:
             self._tmpdir = tempfile.TemporaryDirectory()
             self.tmpdir = self._tmpdir.__enter__()
+            # Set full permissions on the tmp folder for access inside the docker.
+            os.chmod(self.tmpdir, 0o777)
             for filename in self.challenge["files"]:
                 src = (self.chaldir / filename).resolve()
                 dst = Path(self.tmpdir) / filename

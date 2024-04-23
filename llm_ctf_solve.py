@@ -165,6 +165,7 @@ def main():
     parser.add_argument("-d", "--debug", action="store_true", help="print debug messages")
     parser.add_argument("-M", "--model", help="the model to use (default is backend-specific)", choices=model_list)
     parser.add_argument("-C", "--container-image", default="ctfenv", help="the Docker image to use for the CTF environment")
+    parser.add_argument("-n", "--container-name", default=f"ctfenv_{os.getuid()}", help="the Docker container name to set for the CTF environment")
     parser.add_argument("-N", "--network", default="ctfnet", help="the Docker network to use for the CTF environment")
     parser.add_argument("-m", "--max-rounds", type=int, default=100, help="maximum number of rounds to run")
     parser.add_argument("-L", "--logfile", default=None, help="log file to write to")
