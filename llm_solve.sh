@@ -50,7 +50,7 @@ function cleanup_container {
 chal_path="LLM_CTF_Database/${year}/${event}/${category}/${chal}"
 echo "Start evaluation on ${year}/${event}/${category}/${chal}"
 # bash setup_chals.sh -y "${year}" -e "${event}" -t "${category}" -c "${chal}"
-for i in {1..2}; do
+for i in {1..10}; do
     log="logs/${year}/${event}/${category}/${chal}/conversation.${model}.${i}.json"
     if [ -f "${log}" ]; then
         printf '[%02d/10] skipping %s attempting %s for challenge /%s/%s/%s/%s; log exists\n' $i "${model}" "${year}" "${event}" "${category}" "${chal}"
