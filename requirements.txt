@@ -7,3 +7,4 @@ ToolDefGenerator @ git+https://github.com/moyix/ToolDefGenerator@main
 jinja2
 docker
 googlesearch-python
+lxml
