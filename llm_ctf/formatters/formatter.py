@@ -122,8 +122,12 @@ class Formatter(ABC):
         """Validate the arguments of a parsed tool call.
 
         This function raises ValueError for missing arguments and prints a warning
-        for extra arguments. If you want to do additional validation, override this
+        for extra arguments. The extra arguments are removed from the invocation.
+
+        If you want to do additional validation, override this
         method in a subclass.
+
+        Returns a set of extra arguments in case they need to be removed.
         """
         params = set(tool.parameters.keys())
         required = tool.required_parameters
@@ -134,6 +138,9 @@ class Formatter(ABC):
         # Check for extra arguments
         if extra := (args - params):
             status.debug_message(f"Warning: extra arguments in call to {tool.name}: {extra}")
+            for k in extra:
+                del tool_call.function.parsed_arguments[k]
+        return extra
 
     @classmethod
     def convert_args(cls, tool : Tool, tool_call: ToolCall):

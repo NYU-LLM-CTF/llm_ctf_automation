@@ -35,7 +35,8 @@ if __name__ == "__main__":
         print_fn = lambda s: console.print(Markdown(s), width=80)
     else:
         print_fn = print
-    formatter = Formatter.from_name(args.formatter)(tools=DEFAULT_TOOLSET, prompt_set=args.prompt_set)
+    tool_dict = {t.name: t for t in DEFAULT_TOOLSET}
+    formatter = Formatter.from_name(args.formatter)(tools=tool_dict, prompt_set=args.prompt_set)
     pc = PromptManager(args.prompt_set)
 
     # Fake CLI args
@@ -104,8 +105,8 @@ if __name__ == "__main__":
         for t in tools:
             t.setup()
         # Get the VLLM backend
-        backend = VLLMBackend(system_message=pc.render("system"), tools=tools, args=fake_args)
-        backend.make_demo_from_templates()
+        backend = VLLMBackend(system_message=pc.render("system"), tools=tool_dict, args=fake_args)
+        backend.make_demonstration_messages()
         for message in backend.outgoing_messages:
             if message['role'] == 'user':
                 status.user_message(message['content'])

@@ -56,6 +56,9 @@ class VLLMBackend(Backend):
     MODELS = [
         "mistralai/Mixtral-8x7B-Instruct-v0.1",
         "deepseek-ai/deepseek-coder-33b-instruct",
+        "llama3:70b-instruct-fp16",
+        "wizardlm2:8x22b-q8_0",
+        "meta-llama/Meta-Llama-3-70B-Instruct",
     ]
     QUIRKS = {
         "mistralai/Mixtral-8x7B-Instruct-v0.1": ModelQuirks(
@@ -65,6 +68,14 @@ class VLLMBackend(Backend):
             clean_tool_use=fix_xml_tag_names,
             augment_stop_sequences=fix_xml_seqs,
             augment_start_sequences=fix_xml_seqs,
+        ),
+        "llama3:70b-instruct-fp16": ModelQuirks(
+            supports_system_messages=True,
+            augment_stop_sequences=lambda seqs: seqs + ["<|eot_id|>"],
+        ),
+        "meta-llama/Meta-Llama-3-70B-Instruct": ModelQuirks(
+            supports_system_messages=True,
+            augment_stop_sequences=lambda seqs: seqs + ["<|eot_id|>"],
         ),
     }
 
@@ -284,7 +295,7 @@ class VLLMBackend(Backend):
                         ToolResult(
                             name="[error]",
                             id='[none]',
-                            results = {"error": f"Error extracting tool calls: {estr}"},
+                            result = {"error": f"Error extracting tool calls: {estr}"},
                         )
                     ])
                 )
