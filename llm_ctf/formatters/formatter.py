@@ -149,6 +149,10 @@ class Formatter(ABC):
         }
         parsed_args = tool_call.function.parsed_arguments
         for k,v in parsed_args.items():
+            if k not in tool.parameters:
+                # Ignore extra parameters
+                continue
+
             python_type = tool.parameters[k]['python_type']
             if not isinstance(type(v), python_type):
                 if (type(v),python_type) in conversions:
