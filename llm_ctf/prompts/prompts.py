@@ -106,5 +106,5 @@ class PromptManager:
     def keep_going(self, **kwargs):
         return self.render('keep_going', **kwargs)
 
-    def system_message(self, **kwargs):
-        return self.render('system', **kwargs)
+    def system_message(self, chal, **kwargs):
+        return self.render('system', chal=chal, **kwargs)

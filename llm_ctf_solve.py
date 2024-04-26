@@ -29,7 +29,7 @@ class CTFConversation:
         self.finish_reason = "unknown"
         self.prompt_manager = PromptManager(args.prompt_set)
         self.backend = Backend.from_name(args.backend)(
-            self.prompt_manager.system_message(),
+            self.prompt_manager.system_message(self.chal),
             self.available_functions,
             self.args,
         )
@@ -42,7 +42,7 @@ class CTFConversation:
         for tool in self.available_functions.values():
             tool.setup()
         self.backend.setup()
-        status.system_message(self.prompt_manager.system_message())
+        status.system_message(self.prompt_manager.system_message(self.chal))
         return self
 
     def run_conversation_step(self, message: str):

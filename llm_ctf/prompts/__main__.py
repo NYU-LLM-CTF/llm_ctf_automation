@@ -55,7 +55,7 @@ if __name__ == "__main__":
     chal = CTFChallenge(args.challenge_json, fake_args)
 
     print(section_header("System Message"))
-    system_message = pc.render("system")
+    system_message = pc.render("system", chal=chal)
     print_fn(system_message)
 
     print(section_header("System Message (Tool Use)"))
@@ -105,7 +105,7 @@ if __name__ == "__main__":
         for t in tools:
             t.setup()
         # Get the VLLM backend
-        backend = VLLMBackend(system_message=pc.render("system"), tools=tool_dict, args=fake_args)
+        backend = VLLMBackend(system_message=system_message, tools=tool_dict, args=fake_args)
         backend.make_demonstration_messages()
         for message in backend.outgoing_messages:
             if message['role'] == 'user':

@@ -18,6 +18,12 @@ category_friendly = {
     "forensics": "forensics",
 }
 
+# Helper so that we can format the challenge description without worrying about
+# missing keys from accidental use of braces in the description
+class SafeDict(dict):
+    def __missing__(self, key):
+        return '{' + key + '}'
+
 class CTFChallenge:
     def __init__(self, challenge_json, args):
         self.args = args
@@ -46,7 +52,7 @@ class CTFChallenge:
         self.points = self.challenge.get("points", self.challenge.get("initial", 0))
         self.name = self.challenge["name"]
         self.real_flag = self.challenge["flag"] if isinstance(self.challenge["flag"], str) else self.challenge['flag']['content']
-        self.challenge_container = self.challenge.get("container_image", "")
+        self.flag_format = re.sub(r'\{.*?\}', '{...}', self.real_flag)
         self.challenge_port = self.challenge.get("internal_port")
         self.server_description = self.challenge.get("server_description")
         self.image_name = self.parse_oci_path()
@@ -55,10 +61,16 @@ class CTFChallenge:
         self.oci_fullname = None if not self.oci_info else "-".join(self.oci_info)
         self.asi_oci_fullname = None if not self.oci_info else "asibench_" + self.oci_fullname
         self.real_oci = self.oci_container
+        self.challenge_container = self.challenge.get("container_image", self.oci_container)
         self.server_type = self.get_server_type()
-        self.description = self.challenge['description'].replace("{", "{{").replace("}", "}}").format(box=self.challenge_container, port=self.challenge_port)
         self.files = self.challenge.get("files", [])
-        
+
+    @property
+    def description(self):
+        return self.challenge['description'].format_map(
+            SafeDict(box=self.challenge_container, port=self.challenge_port)
+        )
+
     def load_challenge_image(self):
         if self.image_name:
             # image_list = subprocess.run(['docker', 'images'], stdout=subprocess.PIPE, text=True)
@@ -72,7 +84,7 @@ class CTFChallenge:
                 image_list = subprocess.run(['docker', 'images'], stdout=subprocess.PIPE, text=True)
                 return
             status.debug_message(f"No pre-build docker image {self.image_name.name} found!")
-        
+
     def parse_oci_container(self):
         if self.image_name:
             oci_parts =  self.image_name.stem.split('-', maxsplit=2)
@@ -81,7 +93,7 @@ class CTFChallenge:
                 return None
             return oci_parts
         status.debug_message(f"No oci image found, skip")
-        return None        
+        return None
 
     def parse_oci_path(self):
         if self.chaldir.is_dir():
@@ -135,7 +147,7 @@ class CTFChallenge:
             ['docker', 'run'] + \
             ['--network', self.network] + \
             ['--platform', 'linux/amd64', '-d', '--rm'] + \
-            ['--name', self.real_oci, self.real_oci],
+            ['--name', self.challenge_container, self.real_oci],
             check=True, capture_output=True
         )
         # subprocess.run(
@@ -200,8 +212,11 @@ class CTFChallenge:
         if self.tmpdir:
             self._tmpdir.__exit__(exc_type, exc_value, traceback)
         if self.real_oci:
-            command = f"docker ps --filter name={self.real_oci} -q | xargs docker stop"
+            # BDG: I'm not sure why we need this instead of just docker stop [container_name] ?
+            command = f"docker ps --filter name={self.challenge_container} -q | xargs -r docker stop"
             subprocess.run(command, shell=True, check=True)
+            # BDG: Ideally we would not remove the container image, but the server is
+            # low on space
             subprocess.run(
                 ['docker', 'rmi', self.real_oci]
             )
