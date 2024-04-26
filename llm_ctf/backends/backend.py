@@ -27,7 +27,7 @@ class FakeToolCalls:
 
     def model_dump(self):
         return {
-            'role': 'tool',
+            'role': 'assistant',
             'content': self.content,
             'tool_calls': [tc.model_dump() for tc in self.tool_calls],
         }
@@ -51,7 +51,7 @@ class UnparsedToolCalls:
     content: Optional[str] = None
     def model_dump(self):
         return {
-            'role': 'tool',
+            'role': 'assistant',
             'content': self.content,
             'tool_calls': [tc.model_dump() for tc in self.tool_calls],
             'extra': make_extra(self, 'response'),
@@ -67,7 +67,7 @@ class ErrorToolCalls:
     content: Optional[str] = None
     def model_dump(self):
         return {
-            'role': 'tool',
+            'role': 'assistant',
             'content': self.content,
             'tool_calls': [],
             'extra': make_extra(self, 'response', 'error'),
