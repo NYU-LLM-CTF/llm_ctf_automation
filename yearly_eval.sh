@@ -2,6 +2,7 @@
 
 TARGET_DIR="$1"
 MODEL="$2"
+YEAR="$3"
 
 if [ -z "$TARGET_DIR" ]; then
     echo "Usage: $0 [directory]"
@@ -27,7 +28,9 @@ for dir in "${dir_list[@]}"; do
     if [ "${array[1]}" == ".git" ]; then
         continue
     fi
-    echo Solving $dir
-    bash ./llm_solve.sh -y ${array[1]} -e ${array[2]} -t ${array[3]} -c "${array[4]}" -m ${MODEL}
+    if [ "${array[1]}" == "${YEAR}" ]; then
+        echo Solving $dir
+        bash ./llm_solve.sh -y ${array[1]} -e ${array[2]} -t ${array[3]} -c "${array[4]}" -m ${MODEL}
+    fi
     # echo ${array[4]}
 done
