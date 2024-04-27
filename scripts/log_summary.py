@@ -36,7 +36,12 @@ if __name__ == "__main__":
         exception = set()
         for cjson in convos:
             with cjson.open() as f:
-                convo = json.load(f)
+                try:
+                    convo = json.load(f)
+                except:
+                    reason.add("invalid_json")
+                    print("WARN: invalid json", cjson)
+                    continue
                 if convo["solved"]:
                     solved = "Yes"
                     reason.clear()
