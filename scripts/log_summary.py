@@ -17,10 +17,15 @@ def filter_chals(args, year, event, cat, chal):
         return False
     return True
 
+def filter_models(args, convo):
+    if args.model in convo:
+        return False
+    return True
+
 def check_for_mistakes(convo):
     mistakes = set()
     for msg in convo["messages"]:
-        cont = msg[1]["content"]
+        cont = msg[1].get("content", msg[1].get("text"))
         if not cont:
             continue
         if "{PORT}" in cont:
@@ -42,6 +47,7 @@ if __name__ == "__main__":
     parser.add_argument("-e", "--event", default=[], nargs="+", help="Events to select, space separated")
     parser.add_argument("-t", "--cat", default=[], nargs="+", help="Categories to select, space separated")
     parser.add_argument("-c", "--chal", default=[], nargs="+", help="Challenges to select, space separated")
+    parser.add_argument("-m", "--model", default="gpt-3.5-turbo-1106", help="Full name of model to select")
     args = parser.parse_args()
 
     table = []
@@ -67,6 +73,9 @@ if __name__ == "__main__":
         reason = set()
         mistakes = set()
         for cjson in convos:
+            if filter_models(args, cjson.name):
+                continue
+            print(cjson)
             with cjson.open() as f:
                 try:
                     convo = json.load(f)
