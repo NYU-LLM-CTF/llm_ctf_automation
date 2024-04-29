@@ -4,8 +4,9 @@ from typing import Any, Callable, List, Literal, Tuple, Optional, NamedTuple, Un
 import re
 import os
 
-from anthropic import Anthropic
+from anthropic import Anthropic, RateLimitError
 from anthropic.types.content_block import ContentBlock as AnthropicMessage
+import backoff
 
 from llm_ctf.formatters.vbpy import VBPYFormatter
 from ..formatters.formatter import Formatter
@@ -445,9 +446,9 @@ class AnthropicBackend(VLLMBackend):
         self.outgoing_messages.append(conv_message)
         self.messages.append(message)
 
-    def call_model_internal(self, start_seqs, stop_seqs):
-        start_seqs, stop_seqs = self.formatter.get_delimiters()
-        response = self.client.messages.create(
+    @backoff.on_exception(backoff.expo, RateLimitError, max_tries=5)
+    def _call_model(self, stop_seqs) -> AnthropicMessage:
+        return self.client.messages.create(
             model=self.model,
             messages=self.outgoing_messages[1:], # Skip system message
             temperature=1,
@@ -455,6 +456,10 @@ class AnthropicBackend(VLLMBackend):
             stop_sequences=stop_seqs,
             system=self.get_system_message(),
         )
+
+    def call_model_internal(self, start_seqs, stop_seqs):
+        start_seqs, stop_seqs = self.formatter.get_delimiters()
+        response = self._call_model(stop_seqs)
         if response.stop_reason == "stop_sequence":
             response.content[0].text += response.stop_sequence
 

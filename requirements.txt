@@ -9,3 +9,4 @@ docker
 googlesearch-python
 lxml
 tabulate
+backoff

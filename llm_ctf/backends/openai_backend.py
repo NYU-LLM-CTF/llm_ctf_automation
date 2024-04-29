@@ -10,9 +10,12 @@ from ..formatters import Formatter
 from .backend import Backend
 from ..tools import Tool, ToolCall, ToolResult
 from ..ctflogging import status
+from openai import RateLimitError
 from openai.types.chat import ChatCompletionMessage
 from openai.types.chat.chat_completion_message_tool_call import ChatCompletionMessageToolCall as OAIToolCall
 from openai.types.chat.chat_completion_tool_param import ChatCompletionToolParam
+
+import backoff  # for exponential backoff
 
 API_KEY_PATH = "~/.openai/api_key"
 
@@ -67,6 +70,7 @@ class OpenAIBackend(Backend):
     def get_models(cls):
         return cls.MODELS
 
+    @backoff.on_exception(backoff.expo, RateLimitError, max_tries=5)
     def _call_model(self) -> ChatCompletionMessage:
         return self.client.chat.completions.create(
             model=self.model,
