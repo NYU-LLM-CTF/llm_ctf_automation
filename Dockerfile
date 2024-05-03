@@ -2,6 +2,7 @@ FROM ubuntu:22.04
 # Force platform to x86_64
 ARG TARGETPLATFORM
 ENV DEBIAN_FRONTEND=noninteractive
+RUN dpkg --add-architecture i386
 RUN apt-get update && apt-get install -y \
     sudo curl netcat \
     build-essential pkg-config gdb gdbserver \
@@ -10,6 +11,8 @@ RUN apt-get update && apt-get install -y \
     libtbb2 libtbb-dev libjpeg-dev libpng-dev libtiff-dev \
     bsdmainutils file \
     sagemath sqlmap nikto apktool \
+    libc6-i386 libc6-dev:i386 gcc-multilib \
+    g++-multilib \
     && rm -rf /var/lib/apt/lists/*
 
 ARG HOST_UID=1000
@@ -34,6 +37,17 @@ RUN curl -LO https://github.com/radareorg/radare2/releases/download/5.8.8/radare
 RUN curl -LO https://github.com/skylot/jadx/releases/download/v1.4.7/jadx-1.4.7.zip && \
     unzip -d /usr/local jadx-1.4.7.zip && \
     rm -f jadx-1.4.7.zip
+
+RUN apt-get update -y && apt-get install -y wget jq vim
+
+# Force Chrome to use the system CA store
+RUN apt-get install -y p11-kit p11-kit-modules
+RUN ln -s -f /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so /usr/lib/x86_64-linux-gnu/nss/libnssckbi.so
+RUN ln -s -f /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so /usr/lib/firefox/libnssckbi.so || true
+
+# Add the LLM_CTF CA
+ADD LLM_CTF_Database/CA/ca.crt /usr/local/share/ca-certificates/llmctf.crt
+RUN chmod 644 /usr/local/share/ca-certificates/llmctf.crt && update-ca-certificates
 
 # Switch to user
 USER $USERNAME
