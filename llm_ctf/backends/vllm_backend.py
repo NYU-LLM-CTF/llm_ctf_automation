@@ -141,7 +141,7 @@ class VLLMBackend(Backend):
         )
         self.messages.append(FakeToolCalls(tool_calls))
         self.append(self.assistant_message(tool_calls_content))
-        tool_results = self.run_tools_internal(tool_calls)
+        tool_results = self.run_tools_internal(tool_calls, demo=True)
         self.append(self.tool_results_message(tool_results))
         # NB: the tool results are not added to self.messages because they are
         # added inside of _run_tools_internal.
@@ -158,7 +158,6 @@ class VLLMBackend(Backend):
         expected_next_roles = {"user"}
         for msg_num, template in enumerate(sorted(demo_templates)):
             template_name = Path(template).name
-            status.debug_message(f"Processing demo message template {template_name}")
             match re.match(r'(\d\d)_(user|assistant|tool)', template_name):
                 case None:
                     status.debug_message(f"Warning: demo message template {template} doesn't "
@@ -196,9 +195,9 @@ class VLLMBackend(Backend):
 
     def add_initial_messages(self):
         tool_use_prompt = self.formatter.tool_use_prompt()
-        status.debug_message(f"Tool use prompt:\n{tool_use_prompt}")
         self.messages.append(SystemMessage(self.system_message_content, tool_use_prompt))
         self.system_message_content += '\n\n' + tool_use_prompt
+        status.system_message(self.system_message_content)
 
         if self.quirks.supports_system_messages:
             system_messages = [
@@ -214,7 +213,18 @@ class VLLMBackend(Backend):
             self.append(sm)
 
         if self.quirks.needs_tool_use_demonstrations:
+            num_messages = len(self.outgoing_messages)
             self.make_demonstration_messages()
+            # Print them out
+            if self.args.debug:
+                for message in self.outgoing_messages[num_messages:]:
+                    if message['role'] == 'user':
+                        status.user_message(message['content'])
+                    elif message['role'] == 'assistant':
+                        content = message['content']
+                        if self.formatter.get_delimiters()[0][0] in message['content']:
+                            content = "🤔 ...thinking... 🤔\n\n" + content
+                        status.assistant_message(content)
 
     def user_message(self, content : str):
         return {"role": "user", "content": content}
@@ -339,7 +349,7 @@ class VLLMBackend(Backend):
             status.debug_message(msg)
             return False, tool_call.error(msg)
 
-    def run_tools_internal(self, tool_calls : List[ToolCall]) -> List[ToolResult]:
+    def run_tools_internal(self, tool_calls : List[ToolCall], demo=False) -> List[ToolResult]:
         tool_results = []
         for tool_call in tool_calls:
 
@@ -362,14 +372,14 @@ class VLLMBackend(Backend):
                     pass
 
             # Tool execution
-            if self.args.debug:
+            if self.args.debug and not demo:
                 pretty_args = self.python_formatter.format_tool_call(parsed_tc)
                 # Remove the '[#function][/#function]' tags
                 pretty_args = re.sub(r'\[/?#[^\]]+\]', '', pretty_args)
                 status.debug_message(f"Calling {tool.name}:")
                 status.print(PythonSyntax(pretty_args), width=status.WIDTH)
             result = tool.run(parsed_tc)
-            if self.args.debug:
+            if self.args.debug and not demo:
                 status.print(
                     "Result:",
                     Pretty(result.result,max_string=status.WIDTH-30),

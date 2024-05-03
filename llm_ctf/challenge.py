@@ -1,6 +1,8 @@
+from functools import cached_property
 import json
 import os
 import re
+import shlex
 import shutil
 import subprocess
 import tempfile
@@ -18,6 +20,42 @@ category_friendly = {
     "forensics": "forensics",
 }
 
+category_short = {
+    "crypto": "cry",
+    "forensics": "for",
+    "misc": "msc",
+    "pwn": "pwn",
+    "rev": "rev",
+    "web": "web",
+}
+
+_rep_underscore = re.compile(r'_+')
+def safe_name(s: str) -> str:
+    """Create a safe name (suitable for docker) from a string
+    """
+    # Replace all non-alphanumeric characters with underscores
+    safe = s.replace(' ', '_').lower()
+    safe = ''.join(c if c.isalnum() else '_' for c in safe).rstrip('_')
+    safe = _rep_underscore.sub('_', safe)
+    return safe
+
+def get_canonical_name(chaldir : Path|str) -> str:
+    """Create a safe image name from a challenge; this is the same scheme
+    that was used by the builder script to create the image name, so it
+    can be used to predict the OCI name.
+    """
+    chaldir = Path(chaldir).resolve()
+    year, event, category, name = chaldir.parts[-4:]
+
+    chal_name = safe_name(name)
+    event = event.rsplit('-',1)[1]
+    event_char = event.lower()[0]
+    cat = category_short[category]
+    return f"{year}{event_char}-{cat}-{chal_name}"
+
+def get_asi_name(chaldir : Path|str) -> str:
+    return "asibench_" + get_canonical_name(chaldir)
+
 # Helper so that we can format the challenge description without worrying about
 # missing keys from accidental use of braces in the description
 class SafeDict(dict):
@@ -25,18 +63,28 @@ class SafeDict(dict):
         return '{' + key + '}'
 
 class CTFChallenge:
-    def __init__(self, challenge_json, args):
-        self.args = args
+    def __init__(self, challenge_json: Path|str, args=None):
+        self.args = args.__dict__ or {}
+        self.disable_docker = self.args.get("disable_docker", False)
         self.docker = DockerClient()
-        self.load_challenge(Path(challenge_json))
+        self.challenge_json = Path(challenge_json)
+        self.load_challenge(self.challenge_json)
+
+        # Client container information (FIXME: this shouldn't really live here)
+        self.container_name = self.args.get("container_name", "ctfenv")
+        self.container_image = self.args.get("container_image", "ctfenv")
 
         # Docker container information
-        self.container_image = args.container_image
-        self.container_name = args.container_name
-        self.network = args.network
+        self.network = self.args.get("network", "ctfnet")
         self.is_compose = self.challenge.get("compose", False)
         self.tmpdir = None
         self.has_files = "files" in self.challenge and self.challenge["files"]
+
+        # Challenge server information
+        self.challenge_server_proc = None
+        self.challenge_server_log = None
+        self.challenge_server_output = None
+
         # Gets set to true once the challenge is solved, either because check_flag()
         # detected the flag in the output or because the CheckFlag tool was called
         # with the correct flag
@@ -52,7 +100,12 @@ class CTFChallenge:
         self.points = self.challenge.get("points", self.challenge.get("initial", 0))
         self.name = self.challenge["name"]
         self.real_flag = self.challenge["flag"] if isinstance(self.challenge["flag"], str) else self.challenge['flag']['content']
-        self.flag_format = re.sub(r'\{.*?\}', '{...}', self.real_flag)
+        if '{' not in self.real_flag:
+            status.debug_message(f"Flag for challenge {self.asiname} does not follow a standard format, please check!")
+            self.flag_format = "not provided"
+        else:
+            self.flag_format = re.sub(r'\{.*?\}', '{...}', self.real_flag)
+        assert self.flag_format != self.real_flag, f"Flag format for {self.asiname} would leak the flag!"
         self.challenge_port = self.challenge.get("internal_port")
         self.server_description = self.challenge.get("server_description")
         self.image_name = self.parse_oci_path()
@@ -65,6 +118,13 @@ class CTFChallenge:
         self.server_type = self.get_server_type()
         self.files = self.challenge.get("files", [])
 
+        # If the chal description contains {box} or {port} but we don't have
+        # an image name, raise an error
+        if '{box}' in self.challenge['description'] and not self.image_name:
+            raise RuntimeError(f"Challenge {self.name} has placeholder for {{box}} in the description but no OCI image found")
+        if '{port}' in self.challenge['description'] and not self.challenge_port:
+            raise RuntimeError(f"Challenge {self.name} has placeholder for {{port}} in the description but no internal_port found")
+
     @property
     def description(self):
         return self.challenge['description'].format_map(
@@ -75,15 +135,16 @@ class CTFChallenge:
         if self.image_name:
             # image_list = subprocess.run(['docker', 'images'], stdout=subprocess.PIPE, text=True)
             image_list = self.docker.get_images()
-            if self.oci_container not in image_list \
-                and self.oci_fullname not in image_list \
-                    and self.asi_oci_fullname not in image_list:
+            names = [self.oci_container, self.oci_fullname, self.asi_oci_fullname]
+            names = [n + ':latest' for n in names]
+            if any(n in image_list for n in names):
+                status.debug_message(f"Pre-build docker image {self.image_name.name} found!")
+                return
+            else:
                 status.debug_message(f"Load pre-build docker image {self.image_name.name}...")
                 with open(self.image_name, 'rb') as oci:
                     subprocess.run(['docker', 'load'], stdin=oci)
-                image_list = subprocess.run(['docker', 'images'], stdout=subprocess.PIPE, text=True)
                 return
-            status.debug_message(f"No pre-build docker image {self.image_name.name} found!")
 
     def parse_oci_container(self):
         if self.image_name:
@@ -124,8 +185,15 @@ class CTFChallenge:
         else:
             return ""
 
+    def get_server_logs(self):
+        if not self.challenge_server_log:
+            return None
+        self.challenge_server_log.flush()
+        self.challenge_server_log.seek(0)
+        return self.challenge_server_log.read().decode('utf-8', errors='replace')
+
     def start_challenge_container(self):
-        if self.args.disable_docker:
+        if self.disable_docker:
             return
 
         if self.is_compose:
@@ -143,23 +211,37 @@ class CTFChallenge:
             self.real_oci = self.oci_fullname
         if self.real_oci not in image_list:
             self.real_oci = self.asi_oci_fullname
-        subprocess.run(
-            ['docker', 'run'] + \
+        # Create a temp file to store the output from the docker run command
+        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+            challenge_server_logfile = f.name
+        self.challenge_server_log = open(challenge_server_logfile, 'w+b')
+        run_cmd = ['docker', 'run'] + \
             ['--network', self.network] + \
-            ['--platform', 'linux/amd64', '-d', '--rm'] + \
-            ['--name', self.challenge_container, self.real_oci],
-            check=True, capture_output=True
+            ['--platform', 'linux/amd64', '--rm'] + \
+            (['--privileged'] if self.challenge.get('privileged', False) else []) + \
+            ['--name', self.challenge_container, self.real_oci]
+        status.debug_message(f"Running command: " + ' '.join(shlex.quote(arg) for arg in run_cmd), truncate=False)
+        self.challenge_server_proc = subprocess.Popen(
+            run_cmd,
+            stdout=self.challenge_server_log,
+            stderr=subprocess.STDOUT,
         )
-        # subprocess.run(
-        #     ['docker', 'run'] + \
-        #     ['--network', self.network] + \
-        #     ['--platform', 'linux/amd64', '-d', '--rm'] + \
-        #     ['--name', self.challenge_container, self.challenge_container],
-        #     check=True, capture_output=True,
-        # )
+        # Wait 0.5s for the server to start
+        try:
+            self.challenge_server_proc.wait(timeout=0.5)
+            # If we get here then something went wrong
+            self.challenge_server_output = self.get_server_logs()
+            self.challenge_server_log.close()
+            os.remove(self.challenge_server_log.name)
+            command = ' '.join(shlex.quote(arg) for arg in self.challenge_server_proc.args)
+            status.debug_message(f"Challenge server failed to start with command: {command}", truncate=False)
+            status.debug_message(f"Output from challenge server:\n{self.challenge_server_output}", truncate=False)
+            raise RuntimeError(f"Failed to start challenge server: {self.challenge_container}")
+        except subprocess.TimeoutExpired:
+            pass
 
     def stop_challenge_container(self):
-        if self.args.disable_docker:
+        if self.disable_docker:
             return
         if self.is_compose:
             status.debug_message(f"Stopping challenge services with docker-compose")
@@ -169,11 +251,20 @@ class CTFChallenge:
             )
             return
         if not self.challenge_container: return
-        status.debug_message(f"Stopping challenge container {self.challenge_container}")
-        subprocess.run(
-            ['docker', 'stop', self.challenge_container],
-            check=True, capture_output=True,
-        )
+        status.debug_message(f"Stopping challenge server {self.challenge_container}")
+        self.challenge_server_proc.terminate()
+        try:
+            self.challenge_server_proc.wait(timeout=2)
+        except subprocess.TimeoutExpired:
+            status.debug_message(f"Challenge server {self.challenge_container} did not stop within 5s, trying docker stop.")
+            subprocess.run(
+                ['docker', 'stop', self.challenge_container],
+                capture_output=True,
+            )
+            self.challenge_server_proc.wait()
+        self.challenge_server_output = self.get_server_logs()
+        self.challenge_server_log.close()
+        os.remove(self.challenge_server_log.name)
 
     def check_flag(self, resp):
         # Check if the flag is in the response; also check version with
@@ -211,12 +302,39 @@ class CTFChallenge:
         self.stop_challenge_container()
         if self.tmpdir:
             self._tmpdir.__exit__(exc_type, exc_value, traceback)
-        if self.real_oci:
-            # BDG: I'm not sure why we need this instead of just docker stop [container_name] ?
-            command = f"docker ps --filter name={self.challenge_container} -q | xargs -r docker stop"
-            subprocess.run(command, shell=True, check=True)
-            # BDG: Ideally we would not remove the container image, but the server is
-            # low on space
-            subprocess.run(
-                ['docker', 'rmi', self.real_oci]
-            )
+
+    @cached_property
+    def canonical_name(self) -> str:
+        """Create a safe image name from a challenge; this is the same scheme
+        that was used by the builder script to create the image name, so it
+        can be used to predict the OCI name.
+        """
+        return get_canonical_name(self.chaldir)
+
+    @cached_property
+    def asiname(self):
+        return "asibench_" + self.canonical_name
+
+    @cached_property
+    def _parts(self):
+        return self.challenge_json.resolve().parts[-5:-1]
+
+    @cached_property
+    def year(self):
+        return int(self._parts[0])
+
+    @cached_property
+    def event(self):
+        return self._parts[1].split('-')[1]
+
+    @cached_property
+    def fsname(self):
+        return self._parts[3]
+
+    @cached_property
+    def short_category(self):
+        return category_short[self.category]
+
+    @property
+    def canonical_oci_archive(self):
+        return self.challenge_json.parent / f"{self.canonical_name}.tar"

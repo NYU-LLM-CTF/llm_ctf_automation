@@ -258,12 +258,12 @@ class CommandExec(Tool):
         self.start_docker()
 
     def start_docker(self):
-        status.debug_message("Starting docker container...")
+        status.debug_message(f"Starting client container {self.container_name}...")
         if self.volume:
             volumes = ['-v', f'{self.volume}:/home/ctfplayer/ctf_files']
         else:
             volumes = []
-        if self.challenge.args.disable_docker:
+        if self.challenge.disable_docker:
             return
         subprocess.run(
             ['docker', 'run'] + \
@@ -284,8 +284,8 @@ class CommandExec(Tool):
         self.stop_docker()
 
     def stop_docker(self):
-        status.debug_message("Stopping docker container...")
-        if self.challenge.args.disable_docker:
+        status.debug_message(f"Stopping client container {self.container_name}...")
+        if self.challenge.disable_docker:
             return
         subprocess.run(['docker', 'stop', self.container_name], capture_output=True)
 
@@ -555,10 +555,10 @@ class GiveUpException(Exception):
 #     def __init__(self, challenge: "CTFChallenge"):
 #         super().__init__()
 #         self.challenge = challenge
-        
+
 #     def _get_webs(self, query, number=3, pause=2):
 #         return [j for j in search(query=query, num=number, stop=number, pause=2)]
-    
+
 #     def search_web(self, query, number=3, pause=2, timeout=30):
 #         web_contents = []
 #         urls = self._get_webs(query, number, pause)
@@ -567,7 +567,7 @@ class GiveUpException(Exception):
 #             if web_body:
 #                 web_contents.append(web_contents)
 #         return urls, web_contents
-    
+
 #     def _parse_web(self, url, timeout=30):
 #         try:
 #             res = requests.get(url, timeout=timeout)

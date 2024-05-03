@@ -1,4 +1,6 @@
 from datetime import datetime
+import socket
+import subprocess
 import time
 from openai import OpenAI
 import json, os
@@ -9,7 +11,7 @@ from llm_ctf.ctflogging import status
 from llm_ctf.backends import Backend
 from llm_ctf.formatters import Formatter
 from llm_ctf.prompts.prompts import PromptManager
-from llm_ctf.tools import TOOLSETS, GiveUpException
+from llm_ctf.tools import TOOLSETS, GiveUpException, Tool, CommandExec
 from llm_ctf.challenge import CTFChallenge
 import traceback as tb
 
@@ -20,7 +22,7 @@ class CTFConversation:
         self.args = args
         self.chal = challenge
         self.volume = self.chal.tmpdir
-        self.available_functions = {}
+        self.available_functions : dict[str,Tool] = {}
         for tool in TOOLSETS.get(self.chal.category, TOOLSETS['default']):
             tool_instance = tool(self.chal)
             self.available_functions[tool_instance.name] = tool_instance
@@ -42,7 +44,6 @@ class CTFConversation:
         for tool in self.available_functions.values():
             tool.setup()
         self.backend.setup()
-        status.system_message(self.prompt_manager.system_message(self.chal))
         return self
 
     def run_conversation_step(self, message: str):
@@ -139,6 +140,7 @@ class CTFConversation:
                 "solved": self.chal.solved,
                 "rounds": self.rounds,
                 "debug_log": status.debug_log,
+                "challenge_server_output": self.chal.challenge_server_output,
                 "start_time": self.start_time.isoformat(),
                 "end_time": self.end_time.isoformat(),
                 "runtime_seconds": (self.end_time - self.start_time).total_seconds(),

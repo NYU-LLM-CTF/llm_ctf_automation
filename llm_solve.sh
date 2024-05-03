@@ -5,8 +5,9 @@ valid_opts=0
 # Default values
 trials=5 # Number of trials to run
 force=0 # Whether to force re-running the solver even if the log exists
+rounds=30 # How many conversation rounds to run
 
-while getopts ":y:e:t:c:m:T:f" opt; do
+while getopts ":y:e:t:c:m:T:r:f" opt; do
     case $opt in
         y)
         year="$OPTARG"
@@ -34,6 +35,9 @@ while getopts ":y:e:t:c:m:T:f" opt; do
         f)
         force=1
         ;;
+        r)
+        rounds="$OPTARG"
+        ;;
         ?)
         echo "Invalid option: -$OPTARG" >&2
         echo "Usage: -y {year} -e {event} -t {category} -c {challenge} -m model [-T {trials=5}] [-- [llm_solve_args]]" >&2
@@ -53,11 +57,11 @@ shift $(($OPTIND - 1))
 echo "Extra args to llm_ctf_solve.py: $*"
 
 function cleanup_container {
-    docker stop ctfenv &> /dev/null
-    docker wait ctfenv &> /dev/null
-    docker rm ctfenv &> /dev/null
-    while docker container inspect ctfenv &> /dev/null ; do
-        echo "Waiting for ctfenv to be removed..."
+    docker stop ctfenv_$(id -u) &> /dev/null
+    docker wait ctfenv_$(id -u) &> /dev/null
+    docker rm ctfenv_$(id -u) &> /dev/null
+    while docker container inspect ctfenv_$(id -u) &> /dev/null ; do
+        echo "Waiting for ctfenv_$(id -u) to be removed..."
         sleep 1
     done
 }
@@ -72,11 +76,11 @@ for i in $(seq 1 $trials) ; do
             echo "Removing existing log file as requested: ${log}"
             rm "${log}"
         else
-            printf '[%d/%d] skipping %s attempting %s for challenge /%s/%s/%s/%s; log exists\n' $i $trials "${model}" "${year}" "${event}" "${category}" "${chal}"
+            printf '[%d/%d] skipping %s attempting challenge /%s/%s/%s/%s; log exists\n' $i $trials "${model}" "${year}" "${event}" "${category}" "${chal}"
             continue
         fi
     fi
     cleanup_container
-    printf '[%d/%d] %s attempting %s for challenge /%s/%s/%s/%s\n' $i $trials "${model}" "${year}" "${event}" "${category}" "${chal}"
-    python llm_ctf_solve.py -d -M ${model} -m 30 -L "${log}" "${chal_path}/challenge.json" "$@"
+    printf '[%d/%d] %s attempting challenge /%s/%s/%s/%s\n' $i $trials "${model}" "${year}" "${event}" "${category}" "${chal}"
+    python llm_ctf_solve.py -d -M ${model} -m "${rounds}" -L "${log}" "${chal_path}/challenge.json" "$@"
 done

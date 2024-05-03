@@ -61,6 +61,9 @@ class OpenAIBackend(Backend):
         self.system_message = system_message
         self.messages += self.get_initial_messages()
 
+    def setup(self):
+        status.system_message(self.system_message)
+
     def get_initial_messages(self):
         return [
             self._system_message(self.system_message),
@@ -129,7 +132,10 @@ class OpenAIBackend(Backend):
             # Tool execution
             status.debug_message(f"Calling {arguments}")
             tool_res_plain = tool.run(arguments)
-            status.debug_message(f"=> {tool_res_plain.result}", truncate=True)
+            status.debug_message(f"Result:")
+            for k,v in tool_res_plain.result.items():
+                status.debug_message(f"{k}:\n{v}")
+            # status.debug_message(f"=> {tool_res_plain.result}", truncate=True)
             try:
                 tool_res = make_call_result(tool_res_plain)
             except TypeError as e:
