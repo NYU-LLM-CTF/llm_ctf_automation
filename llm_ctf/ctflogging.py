@@ -67,6 +67,7 @@ class Status:
             self._last = "DEBUG"
 
     def print(self, *args, **kwargs):
-        self.console.print(*args, **kwargs)
+        if not self.quiet:
+            self.console.print(*args, **kwargs)
 
 status = Status()

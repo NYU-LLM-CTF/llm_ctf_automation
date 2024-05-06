@@ -6,6 +6,7 @@ import shlex
 import shutil
 import subprocess
 import tempfile
+from typing import List
 from .utilities.dockertool import DockerClient
 
 from pathlib import Path
@@ -64,21 +65,21 @@ class SafeDict(dict):
 
 class CTFChallenge:
     def __init__(self, challenge_json: Path|str, args=None):
-        self.args = args.__dict__ or {}
+        self.args = args.__dict__ if args else {}
         self.disable_docker = self.args.get("disable_docker", False)
         self.docker = DockerClient()
         self.challenge_json = Path(challenge_json)
+
+        # Docker container information
+        self.network = self.args.get("network", "ctfnet")
+        self.tmpdir = None
+
+        # Load challenge details from JSON
         self.load_challenge(self.challenge_json)
 
         # Client container information (FIXME: this shouldn't really live here)
         self.container_name = self.args.get("container_name", "ctfenv")
         self.container_image = self.args.get("container_image", "ctfenv")
-
-        # Docker container information
-        self.network = self.args.get("network", "ctfnet")
-        self.is_compose = self.challenge.get("compose", False)
-        self.tmpdir = None
-        self.has_files = "files" in self.challenge and self.challenge["files"]
 
         # Challenge server information
         self.challenge_server_proc = None
@@ -90,13 +91,15 @@ class CTFChallenge:
         # with the correct flag
         self.solved = False
 
-    def load_challenge(self, challenge_json):
+    def load_challenge(self, challenge_json : Path):
         # Load in all the challenge information from the challenge.json file
         self.challenge_json = challenge_json
+        self.challenge = json.loads(challenge_json.read_text())
+        self.is_compose = self.challenge.get("compose", False)
+        self.has_files = "files" in self.challenge and self.challenge["files"]
         self.category = challenge_json.parent.parent.name
         self.category_friendly = category_friendly.get(self.category, self.category)
         self.chaldir = challenge_json.parent
-        self.challenge = json.loads(challenge_json.read_text())
         self.points = self.challenge.get("points", self.challenge.get("initial", 0))
         self.name = self.challenge["name"]
         self.real_flag = self.challenge["flag"] if isinstance(self.challenge["flag"], str) else self.challenge['flag']['content']
@@ -108,63 +111,85 @@ class CTFChallenge:
         assert self.flag_format != self.real_flag, f"Flag format for {self.asiname} would leak the flag!"
         self.challenge_port = self.challenge.get("internal_port")
         self.server_description = self.challenge.get("server_description")
-        self.image_name = self.parse_oci_path()
-        self.oci_info = self.parse_oci_container()
-        self.oci_container = None if not self.oci_info else self.oci_info[-1]
-        self.oci_fullname = None if not self.oci_info else "-".join(self.oci_info)
-        self.asi_oci_fullname = None if not self.oci_info else "asibench_" + self.oci_fullname
-        self.real_oci = self.oci_container
-        self.challenge_container = self.challenge.get("container_image", self.oci_container)
+
+        # Load any container images needed for the challenge. There are three cases:
+        # 1. The challenge does not need a server. In this case, we don't need to load any images.
+        # 2. The challenge uses a single container image. There will be a tar file in the challenge directory
+        #    named self.canonical_oci_archive. The container name will be either self.canonical_name or
+        #    self.asiname; if neither image is already loaded in docker, then load the .tar file.
+        # 3. The challenge uses a docker-compose file. In this case, the challenge directory will contain multiple
+        #    tar files, one for each service in the docker-compose file. The OCI filenames will be
+        #    {self.canonical_name}-{service_name}.tar and the container names will be {self.asiname}-{service_name}.
+        #    If any of the images are not already loaded in docker, then load the .tar files.
+        # This will get a lot simpler once we are pushing iamges to Docker Hub, since we can just try to do
+        # docker compose up or docker run and let it pull any images needed.
+        self.oci_images = self.find_oci_images()
+        # TODO: where should we get the server name from for the compose case?
+        if not self.is_compose and len(self.oci_images) == 1:
+            self.challenge_container = safe_name(self.fsname)
+        elif 'container_image' in self.challenge:
+            self.challenge_container = self.challenge['container_image']
+        else:
+            self.challenge_container = None
         self.server_type = self.get_server_type()
         self.files = self.challenge.get("files", [])
 
         # If the chal description contains {box} or {port} but we don't have
         # an image name, raise an error
-        if '{box}' in self.challenge['description'] and not self.image_name:
-            raise RuntimeError(f"Challenge {self.name} has placeholder for {{box}} in the description but no OCI image found")
+        if '{box}' in self.challenge['description'] and not self.challenge_server_name:
+            raise RuntimeError(f"Challenge {self.name} has placeholder for {{box}} in the description but no server name found")
         if '{port}' in self.challenge['description'] and not self.challenge_port:
             raise RuntimeError(f"Challenge {self.name} has placeholder for {{port}} in the description but no internal_port found")
 
     @property
     def description(self):
         return self.challenge['description'].format_map(
-            SafeDict(box=self.challenge_container, port=self.challenge_port)
+            SafeDict(box=self.challenge_server_name, port=self.challenge_port)
         )
 
-    def load_challenge_image(self):
-        if self.image_name:
-            # image_list = subprocess.run(['docker', 'images'], stdout=subprocess.PIPE, text=True)
-            image_list = self.docker.get_images()
-            names = [self.oci_container, self.oci_fullname, self.asi_oci_fullname]
+    @property
+    def challenge_server_name(self):
+        if self.challenge_container:
+            box = self.challenge_container
+        elif 'box' in self.challenge:
+            box = self.challenge['box']
+        else:
+            box = None
+        return box
+
+    def load_challenge_images(self):
+        if not self.oci_images:
+            status.debug_message(f"No OCI image(s) found, assuming challenge has no server")
+            return
+
+        # Get a list of all images known to docker
+        image_list = set(self.docker.get_images())
+        # Keep track of what name we find the image under
+        self.image_name_map = {}
+        for image in self.oci_images:
+            names = [ image.stem, 'asibench_' + image.stem ]
             names = [n + ':latest' for n in names]
-            if any(n in image_list for n in names):
-                status.debug_message(f"Pre-build docker image {self.image_name.name} found!")
-                return
+            for n in names:
+                if n in image_list:
+                    status.debug_message(f"Pre-built docker image {image.name} found as {n}!")
+                    self.image_name_map[image] = n
+                    break
             else:
-                status.debug_message(f"Load pre-build docker image {self.image_name.name}...")
-                with open(self.image_name, 'rb') as oci:
-                    subprocess.run(['docker', 'load'], stdin=oci)
-                return
+                status.debug_message(f"Load pre-built docker image {image.name}...")
+                with open(image, 'rb') as oci:
+                    loaded_name = subprocess.check_output(['docker', 'load'], stdin=oci, text=True).strip()
+                    loaded_name = loaded_name.split()[-1]
+                self.image_name_map[image] = loaded_name
 
-    def parse_oci_container(self):
-        if self.image_name:
-            oci_parts =  self.image_name.stem.split('-', maxsplit=2)
-            if len(oci_parts) != 3:
-                status.debug_message(f"wrong oci image name format, correct name should be: year[q/f]-category-chalname")
-                return None
-            return oci_parts
-        status.debug_message(f"No oci image found, skip")
-        return None
-
-    def parse_oci_path(self):
+    def find_oci_images(self) -> List[Path]|None:
         if self.chaldir.is_dir():
             pattern = '[0-9][0-9][0-9][0-9][qf]-*.tar'
-            matching_files = sorted(self.chaldir.glob(pattern))
-        return matching_files[-1] if len(matching_files) > 0 else None
+            matching_files = list(self.chaldir.glob(pattern))
+        return matching_files
 
     def get_server_type(self):
         # TODO: simplify this / make it consistent
-        if not self.challenge_container and not self.oci_container:
+        if not self.challenge_server_name or not self.challenge_port:
             return None
         if self.category == "web" or self.category == "misc" and self.challenge.get("proto") != "nc":
             return "web"
@@ -186,11 +211,21 @@ class CTFChallenge:
             return ""
 
     def get_server_logs(self):
+        if self.disable_docker:
+            return None
+        if self.is_compose:
+            return self.get_compose_logs()
         if not self.challenge_server_log:
             return None
         self.challenge_server_log.flush()
         self.challenge_server_log.seek(0)
         return self.challenge_server_log.read().decode('utf-8', errors='replace')
+
+    def get_compose_logs(self):
+        return subprocess.check_output(
+            ['docker', 'compose', '-f', self.chaldir / 'docker-compose.yml', 'logs'],
+            text=True,
+        )
 
     def start_challenge_container(self):
         if self.disable_docker:
@@ -199,18 +234,17 @@ class CTFChallenge:
         if self.is_compose:
             status.debug_message(f"Starting challenge services with docker-compose")
             subprocess.run(
-                ['docker', 'compose', '-f', self.chaldir / 'docker-compose.yml', 'up', '-d'],
+                ['docker', 'compose', '-f', self.chaldir / 'docker-compose.yml', 'up', '-d', '--force-recreate'],
                 check=True, capture_output=True,
             )
             return
-        # if not self.challenge_container: return
-        if not self.oci_container and not self.challenge_container: return
-        status.debug_message(f"Starting challenge container {self.oci_container}")
-        image_list = self.docker.get_images()
-        if self.real_oci not in image_list:
-            self.real_oci = self.oci_fullname
-        if self.real_oci not in image_list:
-            self.real_oci = self.asi_oci_fullname
+
+        # If it's not a compose challenge and it has no container, assume it's a non-server challenge
+        if not self.challenge_container: return
+
+        assert len(self.oci_images) == 1, "Only one image should be loaded for a single container challenge"
+        image_name = self.image_name_map[self.oci_images[0]]
+        status.debug_message(f"Starting challenge container {self.challenge_container} from {image_name}...")
         # Create a temp file to store the output from the docker run command
         with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
             challenge_server_logfile = f.name
@@ -219,7 +253,7 @@ class CTFChallenge:
             ['--network', self.network] + \
             ['--platform', 'linux/amd64', '--rm'] + \
             (['--privileged'] if self.challenge.get('privileged', False) else []) + \
-            ['--name', self.challenge_container, self.real_oci]
+            ['--name', self.challenge_container, image_name]
         status.debug_message(f"Running command: " + ' '.join(shlex.quote(arg) for arg in run_cmd), truncate=False)
         self.challenge_server_proc = subprocess.Popen(
             run_cmd,
@@ -245,8 +279,9 @@ class CTFChallenge:
             return
         if self.is_compose:
             status.debug_message(f"Stopping challenge services with docker-compose")
+            self.challenge_server_output = self.get_server_logs()
             subprocess.run(
-                ['docker', 'compose', '-f', self.chaldir / 'docker-compose.yml', 'down'],
+                ['docker', 'compose', '-f', self.chaldir / 'docker-compose.yml', 'down', '--volumes'],
                 check=True, capture_output=True,
             )
             return
@@ -254,7 +289,7 @@ class CTFChallenge:
         status.debug_message(f"Stopping challenge server {self.challenge_container}")
         self.challenge_server_proc.terminate()
         try:
-            self.challenge_server_proc.wait(timeout=2)
+            self.challenge_server_proc.wait(timeout=5)
         except subprocess.TimeoutExpired:
             status.debug_message(f"Challenge server {self.challenge_container} did not stop within 5s, trying docker stop.")
             subprocess.run(
@@ -266,7 +301,7 @@ class CTFChallenge:
         self.challenge_server_log.close()
         os.remove(self.challenge_server_log.name)
 
-    def check_flag(self, resp):
+    def check_flag(self, resp : str):
         # Check if the flag is in the response; also check version with
         # escaped underscores because the model is writing Markdown and
         # sometimes gets over-eager about escaping things. Would be nice
@@ -294,7 +329,7 @@ class CTFChallenge:
                 dst = Path(self.tmpdir) / filename
                 dst.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(src, dst)
-        self.load_challenge_image()
+        self.load_challenge_images()
         self.start_challenge_container()
         return self
 
@@ -312,7 +347,7 @@ class CTFChallenge:
         return get_canonical_name(self.chaldir)
 
     @cached_property
-    def asiname(self):
+    def asiname(self) -> str:
         return "asibench_" + self.canonical_name
 
     @cached_property
@@ -320,21 +355,21 @@ class CTFChallenge:
         return self.challenge_json.resolve().parts[-5:-1]
 
     @cached_property
-    def year(self):
+    def year(self) -> int:
         return int(self._parts[0])
 
     @cached_property
-    def event(self):
+    def event(self) -> str:
         return self._parts[1].split('-')[1]
 
     @cached_property
-    def fsname(self):
+    def fsname(self) -> str:
         return self._parts[3]
 
     @cached_property
-    def short_category(self):
+    def short_category(self) -> str:
         return category_short[self.category]
 
     @property
-    def canonical_oci_archive(self):
+    def canonical_oci_archive(self) -> Path:
         return self.challenge_json.parent / f"{self.canonical_name}.tar"

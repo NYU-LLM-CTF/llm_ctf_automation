@@ -15,6 +15,7 @@ import pyte
 from rich.text import Text
 import tarfile
 import traceback as tb
+from urllib.parse import urlparse
 
 from ..ctflogging import status
 from ..challenge import CTFChallenge, get_asi_name, get_canonical_name
@@ -229,7 +230,7 @@ class TestContainer:
             returncode = None
         return returncode, output
 
-    def copy_from_container(self, src, dest, extract=True, strip_components=0):
+    def copy_from_container(self, src, dest, extract=True, strip_components=0, remove_after=False):
         parts, get_stat = self.container.get_archive(src)
         tardata = b''
         for part in parts:
@@ -240,6 +241,8 @@ class TestContainer:
             with open(dest, 'wb') as f:
                 f.write(tardata)
             status.debug_message(f"Copied {self.container_name}:{src} to {dest}")
+            if remove_after:
+                self.exec(f'rm -rf {src}')
             return True, { 'stat': get_stat, 'extracted_files': [dest] }
         # extract the tarball
         status.debug_message(f"Extracting {self.container_name}:{src} to {dest}")
@@ -251,6 +254,8 @@ class TestContainer:
                 status.debug_message(tarline(new_member))
                 tar.extract(new_member, path=dest)
                 extracted_files.append(os.path.join(dest, new_name))
+        if remove_after:
+            self.exec(f'rm -rf {src}')
         return True, {'stat': get_stat, 'extracted_files': extracted_files}
 
 def get_container_info(container_id):
@@ -274,18 +279,17 @@ def get_listening_ports_netstat(container_id):
         status.debug_message(f"Standard Error:\n{e.stderr}")
         return None
 
-def wait_for_container_port(container_id, port, timeout=5.0):
+def wait_for_container_port(tester : TestContainer, host : str, port : int, timeout=5.0):
     if port is None:
         return None
-    status.debug_message(f"Waiting up to {timeout:.1f}s for port {port} to be open on {container_id}...")
+    status.debug_message(f"Waiting up to {timeout:.1f}s for port {port} to be open on {host}...")
     start_time = time.time()
     while time.time() - start_time < timeout:
-        netstat_ports = get_listening_ports_netstat(container_id)
-        for lp in parse_netstat_output(netstat_ports):
-            if lp.l_port == port and lp.is_global_listen():
-                startup_time = time.time()-start_time
-                status.debug_message(f"Server port came up in {startup_time:.2f}s")
-                return startup_time
+        returncode, output = tester.exec(f'nc -zv -w1 -W1 {host} {port}', timeout=timeout)
+        if returncode == 0:
+            startup_time = time.time()-start_time
+            status.debug_message(f"Server port came up in {startup_time:.2f}s")
+            return startup_time
         time.sleep(0.1)
     return float('inf')
 
@@ -294,12 +298,15 @@ def get_docker_ports(container_id):
     status.print(f"Netstat ports: {netstat_ports}")
     return netstat_ports
 
-def run_test(cmd, tester: TestContainer, test_name, timeout=5.0):
+def run_test(cmd, tester: TestContainer, test_name, timeout=5.0, retries=3):
     status.print(f"[{test_name}] {cmd}")
-    returncode, output = tester.exec(cmd, timeout=timeout)
-    if returncode == 0:
-        status.print(f"[green bold]{test_name} test passed![/green bold]", markup=True)
-        rv = True
+    for i in range(retries):
+        status.print(f"[{test_name}] Attempt {i+1}/{retries}...")
+        returncode, output = tester.exec(cmd, timeout=timeout)
+        if returncode == 0:
+            status.print(f"[green bold]{test_name} test passed![/green bold]", markup=True)
+            rv = True
+            break
     else:
         ret = returncode if returncode is not None else 'timeout'
         status.print(f"[red bold]{test_name} test failed (ret={ret})![/red bold]", markup=True)
@@ -309,33 +316,44 @@ def run_test(cmd, tester: TestContainer, test_name, timeout=5.0):
     status.print(output_dec)
     return rv, { 'cmd': cmd, 'returncode': returncode, 'output': output_dec }
 
-def test_nc(tester: TestContainer, host : str, port : int):
+def test_nc(tester: TestContainer, host : str, port : int, retries=3):
     # Use nc to connect to the challenge server's port
     success, extra = run_test(
         f"nc -zv -w1 -W1 {host} {port}",
         tester,
         "Network",
         timeout=5.0,
+        retries=retries,
     )
     return success, { 'nc_test': extra }
 
-def test_web(tester: TestContainer, url : str):
+def test_web(tester: TestContainer, url : str, retries=3):
     # Use curl to connect to the challenge server's port
     success, extra = run_test(
         f"curl --fail-with-body -L --connect-timeout 1 -s -v -I -X GET {url}",
         tester,
         "Web server",
         timeout=5.0,
+        retries=retries,
     )
     return success, { 'web_test': extra }
 
+def url_to_name(url):
+    parsed = urlparse(url)
+    netloc = parsed.netloc.replace(':','_')
+    path = parsed.path[1:].replace('/', '_')
+    name = netloc
+    if path:
+        name += '_' + path
+    return name
+
 def take_web_screenshot(tester : TestContainer, url : str, name : str):
-    status.print(f"Taking a screenshot of {url}...")
+    status.print(f"Taking a screenshot of {url} -> {name}...")
     returncode, output = tester.exec(f"python webtester.py {url} {name}", timeout=30.0)
     status.print(output.decode(errors='replace'))
     # Copy the logs out of the container
     outdir = output.decode(errors='replace').strip()
-    _, extracted_files = tester.copy_from_container(outdir, tester.log_dir, strip_components=1)
+    _, extracted_files = tester.copy_from_container(outdir, tester.log_dir, strip_components=1, remove_after=True)
     return returncode == 0, { 'web_screenshot_files': extracted_files }
 
 def take_nc_screencast(tester : TestContainer, host : str, port : int, name : str):
@@ -386,34 +404,51 @@ def test_network(chal : CTFChallenge, tester : TestContainer, port : int|None = 
     net_test_res['net_ok'] = False
     status.print(f"[bold]Testing network connectivity on {port}...[/bold]", markup=True)
     net_test_res['nc'] = {}
-    nc_res, extra = test_nc(tester, chal.challenge_container, port)
+    nc_res, extra = test_nc(tester, chal.challenge_server_name, port)
     net_test_res['nc']['success'] = nc_res
     net_test_res['nc'].update(extra)
     if not nc_res:
         return net_test_res
     elif chal.get_server_type() == "web":
         net_test_res['web'] = {}
-        is_ssl, extra = port_is_ssl(tester, chal.challenge_container, port)
+        is_ssl, extra = port_is_ssl(tester, chal.challenge_server_name, port)
         net_test_res.update(extra)
         scheme = "https" if is_ssl else "http"
-        url = f"{scheme}://{chal.challenge_container}:{port}"
+        url = f"{scheme}://{chal.challenge_server_name}:{port}"
+        status.debug_message(f"Testing URL: {url}")
         net_test_res['web']['ssl'] = is_ssl
         net_test_res['web']['url'] = url
         web_res, extra = test_web(tester, url)
         net_test_res['web']['success'] = web_res
         net_test_res['web'].update(extra)
+        net_test_res['web']['web_screenshot'] = []
         if web_res:
             net_test_res['net_ok'] = True
             # Take a screenshot of the web page
-            web_sc_res, extra = take_web_screenshot(tester, url, f"{chal.asiname}_{port}")
-            net_test_res['web']['web_screenshot'] = {'success': web_sc_res, **extra}
+            web_sc_res, extra = take_web_screenshot(tester, url, f"{chal.asiname}_{url_to_name(url)}")
+            net_test_res['web']['web_screenshot'] = [{'success': web_sc_res, 'url': url, **extra}]
+        # Take a screenshot of any other URLs listed in the challenge info
+        for url in chal.challenge.get('urls', []):
+            status.debug_message(f"Testing additional URL: {url}")
+            # If any of these succeed, web is ok
+            web_res, extra = test_web(tester, url, retries=5)
+            if web_res:
+                net_test_res['web']['success'] = True
+                net_test_res['net_ok'] = True
+            web_sc_res, extra = take_web_screenshot(tester, url, f"{chal.asiname}_{url_to_name(url)}")
+            net_test_res['web']['web_screenshot'].append({'success': web_sc_res, 'url': url, **extra})
         return net_test_res
     else:
         # nc style challenge, and it works
         net_test_res['net_ok'] = True
-        nc_cast_res, extra = take_nc_screencast(tester, chal.challenge_container, port, f"{chal.asiname}_{port}")
+        nc_cast_res, extra = take_nc_screencast(tester, chal.challenge_server_name, port, f"{chal.asiname}_{port}")
         net_test_res['nc']['nc_cast'] = { 'success': nc_cast_res, **extra }
         return net_test_res
+
+def test_solver(chal : CTFChallenge, tester : TestContainer):
+    res, output = run_test("bash /chaltest_solver/test.sh", tester, "Solver", timeout=30, retries=1)
+    res = chal.check_flag(output['output'])
+    return res, { 'solver_output': output }
 
 def main():
     parser = argparse.ArgumentParser(
@@ -466,6 +501,8 @@ def main():
                 "server_logs": None,
                 "server_ports": None,
                 "server_ports_raw": None,
+                "solver_output": None,
+                "solver_success": None,
                 "canonical_oci_name": oci_archive.name,
                 "canonical_oci_exists": oci_archive.exists(),
                 "compose_files": [str(cf) for cf in compose_files],
@@ -475,17 +512,24 @@ def main():
                 status.debug_message(f"docker-compose.yml found in {challenge_json.parent}, test will probably fail", truncate=False)
             try:
                 with CTFChallenge(challenge_json, args) as chal:
+                    if (chal.chaldir/'test_solver').is_dir():
+                        volume = {
+                            str((chal.chaldir/'test_solver')): {'bind': '/chaltest_solver', 'mode': 'rw'},
+                        }
+                    else:
+                        volume = None
                     with TestContainer(
                         args.container_image,
                         args.network,
                         name=args.container_name,
                         startup_wait=args.wait,
                         log_dir=chal_logdir,
+                        volume=volume,
                     ) as tester:
                         test_timestamp = time.time()
                         chaltest_result['test_timestamp'] = test_timestamp
                         status.debug_message(f"Testing challenge {chal.asiname} ({chal.name})...")
-                        startup_time = wait_for_container_port(chal.challenge_container, chal.challenge_port, timeout=args.wait)
+                        startup_time = wait_for_container_port(tester, chal.challenge_server_name, chal.challenge_port, timeout=args.wait)
                         if startup_time is None:
                             status.debug_message(f"Server port did not come up in time, but will try anyway")
                         chaltest_result['server_start_time'] = startup_time
@@ -495,30 +539,39 @@ def main():
                         chaltest_result["success"] = net_ok
                         if -1 in net_results:
                             # No server, nothing to test
+                            if all_ok is None:
+                                all_ok = net_ok
+                            else:
+                                all_ok = all_ok and net_ok
                             global_log.write(json.dumps(chaltest_result) + '\n')
                             continue
                         server_logs = chal.get_server_logs()
+                        if (chal.chaldir/'test_solver').is_dir():
+                            solver_ok, solver_output = test_solver(chal, tester)
+                            chaltest_result["solver_output"] = solver_output
+                            chaltest_result["solver_success"] = solver_ok
                         status.debug_message(f"Server output:\n{server_logs}", truncate=False)
                         chaltest_result["server_logs"] = server_logs
-                        server_ports = get_docker_ports(chal.challenge_container)
-                        chaltest_result["server_ports_raw"] = server_ports
-                        try:
-                            server_ports = parse_netstat_output(server_ports)
-                            chaltest_result["server_ports"] = [vars(lp) for lp in server_ports]
-                        except Exception as e:
-                            status.debug_message(f"Error parsing netstat output: {e}")
-                            chaltest_result["server_ports"] = None
+                        if chal.challenge_container:
+                            server_ports = get_docker_ports(chal.challenge_container)
+                            chaltest_result["server_ports_raw"] = server_ports
+                            try:
+                                server_ports = parse_netstat_output(server_ports)
+                                chaltest_result["server_ports"] = [vars(lp) for lp in server_ports]
+                            except Exception as e:
+                                status.debug_message(f"Error parsing netstat output: {e}")
                         if all_ok is None:
                             all_ok = net_ok
                         else:
                             all_ok = all_ok and net_ok
                         global_log.write(json.dumps(chaltest_result) + '\n')
             except Exception as e:
-                status.debug_message(f"{type(e).__name__} loading {challenge_json}: {e}")
                 all_ok = False
                 # Extracting traceback details
                 tb_list = tb.format_tb(e.__traceback__)
                 tb_string = ''.join(tb_list)
+                status.debug_message(f"{type(e).__name__} loading {challenge_json}: {e}")
+                status.debug_message(f"Traceback:\n{tb_string}", truncate=False)
                 # Constructing the JSON object
                 exception_info = {
                     "exception_type": str(type(e).__name__),
