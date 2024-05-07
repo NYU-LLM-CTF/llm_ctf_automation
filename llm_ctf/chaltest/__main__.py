@@ -537,19 +537,20 @@ def main():
                         net_ok = all([v['net_ok'] for v in net_results.values()])
                         chaltest_result["network_tests"] = net_results
                         chaltest_result["success"] = net_ok
-                        if -1 in net_results:
-                            # No server, nothing to test
-                            if all_ok is None:
-                                all_ok = net_ok
-                            else:
-                                all_ok = all_ok and net_ok
-                            global_log.write(json.dumps(chaltest_result) + '\n')
-                            continue
-                        server_logs = chal.get_server_logs()
                         if (chal.chaldir/'test_solver').is_dir():
                             solver_ok, solver_output = test_solver(chal, tester)
                             chaltest_result["solver_output"] = solver_output
                             chaltest_result["solver_success"] = solver_ok
+                            chaltest_result["success"] = net_ok and solver_ok
+                        if -1 in net_results:
+                            if all_ok is None:
+                                all_ok = chaltest_result["success"]
+                            else:
+                                all_ok = all_ok and chaltest_result["success"]
+                            # No server, skip the rest
+                            global_log.write(json.dumps(chaltest_result) + '\n')
+                            continue
+                        server_logs = chal.get_server_logs()
                         status.debug_message(f"Server output:\n{server_logs}", truncate=False)
                         chaltest_result["server_logs"] = server_logs
                         if chal.challenge_container:
@@ -561,9 +562,9 @@ def main():
                             except Exception as e:
                                 status.debug_message(f"Error parsing netstat output: {e}")
                         if all_ok is None:
-                            all_ok = net_ok
+                            all_ok = chaltest_result["success"]
                         else:
-                            all_ok = all_ok and net_ok
+                            all_ok = all_ok and chaltest_result["success"]
                         global_log.write(json.dumps(chaltest_result) + '\n')
             except Exception as e:
                 all_ok = False
