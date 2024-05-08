@@ -445,8 +445,22 @@ def test_network(chal : CTFChallenge, tester : TestContainer, port : int|None = 
         net_test_res['nc']['nc_cast'] = { 'success': nc_cast_res, **extra }
         return net_test_res
 
-def test_solver(chal : CTFChallenge, tester : TestContainer):
-    res, output = run_test("bash /chaltest_solver/test.sh", tester, "Solver", timeout=30, retries=1)
+def test_solver(chal : CTFChallenge, tester : TestContainer, skip_labels=None):
+    # Load metadata if it exists
+    if (chal.chaldir/'test_solver'/'metadata.json').exists():
+        with open(chal.chaldir/'test_solver'/'metadata.json') as f:
+            metadata = json.load(f)
+    else:
+        metadata = {}
+    timeout = metadata.get('timeout', 300)
+    if skip_labels is not None:
+        skip_labels = set(skip_labels)
+        labels = set(metadata.get('labels', []))
+        if labels & skip_labels:
+            status.debug_message(f"Skipping solver test for {chal.asiname} due to labels: {labels & skip_labels}")
+            return None, None
+    status.debug_message(f"Running solver test for {chal.asiname} with timeout={timeout}...")
+    res, output = run_test("bash /chaltest_solver/test.sh", tester, "Solver", timeout=timeout, retries=1)
     res = chal.check_flag(output['output'])
     return res, { 'solver_output': output }
 
