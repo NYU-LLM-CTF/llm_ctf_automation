@@ -526,12 +526,11 @@ def main():
                 status.debug_message(f"docker-compose.yml found in {challenge_json.parent}, test will probably fail", truncate=False)
             try:
                 with CTFChallenge(challenge_json, args) as chal:
+                    volume = {}
                     if (chal.chaldir/'test_solver').is_dir():
-                        volume = {
-                            str((chal.chaldir/'test_solver')): {'bind': '/chaltest_solver', 'mode': 'rw'},
-                        }
-                    else:
-                        volume = None
+                        volume[str((chal.chaldir/'test_solver'))] = {'bind': '/chaltest_solver', 'mode': 'rw'}
+                    if chal.has_files:
+                        volume[chal.tmpdir] = {'bind': '/home/ctfplayer/ctf_files', 'mode': 'rw'}
                     with TestContainer(
                         args.container_image,
                         args.network,

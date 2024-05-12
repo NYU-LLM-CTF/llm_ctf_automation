@@ -1,5 +1,4 @@
 from dataclasses import dataclass
-from enum import StrEnum
 from typing import Literal
 import pyte
 import struct
@@ -7,6 +6,14 @@ import tarfile
 import stat
 from datetime import datetime
 from rich.text import Text
+
+try:
+    from enum import StrEnum
+except ImportError:
+    # Required for older python versions <=3.10
+    from enum import Enum
+    class StrEnum(str, Enum):
+        pass
 
 def is_hex_color(s):
     if len(s) != 6:

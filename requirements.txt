@@ -10,3 +10,4 @@ googlesearch-python
 lxml
 tabulate
 backoff
+pyte
