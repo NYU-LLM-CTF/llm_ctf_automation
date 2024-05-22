@@ -103,6 +103,30 @@ class PromptManager:
     def initial_message(self, chal: CTFChallenge, **kwargs):
         return self.render('initial_message', chal=chal, **kwargs)
 
+    def get_chal_hint(self, chal: CTFChallenge, hint: str):
+        """Get hint from the challenge dir. Return None if not present."""
+        hintpath = chal.chaldir / f"hints/{hint}.md"
+        if not hintpath.exists():
+            return None
+        return hintpath.read_text()
+
+    def hints_message(self, chal: CTFChallenge, hints=[], **kwargs):
+        """
+        Look for hints in the the challenge folder and templates folder.
+        """
+        msg = []
+        for hint in hints:
+            if ht := self.get_chal_hint(chal, hint):
+                # Look in challenge dir
+                msg.append(ht)
+            else:
+                try:
+                    # Look for common template
+                    msg.append(self.render(f"hints/{chal.category}/{hint}", chal=chal, **kwargs))
+                except TemplateNotFound:
+                    pass
+        return "\n\n".join(msg)
+
     def keep_going(self, **kwargs):
         return self.render('keep_going', **kwargs)
 

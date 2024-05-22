@@ -1,0 +1,27 @@
+These are examples of commands useful for reverse engineering and binary analysis:
+
+- Extract a tar file: `tar -xf <tar file> -C <output directory>`
+- Extract a zip file: `unzip <zip file> -d <output directory>`
+- Analyze the file type: `file <file>`
+- List the strings in a binary: `strings <binary>`
+- Show the symbol table: `objdump --syms -C <binary>`
+
+You can debug binaries with `gdb` by implementing a python script. This is an example python script that sets a breakpoint and prints the value of the `$al` register. This script can be run as `gdb -x <script.py>`.
+
+```
+import gdb
+
+gdb.execute("file ~/ctf_files/binary")
+b = gdb.Breakpoint("*0x456218")
+gdb.execute("run")
+gdb.execute("print $al")
+gdb.execute("quit")
+```
+
+The tool `radare2` helps to analyze binaries. You cannot run `radare2` interactively, so you need to pass all internal commands using the `-c` flag or write a script and run it using the `-i` flag.
+Some example commands are as follows:
+
+- Disassemble the main function: `r2 -qc 'aaa; pdf @ main' <binary>`
+- List the functions present: `r2 -qc 'aaa; afl' <binary>`
+
+The `pwntools` python package contains many useful python comamnds for interacting and exploiting binaries. You need to implement a python script to invoke the commands from this package.

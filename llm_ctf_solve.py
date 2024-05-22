@@ -176,6 +176,7 @@ def main():
     parser.add_argument("--backend", default="openai", choices=Backend.registry.keys(), help="model backend to use")
     parser.add_argument("--formatter", default="xml", choices=Formatter.registry.keys(), help="prompt formatter to use")
     parser.add_argument("--prompt-set", default="default", help="set of prompts to use")
+    parser.add_argument("--hints", default=[], nargs="+", help="list of hints to provide")
     parser.add_argument("--disable-docker", default=False, action="store_true", help="disable Docker usage (for debugging)")
     parser.add_argument("--disable-markdown", default=False, action="store_true", help="don't render Markdown formatting in messages")
     args = parser.parse_args()
@@ -185,6 +186,13 @@ def main():
     with CTFChallenge(challenge_json, args) as chal, \
          CTFConversation(chal, args) as convo:
         next_msg = prompt_manager.initial_message(chal)
+        # Add hints message to initial
+        hints_msg = prompt_manager.hints_message(chal, hints=args.hints)
+        if len(hints_msg) != 0:
+            next_msg += "\n\n" + hints_msg
+        elif len(args.hints) != 0:
+            status.debug_message(f"hints {args.hints} not found")
+
         try:
             while True:
                 for resp in convo.run_conversation_step(next_msg):
