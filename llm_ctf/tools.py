@@ -446,7 +446,6 @@ class Decompile(Tool):
         # Look for the decompilation output in "decomp"
         basename = Path(binary).name
         if basename not in self._decomp_cache:
-            self._decomp_cache[basename] = {}
             decomp_output = SCRIPT_DIR / f"decomp/{self.challenge.category}/{self.challenge.chaldir.name}/{basename}.decomp.json"
             if decomp_output.exists():
                 self._decomp_cache[basename] = json.loads(decomp_output.read_text())
