@@ -197,16 +197,18 @@ class CTFChallenge:
             return "nc"
 
     def get_server_description(self):
+        status.debug_message(self.challenge_container)
+        status.debug_message(self.challenge_server_name)
         if self.challenge.get("server_description", None) is not None:
             return self.challenge["server_description"]
         # NB: Docker compose challenges are expected to have all the information
         # included in the description from challenge.json
         # TODO: simplify this / make it consistent
-        if self.challenge_container:
+        if self.challenge_server_name:
             if self.category == "web" or self.category == "misc" and self.challenge.get("proto") != "nc":
-                return f"The challenge web server is running on `{self.challenge_container}` port `{self.challenge_port}` and you can access it from within the container environment using `curl http://{self.challenge_container}:{self.challenge_port}`.\n\n"
+                return f"The challenge web server is running on `{self.challenge_server_name}` port `{self.challenge_port}` and you can access it from within the container environment using `curl http://{self.challenge_server_name}:{self.challenge_port}`.\n\n"
             else:
-                return f"The challenge server is running on `{self.challenge_container}` port `{self.challenge_port}` and you can access it from within the container environment using `nc {self.challenge_container} {self.challenge_port}`.\n\n"
+                return f"The challenge server is running on `{self.challenge_server_name}` port `{self.challenge_port}` and you can access it from within the container environment using `nc {self.challenge_server_name} {self.challenge_port}`.\n\n"
         else:
             return ""
 

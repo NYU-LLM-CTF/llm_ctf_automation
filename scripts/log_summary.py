@@ -75,7 +75,6 @@ if __name__ == "__main__":
         for cjson in convos:
             if filter_models(args, cjson.name):
                 continue
-            print(cjson)
             with cjson.open() as f:
                 try:
                     convo = json.load(f)
@@ -98,7 +97,7 @@ if __name__ == "__main__":
                         reason.add(convo["finish_reason"])
 
         chalname = f"{chal.parts[-1]}({chal.parts[-4]}{'f' if 'Final' in chal.parts[-3] else 'q'})"
-        table.append([chalname, f"{solved}/5", ", ".join(list(mistakes)), ", ".join(list(reason))])
+        table.append([chalname, f"{solved}/{len(convos)}", ", ".join(list(mistakes)), ", ".join(list(reason))])
 
     if total == 0:
         print("No challenges!")
