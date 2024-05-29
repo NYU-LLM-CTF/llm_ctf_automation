@@ -2,7 +2,7 @@ from datetime import datetime
 import socket
 import subprocess
 import time
-from openai import OpenAI
+from openai import OpenAI, RateLimitError, BadRequestError
 import json, os
 import argparse
 import shutil
@@ -230,6 +230,19 @@ def main():
                 # Print traceback
                 tb.print_exc()
             return 0
+        except RateLimitError:
+            status.print("[red bold]Rate limit reached![/red bold]", markup=True)
+            convo.finish_reason = "rate_limit"
+            return 0
+        except BadRequestError as e:
+            msg = str(e)
+            if "'code': 'context_length_exceeded'" in msg or "'code': 'string_above_max_length'" in msg:
+                status.print("[red bold]Context length exceeded![/red bold]", markup=True)
+                convo.finish_reason = "context_length"
+                return 0
+            else:
+                # Some other error, re-raise
+                raise
 
 if __name__ == "__main__":
     exit(main())

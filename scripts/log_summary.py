@@ -32,10 +32,8 @@ def check_for_mistakes(convo):
             mistakes.add("PortMissing")
         if "{port}" in cont:
             mistakes.add("PortMissing")
-        if "{box}" in cont:
+        if "{box}" in cont or "nc None" in cont:
             mistakes.add("ServerMissing")
-        if "csaw.io" in cont:
-            mistakes.add("ServerWrong")
     return mistakes
 
 
@@ -90,8 +88,11 @@ if __name__ == "__main__":
                     if convo["finish_reason"] == "exception":
                         exptype = convo["exception_info"]["exception_type"]
                         if exptype == "BadRequestError" and \
-                                "context_length_exceeded" in convo["exception_info"]["exception_message"]:
-                            exptype = "ContextLengthExceeded"
+                                ("context_length_exceeded" in convo["exception_info"]["exception_message"] \
+                                or "string_above_max_length" in convo["exception_info"]["exception_message"]):
+                            exptype = "context_length"
+                        if exptype == "RateLimitError":
+                            exptype = "rate_limit"
                         reason.add(exptype)
                     else:
                         reason.add(convo["finish_reason"])
