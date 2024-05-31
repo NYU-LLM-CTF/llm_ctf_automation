@@ -1,0 +1,200 @@
+Year	Event	Category	Challenge
+2017	Finals	Crypto	ECXOR
+2017	Finals	Crypto	LuPiN
+2017	Finals	Forensics	thoroughlyStripped
+2017	Finals	Pwn	Humm_sCh-t
+2017	Finals	Reversing	rabbithole
+2017	Finals	Reversing	48-bit_yeet_lab
+2017	Finals	Reversing	rusty_road
+2017	Quals	Crypto	almost_xor
+2017	Quals	Crypto	another_xor
+2017	Quals	Crypto	baby_crypt
+2017	Quals	Forensics	missed_registration
+2017	Quals	Forensics	best_router
+2017	Quals	Misc	cvv
+2017	Quals	Misc	serial
+2017	Quals	Pwn	pilot
+2017	Quals	Pwn	zone
+2017	Quals	Reversing	bananascript
+2017	Quals	Reversing	realism
+2017	Quals	Reversing	tablez
+2017	Quals	Reversing	gopherz
+2017	Quals	Reversing	grumpcheck
+2017	Quals	Reversing	prophecy
+2017	Quals	Web	notmycupofcoffe
+2017	Quals	Web	orange
+2017	Quals	Web	orangev2
+2017	Quals	Web	littlequery
+2018	Finals	Crypto	ASR4CR
+2018	Finals	Crypto	Lost Mind
+2018	Finals	Crypto	Disastrous Security Apparatus
+2018	Finals	Misc	Leaked Flag
+2018	Finals	Misc	Showdown
+2018	Finals	Pwn	ES1337
+2018	Finals	Reversing	1nsayne
+2018	Finals	Reversing	bdos
+2018	Finals	Reversing	FREE as in FREEdom
+2018	Quals	Crypto	babycrypto
+2018	Quals	Crypto	collusion
+2018	Quals	Crypto	lowe
+2018	Quals	Crypto	flatcrypt
+2018	Quals	Forensics	simple-recovery
+2018	Quals	Forensics	whyOS
+2018	Quals	Misc	Short-Circuit
+2018	Quals	Misc	algebra
+2018	Quals	Misc	bin_t
+2018	Quals	Pwn	get_it?
+2018	Quals	Pwn	bigboy
+2018	Quals	Pwn	shellpointcode
+2018	Quals	Reversing	A-Walk-Through-x86-Part-2
+2018	Quals	Reversing	kvm
+2018	Quals	Reversing	A-Walk-Through-x86-Part-1
+2019	Finals	Crypto	macrypto
+2019	Finals	Misc	A Poem For You
+2019	Finals	Pwn	arevenge
+2019	Finals	Reversing	Mystery Boi
+2019	Finals	Reversing	steady_counting
+2019	Finals	Reversing	wrangly
+2019	Finals	Web	biometric
+2019	Quals	Crypto	DES 2 Bites
+2019	Quals	Crypto	brillouin
+2019	Quals	Crypto	byte_me
+2019	Quals	Crypto	count_on_me
+2019	Quals	Crypto	SuperCurve
+2019	Quals	Pwn	baby_boi
+2019	Quals	Pwn	GOT Milk?
+2019	Quals	Pwn	Popping Caps
+2019	Quals	Pwn	Popping Caps 2
+2019	Quals	Pwn	Pop Goes the Printer
+2019	Quals	Pwn	small_boi
+2019	Quals	Pwn	traveller
+2019	Quals	Reversing	beleaf
+2019	Quals	Reversing	Callsite
+2019	Quals	Reversing	Gibberish Check
+2019	Quals	Reversing	halfpike
+2019	Quals	Reversing	wizkid
+2020	Finals	Crypto	eccentric
+2020	Finals	Crypto	hybrid2
+2020	Finals	Crypto	jackpot
+2020	Finals	Crypto	the matrix
+2020	Finals	Pwn	darkunion 1
+2020	Finals	Reversing	brrr
+2020	Finals	Reversing	rap
+2020	Finals	Reversing	sourcery
+2020	Finals	Reversing	yeet
+2020	Finals	Web	picgram
+2020	Finals	Web	Shark Facts
+2020	Finals	Web	Snail Race 1
+2020	Quals	Crypto	adversarial
+2020	Quals	Crypto	authy
+2020	Quals	Crypto	difib
+2020	Quals	Crypto	modus_operandi
+2020	Quals	Crypto	Perfect Secrecy
+2020	Quals	Crypto	smallsurp
+2020	Quals	Pwn	blox2
+2020	Quals	Pwn	feather
+2020	Quals	Pwn	grid
+2020	Quals	Pwn	pwnvoltex
+2020	Quals	Pwn	roppity
+2020	Quals	Pwn	slithery
+2020	Quals	Pwn	The Bards' Fail
+2020	Quals	Reversing	baby_mult
+2020	Quals	Reversing	ezbreezy
+2020	Quals	Reversing	not_malware
+2020	Quals	Web	whistleblow
+2021	Finals	Crypto	Collision Course
+2021	Finals	Crypto	Interoperable
+2021	Finals	Crypto	iBad
+2021	Finals	Forensics	No Time to Register
+2021	Finals	Forensics	constela
+2021	Finals	Misc	terminal velocity
+2021	Finals	Pwn	chatterbox
+2021	Finals	Pwn	horrorscope
+2021	Finals	Reversing	maze
+2021	Finals	Reversing	sfc
+2021	Quals	Crypto	Bits
+2021	Quals	Crypto	Crack Me
+2021	Quals	Crypto	ECC Pop Quiz
+2021	Quals	Crypto	Forgery
+2021	Quals	Crypto	Gotta Decrypt Them All
+2021	Quals	Crypto	RSA Pop Quiz
+2021	Quals	Forensics	Lazy Leaks
+2021	Quals	Misc	Save the Tristate
+2021	Quals	Misc	Weak Password
+2021	Quals	Pwn	Password Checker
+2021	Quals	Pwn	Alien Math
+2021	Quals	Pwn	haySTACK
+2021	Quals	Pwn	krypto
+2021	Quals	Reversing	checker
+2021	Quals	Reversing	macomal
+2021	Quals	Reversing	ncore
+2021	Quals	Reversing	ransomwaRE
+2021	Quals	Web	Gatekeeping
+2021	Quals	Web	no-pass-needed
+2021	Quals	Web	poem-collection
+2021	Quals	Web	scp-terminal
+2021	Quals	Web	securinotes
+2022	Finals	Crypto	M@sTEr 0F PrN9
+2022	Finals	Crypto	The Lengths we Extend Ourselves
+2022	Finals	Crypto	open-ELLIPTI-PH!
+2022	Finals	Crypto	polly-crack-this
+2022	Finals	Misc	Farmlang
+2022	Finals	Misc	SupEr GUeSsEr G@me
+2022	Finals	Misc	eMbrEy0 LEaK
+2022	Finals	Pwn	Salt Server
+2022	Finals	Reversing	parallel vm
+2022	Finals	Reversing	roulette
+2022	Quals	Crypto	Beyond_Quantum
+2022	Quals	Crypto	Poodle Gift Shop
+2022	Quals	Crypto	Gotta Crack Them All
+2022	Quals	Crypto	Not Too Taxing
+2022	Quals	Crypto	Phi Too Much In Common
+2022	Quals	Misc	CatTheFlag
+2022	Quals	Misc	ezMaze
+2022	Quals	Misc	Quantum Leap
+2022	Quals	Pwn	ezROP
+2022	Quals	Pwn	unsafe-linking
+2022	Quals	Reversing	Anya Gacha
+2022	Quals	Reversing	dockREleakage
+2022	Quals	Reversing	game
+2022	Quals	Reversing	The Big Bang
+2023	Finals	Crypto	Description
+2023	Finals	Crypto	Textbook RSA
+2023	Finals	Crypto	NERV Center
+2023	Finals	Forensics	Ancient Forensics
+2023	Finals	Forensics	Emoji
+2023	Finals	Forensics	Floating Points
+2023	Finals	Forensics	forensings
+2023	Finals	Forensics	Hypokrinesthai
+2023	Finals	Misc	Python Garbageman
+2023	Finals	Misc	Sigma's Logistics
+2023	Finals	Misc	Urkel
+2023	Finals	Misc	Vector's Machine
+2023	Finals	Pwn	obfusicated?
+2023	Finals	Pwn	brainflop
+2023	Finals	Reversing	obfusicated
+2023	Finals	Reversing	Cell
+2023	Finals	Reversing	unobfusicated
+2023	Finals	Web	ShreeRamQuest
+2023	Finals	Web	Triathlon or Sprint?
+2023	Quals	Crypto	Circles
+2023	Quals	Crypto	Lottery
+2023	Quals	Crypto	Mental Poker
+2023	Quals	Forensics	1black0white
+2023	Quals	Forensics	Br3akTh3V@u1t
+2023	Quals	Misc	stonk
+2023	Quals	Misc	AndroidDropper
+2023	Quals	Misc	Linear Aggressor
+2023	Quals	Pwn	my_first_pwnie
+2023	Quals	Pwn	puffin
+2023	Quals	Pwn	target_practice
+2023	Quals	Pwn	unlimited_subway
+2023	Quals	Reversing	baby's first
+2023	Quals	Reversing	baby's third
+2023	Quals	Reversing	Rebug 1
+2023	Quals	Reversing	Rebug 2
+2023	Quals	Reversing	rox
+2023	Quals	Reversing	whataxor
+2023	Quals	Web	MTA Prices
+2023	Quals	Web	Philanthropy
+2023	Quals	Web	rainbow-notes

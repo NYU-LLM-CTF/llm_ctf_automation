@@ -80,7 +80,7 @@ class CTFChallenge:
         # Client container information (FIXME: this shouldn't really live here)
         self.container_name = self.args.get("container_name", "ctfenv")
         self.container_image = self.args.get("container_image", "ctfenv")
-
+        self.chalname = self.get("name", "UNKNOWN")
         # Challenge server information
         self.challenge_server_proc = None
         self.challenge_server_log = None
@@ -101,7 +101,6 @@ class CTFChallenge:
         self.category_friendly = category_friendly.get(self.category, self.category)
         self.chaldir = challenge_json.parent
         self.points = self.challenge.get("points", self.challenge.get("initial", 0))
-        self.name = self.challenge["name"]
         self.real_flag = self.challenge["flag"] if isinstance(self.challenge["flag"], str) else self.challenge['flag']['content']
         if '{' not in self.real_flag:
             status.debug_message(f"Flag for challenge {self.asiname} does not follow a standard format, please check!")

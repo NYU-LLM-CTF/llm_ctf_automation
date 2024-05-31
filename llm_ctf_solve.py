@@ -13,6 +13,7 @@ from llm_ctf.formatters import Formatter
 from llm_ctf.prompts.prompts import PromptManager
 from llm_ctf.tools import TOOLSETS, GiveUpException, Tool, CommandExec
 from llm_ctf.challenge import CTFChallenge
+from llm_ctf.utilities.challist import ChallengeList, ChalNotFoundError
 import traceback as tb
 
 SCRIPT_DIR = Path(__file__).parent.resolve()
@@ -179,12 +180,19 @@ def main():
     parser.add_argument("--hints", default=[], nargs="+", help="list of hints to provide")
     parser.add_argument("--disable-docker", default=False, action="store_true", help="disable Docker usage (for debugging)")
     parser.add_argument("--disable-markdown", default=False, action="store_true", help="don't render Markdown formatting in messages")
+    parser.add_argument("--challist", default='./llm_ctf/utilities/challenge_list.tsv', help="list of challenge in the dataset")
     args = parser.parse_args()
     status.set(quiet=args.quiet, debug=args.debug, disable_markdown=args.disable_markdown)
     challenge_json = Path(args.challenge_json).resolve()
+    cl = ChallengeList(challist=args.get("challist", ''))
     prompt_manager = PromptManager(args.prompt_set)
     with CTFChallenge(challenge_json, args) as chal, \
          CTFConversation(chal, args) as convo:
+        try:
+            cl.find_chal(chal.chalname)
+        except ChalNotFoundError as cnfe:
+            print(cnfe)
+            return cnfe.code
         next_msg = prompt_manager.initial_message(chal)
         # Add hints message to initial
         hints_msg = prompt_manager.hints_message(chal, hints=args.hints)
