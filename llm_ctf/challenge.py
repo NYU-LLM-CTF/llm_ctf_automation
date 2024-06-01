@@ -67,7 +67,7 @@ class CTFChallenge:
     def __init__(self, challenge_json: Path|str, args=None):
         self.args = args.__dict__ if args else {}
         self.disable_docker = self.args.get("disable_docker", False)
-        self.docker = DockerClient()
+        # self.docker = DockerClient()
         self.challenge_json = Path(challenge_json)
 
         # Docker container information
@@ -80,7 +80,7 @@ class CTFChallenge:
         # Client container information (FIXME: this shouldn't really live here)
         self.container_name = self.args.get("container_name", "ctfenv")
         self.container_image = self.args.get("container_image", "ctfenv")
-        self.chalname = self.get("name", "UNKNOWN")
+        self.chalname = self.args.get("name", "UNKNOWN")
         # Challenge server information
         self.challenge_server_proc = None
         self.challenge_server_log = None
@@ -156,29 +156,29 @@ class CTFChallenge:
             box = None
         return box
 
-    def load_challenge_images(self):
-        if not self.oci_images:
-            status.debug_message(f"No OCI image(s) found, assuming challenge has no server")
-            return
+    # def load_challenge_images(self):
+    #     if not self.oci_images:
+    #         status.debug_message(f"No OCI image(s) found, assuming challenge has no server")
+    #         return
 
         # Get a list of all images known to docker
-        image_list = set(self.docker.get_images())
+        # image_list = set(self.docker.get_images())
         # Keep track of what name we find the image under
-        self.image_name_map = {}
-        for image in self.oci_images:
-            names = [ image.stem, 'asibench_' + image.stem ]
-            names = [n + ':latest' for n in names]
-            for n in names:
-                if n in image_list:
-                    status.debug_message(f"Pre-built docker image {image.name} found as {n}!")
-                    self.image_name_map[image] = n
-                    break
-            else:
-                status.debug_message(f"Load pre-built docker image {image.name}...")
-                with open(image, 'rb') as oci:
-                    loaded_name = subprocess.check_output(['docker', 'load'], stdin=oci, text=True).strip()
-                    loaded_name = loaded_name.split()[-1]
-                self.image_name_map[image] = loaded_name
+        # self.image_name_map = {}
+        # for image in self.oci_images:
+        #     names = [ image.stem, 'asibench_' + image.stem ]
+        #     names = [n + ':latest' for n in names]
+        #     for n in names:
+        #         if n in image_list:
+        #             status.debug_message(f"Pre-built docker image {image.name} found as {n}!")
+        #             self.image_name_map[image] = n
+        #             break
+        #     else:
+        #         status.debug_message(f"Load pre-built docker image {image.name}...")
+        #         with open(image, 'rb') as oci:
+        #             loaded_name = subprocess.check_output(['docker', 'load'], stdin=oci, text=True).strip()
+        #             loaded_name = loaded_name.split()[-1]
+        #         self.image_name_map[image] = loaded_name
 
     def find_oci_images(self) -> List[Path]|None:
         if self.chaldir.is_dir():
@@ -330,7 +330,7 @@ class CTFChallenge:
                 dst = Path(self.tmpdir) / filename
                 dst.parent.mkdir(parents=True, exist_ok=True)
                 shutil.copy2(src, dst)
-        self.load_challenge_images()
+        # self.load_challenge_images()
         self.start_challenge_container()
         return self
 
