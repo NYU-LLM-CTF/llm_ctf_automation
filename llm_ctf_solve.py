@@ -185,7 +185,7 @@ def main():
     args = parser.parse_args()
     status.set(quiet=args.quiet, debug=args.debug, disable_markdown=args.disable_markdown)
     challenge_json = Path(args.challenge_json).resolve()
-    cl = ChallengeList(challist=args.get("challist", ''))
+    cl = ChallengeList(challist=args.challist)
     prompt_manager = PromptManager(args.prompt_set)
     with CTFChallenge(challenge_json, args) as chal, \
          CTFConversation(chal, args) as convo:
