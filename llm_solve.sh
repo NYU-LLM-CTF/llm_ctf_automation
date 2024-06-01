@@ -3,7 +3,7 @@
 valid_opts=0
 
 # Default values
-trials=5 # Number of trials to run
+trials=3 # Number of trials to run
 force=0 # Whether to force re-running the solver even if the log exists
 rounds=30 # How many conversation rounds to run
 

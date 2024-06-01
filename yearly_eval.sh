@@ -28,9 +28,10 @@ for dir in "${dir_list[@]}"; do
     if [ "${array[1]}" == ".git" ]; then
         continue
     fi
-    if [ "${array[1]}" == "${YEAR}" ]; then
-        echo Solving $dir
-        bash ./llm_solve.sh -y ${array[1]} -e ${array[2]} -t ${array[3]} -c "${array[4]}" -m ${MODEL}
-    fi
+    # if [ "${array[1]}" == "${YEAR}" ]; then
+    #     echo Solving $dir
+    #     bash ./llm_solve.sh -y ${array[1]} -e ${array[2]} -t ${array[3]} -c "${array[4]}" -m ${MODEL}
+    # fi
+    bash ./llm_solve.sh -y ${array[1]} -e ${array[2]} -t ${array[3]} -c "${array[4]}" -m ${MODEL}
     # echo ${array[4]}
 done
