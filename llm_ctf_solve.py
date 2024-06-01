@@ -190,7 +190,7 @@ def main():
     with CTFChallenge(challenge_json, args) as chal, \
          CTFConversation(chal, args) as convo:
         try:
-            cl.find_chal(chal.chalname)
+            cl.find_chal(chal.name)
         except ChalNotFoundError as cnfe:
             print(cnfe)
             return cnfe.code

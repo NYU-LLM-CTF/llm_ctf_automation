@@ -80,7 +80,6 @@ class CTFChallenge:
         # Client container information (FIXME: this shouldn't really live here)
         self.container_name = self.args.get("container_name", "ctfenv")
         self.container_image = self.args.get("container_image", "ctfenv")
-        self.chalname = self.args.get("name", "UNKNOWN")
         # Challenge server information
         self.challenge_server_proc = None
         self.challenge_server_log = None
@@ -95,6 +94,8 @@ class CTFChallenge:
         # Load in all the challenge information from the challenge.json file
         self.challenge_json = challenge_json
         self.challenge = json.loads(challenge_json.read_text())
+        # import pdb; pdb.set_trace()
+        self.name = self.challenge.get("name", "UNKNOWN")
         self.is_compose = self.challenge.get("compose", False)
         self.has_files = "files" in self.challenge and self.challenge["files"]
         self.category = challenge_json.parent.parent.name
