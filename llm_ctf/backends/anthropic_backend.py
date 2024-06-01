@@ -12,11 +12,6 @@ from ..ctflogging import status
 from anthropic import Anthropic
 from anthropic.types import Message as AnthropicMessage
 
-MODELS = [
-    "claude-3-haiku-20240307",
-    "claude-3-sonnet-20240229",
-    "claude-3-opus-20240229",
-]
 API_KEY_PATH = "~/.config/anthropic/api_key"
 
 class AnthropicBackend(Backend):
@@ -26,6 +21,11 @@ class AnthropicBackend(Backend):
     formatters and demonstration messages to help the model.
     """
     NAME = 'anthropic'
+    MODELS = [
+        "claude-3-haiku-20240307",
+        "claude-3-sonnet-20240229",
+        "claude-3-opus-20240229",
+    ]
 
     def __init__(self, system_message : str, tools : List[Tool], args : Namespace):
         self.tools = {tool.name: tool for tool in tools}

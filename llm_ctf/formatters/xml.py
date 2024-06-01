@@ -20,16 +20,19 @@ class XMLFormatter(Formatter):
         self.delims_in_code_block = True
 
     def format_tool(self, tool : Tool) -> str:
+        param_desc = []
         for name, info in tool.parameters.items():
             if info['required']:
-                param_desc = f'<parameter required="true">\n'
+                param = f'<parameter required="true">\n'
             else:
-                param_desc = f"<parameter>\n"
-            param_desc += f"<name>{name}</name>\n"
-            param_desc += f"<type>{info['type']}</type>\n"
-            param_desc += f"<description>{info['description']}</description>\n"
-            param_desc += f"</parameter>"
+                param = f"<parameter>\n"
+            param += f"<name>{name}</name>\n"
+            param += f"<type>{info['type']}</type>\n"
+            param += f"<description>{info['description']}</description>\n"
+            param += f"</parameter>"
+            param_desc.append(param)
 
+        param_desc = "\n".join(param_desc)
         constructed_prompt = (
             "<tool_description>\n"
             f"<tool_name>{tool.name}</tool_name>\n"

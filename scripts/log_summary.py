@@ -5,7 +5,15 @@ import itertools as it
 from tabulate import tabulate
 
 getsubdirs = lambda d: filter(lambda p: p.is_dir(), d.iterdir())
-getconvos = lambda d: filter(lambda p: p.suffix == ".json", d.iterdir())
+def getconvos(d, model=None):
+    for p in d.iterdir():
+        if p.suffix != ".json":
+            continue
+        parts = p.parts[-1].split(".")
+        if model and parts[1] != model:
+            continue
+        yield p
+
 def filter_chals(args, year, event, cat, chal):
     if len(args.year) > 0 and year not in args.year:
         return False
@@ -14,11 +22,6 @@ def filter_chals(args, year, event, cat, chal):
     if len(args.cat) > 0 and cat not in args.cat:
         return False
     if len(args.chal) > 0 and chal not in args.chal:
-        return False
-    return True
-
-def filter_models(args, convo):
-    if args.model in convo:
         return False
     return True
 
@@ -61,7 +64,7 @@ if __name__ == "__main__":
     success = set()
     total = 0
     for chal in chals:
-        convos = list(getconvos(chal))
+        convos = list(getconvos(chal, args.model))
         if len(convos) == 0:
             # No logs
             continue
@@ -71,8 +74,6 @@ if __name__ == "__main__":
         reason = set()
         mistakes = set()
         for cjson in convos:
-            if filter_models(args, cjson.name):
-                continue
             with cjson.open() as f:
                 try:
                     convo = json.load(f)
