@@ -8,7 +8,7 @@ from typing import List, Optional, Tuple
 
 from ..formatters import Formatter
 from .backend import Backend
-from ..tools import Tool, ToolCall, ToolResult
+from llm_ctf.toolset.tools import Tool, ToolCall, ToolResult
 from ..ctflogging import status
 from openai import RateLimitError
 from openai.types.chat import ChatCompletionMessage

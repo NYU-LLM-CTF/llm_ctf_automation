@@ -28,8 +28,8 @@ import requests
 import bs4
 import re
 
-from .utils import CALL_ID
-from .ctflogging import status
+from ..utils import CALL_ID
+from ..ctflogging import status
 from dataclasses import dataclass
 from pathlib import Path
 

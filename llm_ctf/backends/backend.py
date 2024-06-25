@@ -2,8 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Literal, Optional, Tuple, Type, List, Union
-
-from llm_ctf.tools import ToolCall, ToolResult
+from ..toolset.tools import ToolCall, ToolResult
 from ..utils import timestamp
 
 class IterKind(Enum):

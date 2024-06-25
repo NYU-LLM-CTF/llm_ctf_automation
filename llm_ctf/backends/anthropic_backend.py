@@ -5,7 +5,7 @@ from typing import List, Optional, Tuple, Union
 from .backend import Backend
 from .openai_backend import make_call_result
 from ..utils import timestamp
-from ..tools import Tool, ToolCall, ToolResult
+from ..toolset.tools import Tool, ToolCall, ToolResult
 from ..formatters.formatter import Formatter
 from ..ctflogging import status
 
