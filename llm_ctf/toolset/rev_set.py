@@ -8,7 +8,6 @@ class Decompile(Tool):
     CATEGORIES = {CTFCategories.rev, CTFCategories.pwn}
     def __init__(self, challenge: "CTFChallenge"):
         super().__init__()
-        self.CATEGORIES = {"rev"}
         self.challenge = challenge
         self._decomp_cache = {}
 
@@ -78,7 +77,6 @@ class Disassemble(Tool):
     CATEGORIES = {CTFCategories.rev, CTFCategories.pwn}
     def __init__(self, challenge: "CTFChallenge"):
         super().__init__()
-        self.CATEGORIES = {"rev"}
         self.challenge = challenge
         self._disasm_cache = {}
 
