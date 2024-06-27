@@ -10,7 +10,7 @@ import backoff
 
 from llm_ctf.formatters.vbpy import VBPYFormatter
 from ..formatters.formatter import Formatter
-from llm_ctf.toolset.tools import Tool, ToolCall, ToolResult
+from llm_ctf.toolset.tool_manager import Tool, ToolCall, ToolResult
 from ..ctflogging import status
 from .backend import (AssistantMessage, Backend, ErrorToolCalls, FakeToolCalls,
                       SystemMessage, UnparsedToolCalls, UserMessage)

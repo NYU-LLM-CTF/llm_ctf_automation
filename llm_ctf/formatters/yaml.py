@@ -3,7 +3,7 @@ from io import StringIO
 import re
 
 from ..prompts import PromptManager
-from llm_ctf.toolset.tools import Tool, ToolCall, ToolResult
+from llm_ctf.toolset.tool_manager import Tool, ToolCall, ToolResult
 from ..utils import CALL_ID
 from ..ctflogging import status
 from .formatter import Formatter

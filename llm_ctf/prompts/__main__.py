@@ -8,7 +8,7 @@ from ..backends.vllm_backend import VLLMBackend
 from ..formatters import Formatter
 from ..challenge import CTFChallenge
 from ..ctflogging import status
-from ..toolset.tools import DEFAULT_TOOLSET, CommandExec, CheckFlag, GiveUp, ToolCall, ToolResult
+from ..toolset.tool_manager import DEFAULT_TOOLSET, CommandExec, CheckFlag, GiveUp, ToolCall, ToolResult
 from rich.console import Console
 from rich.markdown import Markdown
 

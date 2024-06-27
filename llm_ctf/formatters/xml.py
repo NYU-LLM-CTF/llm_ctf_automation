@@ -2,7 +2,7 @@ from argparse import Namespace
 import re
 from bs4 import BeautifulSoup
 from .formatter import Formatter
-from llm_ctf.toolset.tools import Tool, ToolCall, ToolResult
+from llm_ctf.toolset.tool_manager import Tool, ToolCall, ToolResult
 from ..prompts import PromptManager
 from typing import List, Tuple
 

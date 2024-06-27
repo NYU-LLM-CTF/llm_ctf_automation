@@ -6,7 +6,7 @@ from jinja2 import Environment, PackageLoader, StrictUndefined
 from jinja2.exceptions import TemplateNotFound
 
 from ..challenge import CTFChallenge
-from ..toolset.tools import Tool, ToolCall, ToolResult
+from ..toolset.tool_manager import Tool, ToolCall, ToolResult
 if TYPE_CHECKING:
     from ..formatters import Formatter
 import os

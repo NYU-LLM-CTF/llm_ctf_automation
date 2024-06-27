@@ -5,7 +5,7 @@ import re
 
 from ..prompts import PromptManager
 from .formatter import Formatter
-from llm_ctf.toolset.tools import Tool, ToolCall, ToolResult
+from llm_ctf.toolset.tool_manager import Tool, ToolCall, ToolResult
 from typing import List, get_type_hints
 import ast
 from ..ctflogging import status
