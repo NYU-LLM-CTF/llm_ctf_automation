@@ -5,6 +5,7 @@ from .crypto_set import *
 from .pwn_set import *
 from .for_set import *
 from .web_set import *
+from .rev_set import *
 
 # Tools for the model to use when solving CTF challenges.
 # A few notes for adding new tools:
@@ -65,15 +66,16 @@ from .web_set import *
 # Predefined sets of tools for different categories; this is
 # generated automatically based on the CATEGORIES attribute of each tool
 DEFAULT_TOOLSET = Tool.__subclasses__()
+print(DEFAULT_TOOLSET)
 categories = { "rev", "pwn", "crypto", "misc", "forensics", "web" }
 TOOLSETS = {
     cat : [ t for t in DEFAULT_TOOLSET if t.CATEGORIES is ALL or cat in t.CATEGORIES ]
     for cat in CTFCategories
 }
+# print(TOOLSETS)
 TOOLSETS["default"] = DEFAULT_TOOLSET
 
-if __name__ == "__main__":
-    pass
+# if __name__ == "__main__":
     # import sys
     # from argparse import Namespace
     # from llm_ctf_solve import CTFChallenge

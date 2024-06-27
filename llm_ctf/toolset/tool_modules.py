@@ -163,6 +163,13 @@ class Tool:
     """The parameters of the tool"""
     required_parameters : set[str]
     """The required parameters of the tool"""
+    
+    @classmethod
+    def get_all_subclasses(cls):
+        subclasses = cls.__subclasses__()
+        for subclass in subclasses:
+            subclasses.extend(subclass.get_all_subclasses())
+        return subclasses
 
     def __init_subclass__(cls, **kwargs):
         super().__init_subclass__(**kwargs)

@@ -108,7 +108,7 @@ class CheckFlag(Tool):
 class CreateFile(Tool):
     NAME = "createfile"
     def __init__(self, challenge: "CTFChallenge"):
-        super().__init__()
+        super().__init__(challenge=challenge)
         self.challenge = challenge
         self.container_name = challenge.container_name
 
@@ -169,7 +169,7 @@ class CreateFile(Tool):
 class GiveUp(Tool):
     NAME = "give_up"
     def __init__(self, challenge: "CTFChallenge"):
-        super().__init__()
+        super().__init__(challenge=challenge)
         self.challenge = challenge
 
     def __call__(self,
@@ -178,3 +178,6 @@ class GiveUp(Tool):
         if not confirm:
             return {"error": "You must confirm that you want to give up"}
         raise GiveUpException()
+    
+if __name__ == "__main__":
+    pass
