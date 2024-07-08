@@ -58,7 +58,7 @@ ENV VIRTUAL_ENV=/home/$USERNAME/.ctfenv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN pip install -U pip
-RUN pip install pwntools gmpy2 angr
+RUN pip install pwntools gmpy2 angr ciphey
 RUN mkdir ctf_files
 
 # Copy in the entrypoint script

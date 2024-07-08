@@ -3,7 +3,7 @@
 valid_opts=0
 
 # Default values
-trials=3 # Number of trials to run
+trials=2 # Number of trials to run
 force=0 # Whether to force re-running the solver even if the log exists
 rounds=30 # How many conversation rounds to run
 
@@ -65,7 +65,7 @@ function cleanup_container {
         sleep 1
     done
 }
-chal_path="LLM_CTF_Database/${year}/${event}/${category}/${chal}"
+chal_path="LLM_CTF_Dataset_Dev/${year}/${event}/${category}/${chal}"
 echo "Start evaluation on ${year}/${event}/${category}/${chal}"
 # bash setup_chals.sh -y "${year}" -e "${event}" -t "${category}" -c "${chal}"
 safe_model=$(echo "${model}" | tr '/' '_')

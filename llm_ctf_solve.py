@@ -181,7 +181,8 @@ def main():
     parser.add_argument("--hints", default=[], nargs="+", help="list of hints to provide")
     parser.add_argument("--disable-docker", default=False, action="store_true", help="disable Docker usage (for debugging)")
     parser.add_argument("--disable-markdown", default=False, action="store_true", help="don't render Markdown formatting in messages")
-    parser.add_argument("--challist", default='./llm_ctf/utilities/challenge_list.tsv', help="list of challenge in the dataset")
+    # parser.add_argument("--challist", default='./llm_ctf/utilities/challenge_list.tsv', help="list of challenge in the dataset")
+    parser.add_argument("--challist", default=None, help="list of challenge in the dataset")
     args = parser.parse_args()
     status.set(quiet=args.quiet, debug=args.debug, disable_markdown=args.disable_markdown)
     challenge_json = Path(args.challenge_json).resolve()
@@ -189,11 +190,12 @@ def main():
     prompt_manager = PromptManager(args.prompt_set)
     with CTFChallenge(challenge_json, args) as chal, \
          CTFConversation(chal, args) as convo:
-        try:
-            cl.find_chal(chal.name)
-        except ChalNotFoundError as cnfe:
-            print(cnfe)
-            return cnfe.code
+        if args.challist:
+            try:
+                cl.find_chal(chal.name)
+            except ChalNotFoundError as cnfe:
+                print(cnfe)
+                return cnfe.code
         next_msg = prompt_manager.initial_message(chal)
         # Add hints message to initial
         hints_msg = prompt_manager.hints_message(chal, hints=args.hints)

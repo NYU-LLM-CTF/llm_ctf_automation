@@ -15,11 +15,13 @@ class ChallengeList:
         self.chal_info = []
         # Challenge name for actual usage
         self.chal_names = []
-        with open(challist, 'r', newline='') as file:
-            tsv_reader = csv.reader(file, delimiter='\t')
-            for row in tsv_reader:
-                self.chal_info.append(row)
-                self.chal_names.append(row[3])
+        if challist:
+            with open(challist, 'r', newline='') as file:
+                tsv_reader = csv.reader(file, delimiter='\t')
+                for row in tsv_reader:
+                    self.chal_info.append(row)
+                    self.chal_names.append(row[3]) 
+            
                 
     def find_chal(self, chalname):
         if chalname not in self.chal_names:
