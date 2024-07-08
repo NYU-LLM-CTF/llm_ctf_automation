@@ -43,6 +43,7 @@ RUN apt update
 # Force Chrome to use the system CA store
 RUN apt-get install -y p11-kit p11-kit-modules
 RUN apt install rustc -y && apt install cargo -y
+RUN apt install sleuthkit  -y
 RUN ln -s -f /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so /usr/lib/x86_64-linux-gnu/nss/libnssckbi.so
 RUN ln -s -f /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so /usr/lib/firefox/libnssckbi.so || true
 
