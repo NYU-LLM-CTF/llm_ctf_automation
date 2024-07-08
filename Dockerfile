@@ -39,9 +39,10 @@ RUN curl -LO https://github.com/skylot/jadx/releases/download/v1.4.7/jadx-1.4.7.
     rm -f jadx-1.4.7.zip
 
 RUN apt-get update -y && apt-get install -y wget jq vim
-
+RUN apt update
 # Force Chrome to use the system CA store
 RUN apt-get install -y p11-kit p11-kit-modules
+RUN apt install rustc -y && apt install cargo -y
 RUN ln -s -f /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so /usr/lib/x86_64-linux-gnu/nss/libnssckbi.so
 RUN ln -s -f /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so /usr/lib/firefox/libnssckbi.so || true
 
@@ -58,8 +59,10 @@ ENV VIRTUAL_ENV=/home/$USERNAME/.ctfenv
 RUN python3 -m venv $VIRTUAL_ENV
 ENV PATH="$VIRTUAL_ENV/bin:$PATH"
 RUN pip install -U pip
-RUN pip install pwntools gmpy2 angr ciphey
+RUN pip install pwntools gmpy2 angr chepy
 RUN mkdir ctf_files
+RUN curl https://raw.githubusercontent.com/c3-ctf/ctftools/master/install.sh | sh
+RUN cargo install project_ares
 
 # Copy in the entrypoint script
 COPY entrypoint.sh /home/$USERNAME/.entrypoint.sh
