@@ -36,6 +36,9 @@ class OpenAIBackend(Backend):
         "gpt-4-1106-preview",
         "gpt-4-0125-preview",
         "gpt-3.5-turbo-1106",
+        "gpt-4-turbo",
+        "gpt-4o-mini",
+        "gpt-4o",
     ]
 
     def __init__(self, system_message : str, tools: dict[str,Tool], args : Namespace):
