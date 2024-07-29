@@ -66,7 +66,7 @@ from .rev_set import *
 # Predefined sets of tools for different categories; this is
 # generated automatically based on the CATEGORIES attribute of each tool
 DEFAULT_TOOLSET = Tool.__subclasses__()
-print(DEFAULT_TOOLSET)
+# print(DEFAULT_TOOLSET)
 categories = { "rev", "pwn", "crypto", "misc", "forensics", "web" }
 TOOLSETS = {
     cat : [ t for t in DEFAULT_TOOLSET if t.CATEGORIES is ALL or cat in t.CATEGORIES ]

@@ -54,22 +54,34 @@ class CommandExec(Tool):
             return None
         return text.decode('utf-8', errors='backslashreplace').replace('\r\n', '\n')
 
-    def run_cmd(self, command, timeout=10.0):
+    def run_cmd(self, command, timeout=4.0):
         """Run a command in the docker container and return
         {"stdout": stdout, "stderr": stderr, "returncode": returncode, "timed_out": timed_out}
         """
-        if timeout is None: timeout = 10.0
+        if timeout is None: timeout = 4.0
+        p = subprocess.Popen(
+            ['docker', 'exec', self.container_name, 'bash', '-c', command],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
         try:
-            p = subprocess.run(
-                ['docker', 'exec', self.container_name, 'bash', '-c', command],
-                timeout=timeout, check=True, capture_output=True,
-            )
-            out = self._clean(p.stdout)
-            err = self._clean(p.stderr)
+            # p = subprocess.run(
+            #     ['docker', 'exec', self.container_name, 'bash', '-c', command],
+            #     timeout=timeout, check=True, capture_output=True,
+            # )
+            stdout, stderr = p.communicate(timeout=timeout)
+            out = self._clean(stdout)
+            err = self._clean(stderr)
+            # out = self._clean(p.stdout)
+            # err = self._clean(p.stderr)
             return {"stdout": out, "stderr": err, "returncode": p.returncode, "timed_out": False}
         except subprocess.TimeoutExpired as e:
-            out = self._clean(e.stdout)
-            err = self._clean(e.stderr)
+            p.kill()
+            stdout, stderr = p.communicate(timeout=timeout)     
+            out = self._clean(stdout)
+            err = self._clean(stderr) 
+            # out = self._clean(e.stdout)
+            # err = self._clean(e.stderr)
             return {"stdout": out, "stderr": err, "returncode": None, "timed_out": True}
         except subprocess.CalledProcessError as e:
             out = self._clean(e.stdout)

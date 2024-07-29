@@ -1,11 +1,11 @@
 from .tool_modules import *
 
-SCRIPT_DIR = Path(__file__).parent.parent.resolve()
+SCRIPT_DIR = Path(__file__).parent.parent.parent.resolve()
 GHIDRA = SCRIPT_DIR / 'ghidra_11.0.1_PUBLIC/support/analyzeHeadless'
 
 class Decompile(Tool):
     NAME = "decompile_function"
-    CATEGORIES = {CTFCategories.rev, CTFCategories.pwn}
+    CATEGORIES = {CTFCategories.rev, CTFCategories.pwn, CTFCategories.crypto}
     def __init__(self, challenge: "CTFChallenge"):
         super().__init__()
         self.challenge = challenge
@@ -74,7 +74,7 @@ class Decompile(Tool):
 
 class Disassemble(Tool):
     NAME = "disassemble_function"
-    CATEGORIES = {CTFCategories.rev, CTFCategories.pwn}
+    CATEGORIES = {CTFCategories.rev, CTFCategories.pwn, CTFCategories.crypto}
     def __init__(self, challenge: "CTFChallenge"):
         super().__init__()
         self.challenge = challenge
