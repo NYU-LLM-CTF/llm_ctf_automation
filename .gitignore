@@ -10,3 +10,7 @@ Sample_Database
 decomp
 html/*
 LLM_CTF_Dataset_Dev/
+myenv
+.DS_Store
+llm_ctf/.DS_Store
+llm_ctf/toolset/.DS_Store
