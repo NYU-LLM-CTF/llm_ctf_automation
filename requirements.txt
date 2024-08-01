@@ -1,5 +1,5 @@
 openai
-anthropic
+anthropic==0.25.7
 rich
 ruamel.yaml
 bs4
