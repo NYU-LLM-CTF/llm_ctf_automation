@@ -127,8 +127,8 @@ class CTFChallenge:
         # TODO: where should we get the server name from for the compose case?
         if not self.is_compose and len(self.oci_images) == 1:
             self.challenge_container = safe_name(self.fsname)
-        elif 'container_image' in self.challenge:
-            self.challenge_container = self.challenge['container_image']
+        elif 'box' in self.challenge:
+            self.challenge_container = self.challenge['box']
         else:
             self.challenge_container = None
         self.server_type = self.get_server_type()
