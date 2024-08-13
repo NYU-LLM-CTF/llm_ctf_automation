@@ -48,8 +48,8 @@ RUN ln -s -f /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so /usr/lib/x86_64-l
 RUN ln -s -f /usr/lib/x86_64-linux-gnu/pkcs11/p11-kit-trust.so /usr/lib/firefox/libnssckbi.so || true
 
 # Add the LLM_CTF CA
-ADD LLM_CTF_Database/CA/ca.crt /usr/local/share/ca-certificates/llmctf.crt
-RUN chmod 644 /usr/local/share/ca-certificates/llmctf.crt && update-ca-certificates
+# ADD LLM_CTF_Database/CA/ca.crt /usr/local/share/ca-certificates/llmctf.crt
+# RUN chmod 644 /usr/local/share/ca-certificates/llmctf.crt && update-ca-certificates
 
 # Switch to user
 USER $USERNAME
