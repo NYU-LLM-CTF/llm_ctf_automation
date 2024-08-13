@@ -244,7 +244,7 @@ class CTFChallenge:
         # If it's not a compose challenge and it has no container, assume it's a non-server challenge
         if not self.challenge_container: return
 
-        assert len(self.oci_images) == 1, "Only one image should be loaded for a single container challenge"
+        # assert len(self.oci_images) == 1, "Only one image should be loaded for a single container challenge"
         image_name = self.image_name_map[self.oci_images[0]]
         status.debug_message(f"Starting challenge container {self.challenge_container} from {image_name}...")
         # Create a temp file to store the output from the docker run command
