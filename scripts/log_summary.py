@@ -9,8 +9,7 @@ def getconvos(d, model=None):
     for p in d.iterdir():
         if p.suffix != ".json":
             continue
-        parts = p.parts[-1].split(".")
-        if model and parts[1] != model:
+        if model and model not in p.parts[-1]:
             continue
         yield p
 
@@ -67,6 +66,7 @@ if __name__ == "__main__":
         convos = list(getconvos(chal, args.model))
         if len(convos) == 0:
             # No logs
+            print("No logs for challenge:", chal, "model:", args.model)
             continue
 
         total += 1
