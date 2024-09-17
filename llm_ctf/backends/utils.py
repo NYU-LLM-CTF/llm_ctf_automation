@@ -4,6 +4,7 @@ from ..ctflogging import status
 import re
 from rich.syntax import Syntax
 import re
+import json
 from pathlib import Path
 import os
 import backoff
@@ -20,6 +21,13 @@ def fix_xml_tag_names(s : str) -> str:
         return match.group(0).replace(r'\_', '_')
     # Find all XML tags and apply the unescape function
     return XML_TAG_REGEX.sub(unescape_underscores, s)
+
+def parse_models(model_info=None):
+    if not model_info:
+        model_info = Path(__file__).resolve().parent / "model_info.json"
+    with open(model_info, 'r') as m:
+        data = json.load(m)
+    return data
 
 def parse_keys(key_path=None):
     file_path = Path(__file__).resolve()
@@ -55,3 +63,4 @@ class ModelQuirks(NamedTuple):
 
 NO_QUIRKS = ModelQuirks(supports_system_messages=True)
 KEYS = parse_keys()
+MODEL_INFO = parse_models()

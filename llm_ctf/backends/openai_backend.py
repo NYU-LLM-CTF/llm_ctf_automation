@@ -14,7 +14,7 @@ from openai import RateLimitError
 from openai.types.chat import ChatCompletionMessage
 from openai.types.chat.chat_completion_message_tool_call import ChatCompletionMessageToolCall as OAIToolCall
 from openai.types.chat.chat_completion_tool_param import ChatCompletionToolParam
-from .utils import KEYS
+from .utils import KEYS, MODEL_INFO
 
 import backoff  # for exponential backoff
 
@@ -33,14 +33,7 @@ def make_call_result(res : ToolResult):
 
 class OpenAIBackend(Backend):
     NAME = 'openai'
-    MODELS = [
-        "gpt-4-1106-preview",
-        "gpt-4-0125-preview",
-        "gpt-3.5-turbo-1106",
-        "gpt-4-turbo",
-        "gpt-4o-mini",
-        "gpt-4o",
-    ]
+    MODELS = list(MODEL_INFO[NAME].keys())
 
     def __init__(self, system_message : str, tools: dict[str,Tool], args : Namespace):
         self.args = args

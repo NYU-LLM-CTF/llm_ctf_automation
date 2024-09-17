@@ -7,16 +7,8 @@ from ..tools.manager import Tool, ToolCall, ToolResult
 
 class AnthropicBackend(VLLMBackend):
     NAME = 'anthropic'
-    MODELS = [
-        "claude-3-haiku-20240307",
-        "claude-3-sonnet-20240229",
-        "claude-3-opus-20240229",
-    ]
-    QUIRKS = {
-        "claude-3-haiku-20240307": NO_QUIRKS,
-        "claude-3-sonnet-20240229": NO_QUIRKS,
-        "claude-3-opus-20240229": NO_QUIRKS,
-    }
+    MODELS = list(MODEL_INFO[NAME].keys())
+    QUIRKS = {key: NO_QUIRKS for key in MODELS}
     API_KEY_PATH = "~/.config/anthropic/api_key"
 
     def client_setup(self, args):

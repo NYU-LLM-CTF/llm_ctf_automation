@@ -1,0 +1,77 @@
+{
+    "openai": {
+        "gpt-3.5-turbo-1106": {
+            "max_context": 16385,
+            "cost_per_input_token": 1.5e-06,
+            "cost_per_output_token": 2e-06
+        },
+        "gpt-4-1106-preview": {
+            "max_context": 128000,
+            "cost_per_input_token": 1e-05,
+            "cost_per_output_token": 3e-05
+        },
+        "gpt-4-0125-preview": {
+            "max_context": 128000,
+            "cost_per_input_token": 1e-05,
+            "cost_per_output_token": 3e-05
+        },
+        "gpt-4-turbo-2024-04-09": {
+            "max_context": 128000,
+            "cost_per_input_token": 1e-05,
+            "cost_per_output_token": 3e-05
+        },
+        "gpt-4o-2024-05-13": {
+            "max_context": 128000,
+            "cost_per_input_token": 5e-06,
+            "cost_per_output_token": 15e-06
+        },
+        "gpt-4o-mini-2024-07-18": {
+            "max_context": 128000,
+            "cost_per_input_token": 1.5e-07,
+            "cost_per_output_token": 6e-07
+        }
+    },
+    "anthropic": {
+        "claude-3-opus-20240229": {
+            "max_context": 200000,
+            "max_tokens": 4096,
+            "cost_per_input_token": 1.5e-05,
+            "cost_per_output_token": 7.5e-05
+        },
+        "claude-3-sonnet-20240229": {
+            "max_context": 200000,
+            "max_tokens": 4096,
+            "cost_per_input_token": 3e-06,
+            "cost_per_output_token": 1.5e-05
+        },
+        "claude-3-5-sonnet-20240620": {
+            "max_context": 200000,
+            "max_tokens": 4096,
+            "cost_per_input_token": 3e-06,
+            "cost_per_output_token": 1.5e-05
+        },
+        "claude-3-haiku-20240307": {
+            "max_context": 200000,
+            "max_tokens": 4096,
+            "cost_per_input_token": 2.5e-07,
+            "cost_per_output_token": 1.25e-06
+        }
+    },
+    "vllm": {
+        "mistralai/Mixtral-8x7B-Instruct-v0.1" : {
+            "max_context": -1
+        },
+        "deepseek-ai/deepseek-coder-33b-instruct": {
+            "max_context": -1
+        },
+        "llama3:70b-instruct-fp16": {
+            "max_context": -1
+        },
+        "wizardlm2:8x22b-q8_0": {
+            "max_context": -1
+        },
+       "meta-llama/Meta-Llama-3-70B-Instruct": {
+            "max_context": -1
+        }
+    }
+}
