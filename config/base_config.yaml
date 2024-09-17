@@ -1,0 +1,14 @@
+experiment:
+  name: "NYU_Baseline_0"
+  database: "LLM_CTF_Dataset_Dev"
+  force: 0
+
+
+parameter:
+  trials: 3
+  max_rounds: 30
+  backend: "openai"
+  model: "gpt-4o"
+
+
+

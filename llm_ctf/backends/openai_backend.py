@@ -14,6 +14,7 @@ from openai import RateLimitError
 from openai.types.chat import ChatCompletionMessage
 from openai.types.chat.chat_completion_message_tool_call import ChatCompletionMessageToolCall as OAIToolCall
 from openai.types.chat.chat_completion_tool_param import ChatCompletionToolParam
+from .utils import KEYS
 
 import backoff  # for exponential backoff
 
@@ -44,7 +45,9 @@ class OpenAIBackend(Backend):
     def __init__(self, system_message : str, tools: dict[str,Tool], args : Namespace):
         self.args = args
         if args.api_key is None:
-            if "OPENAI_API_KEY" in os.environ:
+            if "OPENAI_API_KEY" in KEYS:
+                api_key = KEYS["OPENAI_API_KEY"]
+            elif "OPENAI_API_KEY" in os.environ:
                 api_key = os.environ["OPENAI_API_KEY"]
             elif os.path.exists(os.path.expanduser(API_KEY_PATH)):
                 api_key = open(os.path.expanduser(API_KEY_PATH), "r").read().strip()

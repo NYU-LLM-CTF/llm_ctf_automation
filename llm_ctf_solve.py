@@ -180,6 +180,11 @@ def main():
     parser.add_argument("--hints", default=[], nargs="+", help="list of hints to provide")
     parser.add_argument("--disable-docker", default=False, action="store_true", help="disable Docker usage (for debugging)")
     parser.add_argument("--disable-markdown", default=False, action="store_true", help="don't render Markdown formatting in messages")
+
+    # Newly added config options
+    parser.add_argument("-c", "--config", default=None, help="Config file to run the experiment")
+    parser.add_argument("-r", "--suffix", default=0, help="Round index of the experiment")
+
     args = parser.parse_args()
     status.set(quiet=args.quiet, debug=args.debug, disable_markdown=args.disable_markdown)
     challenge_json = Path(args.challenge_json).resolve()
