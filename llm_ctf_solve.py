@@ -12,7 +12,7 @@ from llm_ctf.ctflogging import status
 from llm_ctf.backends import Backend
 from llm_ctf.formatters import Formatter
 from llm_ctf.prompts.prompts import PromptManager
-from llm_ctf.toolset.tool_manager import TOOLSETS, GiveUpException, Tool, CommandExec
+from llm_ctf.tools.manager import TOOLSETS, GiveUpException, Tool, CommandExec
 from llm_ctf.challenge import CTFChallenge
 import traceback as tb
 

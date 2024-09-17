@@ -66,7 +66,7 @@ function cleanup_container {
         sleep 1
     done
 }
-chal_path="LLM_CTF_Dataset_Dev/${year}/${event}/${category}/${chal}"
+chal_path="LLM_CTF_Database/${year}/${event}/${category}/${chal}"
 echo "Start evaluation on ${year}/${event}/${category}/${chal}"
 # bash setup_chals.sh -y "${year}" -e "${event}" -t "${category}" -c "${chal}"
 safe_model=$(echo "${model}" | tr '/' '_')
