@@ -155,6 +155,14 @@ class CTFConversation:
         ))
         status.print(f"Conversation saved to {logfilename}")
 
+def overwrite_args(args=None, config: dict=None):
+    if not args or not config:
+        return
+    if "parameter" in config:
+        args.max_rounds = config["parameter"].get("max_rounds", args.max_rounds)
+        args.backend = config["parameter"].get("backend", args.backend)
+        args.model = config["parameter"].get("model", args.model)
+
 def load_config(args=None):
     if args.config:
         try:
@@ -195,10 +203,10 @@ def main():
     # Newly added config options
     parser.add_argument("-c", "--config", default=None, help="Config file to run the experiment")
     parser.add_argument("-i", "--index", default=0, help="Round index of the experiment")
-    parser.add_argument("-r", "--repo", default=None, help="Directory of the challenge")
 
     args = parser.parse_args()
     config: dict = load_config(args=args)
+    overwrite_args(args, config)
     status.set(quiet=args.quiet, debug=args.debug, disable_markdown=args.disable_markdown)
     challenge_json = Path(args.challenge_json).resolve()
     prompt_manager = PromptManager(prompt_set=args.prompt_set, config=config)

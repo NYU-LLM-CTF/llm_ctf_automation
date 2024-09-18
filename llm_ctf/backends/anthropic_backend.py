@@ -14,7 +14,7 @@ class AnthropicBackend(VLLMBackend):
     def client_setup(self, args):
         if args.api_key is None:
             if "ANTHROPIC_API_KEY" in KEYS:
-                api_key = KEYS["ANTHROPIC_API_KEY"]
+                api_key = KEYS["ANTHROPIC_API_KEY"].strip()
             if "ANTHROPIC_API_KEY" in os.environ:
                 api_key = os.environ["ANTHROPIC_API_KEY"]
             elif os.path.exists(os.path.expanduser(self.API_KEY_PATH)):

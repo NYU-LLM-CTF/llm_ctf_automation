@@ -69,7 +69,7 @@ class VLLMBackend(Backend):
         if args.api_endpoint:
             base_url = args.api_endpoint
         elif "MODEL_URL" in KEYS:
-            base_url = KEYS["MODEL_URL"]
+            base_url = KEYS["MODEL_URL"].strip()
         else:
             base_url = "http://isabella:8000/v1"
         self.client = OpenAI(

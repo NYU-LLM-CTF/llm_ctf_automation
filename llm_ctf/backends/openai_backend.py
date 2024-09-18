@@ -39,8 +39,8 @@ class OpenAIBackend(Backend):
         self.args = args
         if args.api_key is None:
             if "OPENAI_API_KEY" in KEYS:
-                api_key = KEYS["OPENAI_API_KEY"]
-            elif "OPENAI_API_KEY" in os.environ:
+                api_key = KEYS["OPENAI_API_KEY"].strip()
+            if "OPENAI_API_KEY" in os.environ:
                 api_key = os.environ["OPENAI_API_KEY"]
             elif os.path.exists(os.path.expanduser(API_KEY_PATH)):
                 api_key = open(os.path.expanduser(API_KEY_PATH), "r").read().strip()
