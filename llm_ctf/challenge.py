@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import tempfile
 from typing import List
+import yaml
 from .utilities.dockertool import DockerClient
 
 from pathlib import Path
@@ -96,11 +97,12 @@ class CTFChallenge:
         self.challenge = json.loads(challenge_json.read_text())
         # import pdb; pdb.set_trace()
         self.name = self.challenge.get("name", "UNKNOWN")
-        self.is_compose = self.challenge.get("compose", False)
+        self.is_compose = False
         self.has_files = "files" in self.challenge and self.challenge["files"]
         self.category = challenge_json.parent.parent.name
         self.category_friendly = category_friendly.get(self.category, self.category)
         self.chaldir = challenge_json.parent
+
         self.points = self.challenge.get("points", self.challenge.get("initial", 0))
         self.real_flag = self.challenge["flag"] if isinstance(self.challenge["flag"], str) else self.challenge['flag']['content']
         if '{' not in self.real_flag:
@@ -232,6 +234,10 @@ class CTFChallenge:
     def start_challenge_container(self):
         if self.disable_docker:
             return
+        
+        for entry in os.scandir(self.chaldir):
+            if entry.is_file() and entry.name == 'docker-compose.yml':
+                self.is_compose = True
 
         if self.is_compose:
             status.debug_message(f"Starting challenge services with docker-compose")
@@ -241,40 +247,40 @@ class CTFChallenge:
             )
             return
 
-        # If it's not a compose challenge and it has no container, assume it's a non-server challenge
-        if not self.challenge_container: return
+        # # If it's not a compose challenge and it has no container, assume it's a non-server challenge
+        # if not self.challenge_container: return
 
-        # assert len(self.oci_images) == 1, "Only one image should be loaded for a single container challenge"
-        image_name = self.image_name_map[self.oci_images[0]]
-        status.debug_message(f"Starting challenge container {self.challenge_container} from {image_name}...")
-        # Create a temp file to store the output from the docker run command
-        with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-            challenge_server_logfile = f.name
-        self.challenge_server_log = open(challenge_server_logfile, 'w+b')
-        run_cmd = ['docker', 'run'] + \
-            ['--network', self.network] + \
-            ['--platform', 'linux/amd64', '--rm'] + \
-            (['--privileged'] if self.challenge.get('privileged', False) else []) + \
-            ['--name', self.challenge_container, image_name]
-        status.debug_message(f"Running command: " + ' '.join(shlex.quote(arg) for arg in run_cmd), truncate=False)
-        self.challenge_server_proc = subprocess.Popen(
-            run_cmd,
-            stdout=self.challenge_server_log,
-            stderr=subprocess.STDOUT,
-        )
-        # Wait 0.5s for the server to start
-        try:
-            self.challenge_server_proc.wait(timeout=0.5)
-            # If we get here then something went wrong
-            self.challenge_server_output = self.get_server_logs()
-            self.challenge_server_log.close()
-            os.remove(self.challenge_server_log.name)
-            command = ' '.join(shlex.quote(arg) for arg in self.challenge_server_proc.args)
-            status.debug_message(f"Challenge server failed to start with command: {command}", truncate=False)
-            status.debug_message(f"Output from challenge server:\n{self.challenge_server_output}", truncate=False)
-            raise RuntimeError(f"Failed to start challenge server: {self.challenge_container}")
-        except subprocess.TimeoutExpired:
-            pass
+        # # assert len(self.oci_images) == 1, "Only one image should be loaded for a single container challenge"
+        # image_name = self.image_name_map[self.oci_images[0]]
+        # status.debug_message(f"Starting challenge container {self.challenge_container} from {image_name}...")
+        # # Create a temp file to store the output from the docker run command
+        # with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
+        #     challenge_server_logfile = f.name
+        # self.challenge_server_log = open(challenge_server_logfile, 'w+b')
+        # run_cmd = ['docker', 'run'] + \
+        #     ['--network', self.network] + \
+        #     ['--platform', 'linux/amd64', '--rm'] + \
+        #     (['--privileged'] if self.challenge.get('privileged', False) else []) + \
+        #     ['--name', self.challenge_container, image_name]
+        # status.debug_message(f"Running command: " + ' '.join(shlex.quote(arg) for arg in run_cmd), truncate=False)
+        # self.challenge_server_proc = subprocess.Popen(
+        #     run_cmd,
+        #     stdout=self.challenge_server_log,
+        #     stderr=subprocess.STDOUT,
+        # )
+        # # Wait 0.5s for the server to start
+        # try:
+        #     self.challenge_server_proc.wait(timeout=0.5)
+        #     # If we get here then something went wrong
+        #     self.challenge_server_output = self.get_server_logs()
+        #     self.challenge_server_log.close()
+        #     os.remove(self.challenge_server_log.name)
+        #     command = ' '.join(shlex.quote(arg) for arg in self.challenge_server_proc.args)
+        #     status.debug_message(f"Challenge server failed to start with command: {command}", truncate=False)
+        #     status.debug_message(f"Output from challenge server:\n{self.challenge_server_output}", truncate=False)
+        #     raise RuntimeError(f"Failed to start challenge server: {self.challenge_container}")
+        # except subprocess.TimeoutExpired:
+        #     pass
 
     def stop_challenge_container(self):
         if self.disable_docker:
@@ -283,25 +289,25 @@ class CTFChallenge:
             status.debug_message(f"Stopping challenge services with docker-compose")
             self.challenge_server_output = self.get_server_logs()
             subprocess.run(
-                ['docker', 'compose', '-f', self.chaldir / 'docker-compose.yml', 'down', '--volumes'],
+                ['docker', 'compose', '-f', self.chaldir / 'docker-compose.yml', 'down', '--rmi', 'local', '--volumes'],
                 check=True, capture_output=True,
             )
             return
-        if not self.challenge_container: return
-        status.debug_message(f"Stopping challenge server {self.challenge_container}")
-        self.challenge_server_proc.terminate()
-        try:
-            self.challenge_server_proc.wait(timeout=5)
-        except subprocess.TimeoutExpired:
-            status.debug_message(f"Challenge server {self.challenge_container} did not stop within 5s, trying docker stop.")
-            subprocess.run(
-                ['docker', 'stop', self.challenge_container],
-                capture_output=True,
-            )
-            self.challenge_server_proc.wait()
-        self.challenge_server_output = self.get_server_logs()
-        self.challenge_server_log.close()
-        os.remove(self.challenge_server_log.name)
+        # if not self.challenge_container: return
+        # status.debug_message(f"Stopping challenge server {self.challenge_container}")
+        # self.challenge_server_proc.terminate()
+        # try:
+        #     self.challenge_server_proc.wait(timeout=5)
+        # except subprocess.TimeoutExpired:
+        #     status.debug_message(f"Challenge server {self.challenge_container} did not stop within 5s, trying docker stop.")
+        #     subprocess.run(
+        #         ['docker', 'stop', self.challenge_container],
+        #         capture_output=True,
+        #     )
+        #     self.challenge_server_proc.wait()
+        # self.challenge_server_output = self.get_server_logs()
+        # self.challenge_server_log.close()
+        # os.remove(self.challenge_server_log.name)
 
     def check_flag(self, resp : str):
         # Check if the flag is in the response; also check version with

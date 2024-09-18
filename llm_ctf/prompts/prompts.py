@@ -4,6 +4,7 @@ from collections import defaultdict
 from typing import List, TYPE_CHECKING
 from jinja2 import Environment, PackageLoader, StrictUndefined
 from jinja2.exceptions import TemplateNotFound
+from jinja2 import Template
 
 from ..challenge import CTFChallenge
 from ..tools.manager import Tool, ToolCall, ToolResult
@@ -39,7 +40,7 @@ class FallbackLoader(PackageLoader):
             return super().get_source(environment, os.path.normpath(f'{DEFAULT_PROMPT_SET}/{template}'))
 
 class PromptManager:
-    def __init__(self, prompt_set=DEFAULT_PROMPT_SET):
+    def __init__(self, prompt_set=DEFAULT_PROMPT_SET, config=None):
         self.prompt_set = prompt_set
         self.env = RelEnvironment(
             loader=FallbackLoader('llm_ctf.prompts', prompt_set=prompt_set),
@@ -51,10 +52,19 @@ class PromptManager:
         )
         self.env.filters['blockquote'] = blockquote
         self.prompts = {}
+        self.config = config
+        self.prompt_config = {}
+        if self.config:
+            self.prompt_config = self.config.get("prompts", None)
+            
 
     def render(self, name, **kwargs):
+        # Overwrite prompt if the prompt in config exists
         if name not in self.prompts:
-            self.prompts[name] = self.env.get_template(f'{name}.md.jinja2')
+            if len(self.prompt_config.get(name, "")) > 0:
+                self.prompts[name] = self.env.from_string(self.prompt_config[name])
+            else:
+                self.prompts[name] = self.env.get_template(f'{name}.md.jinja2')
         return self.prompts[name].render(**kwargs)
 
     def tool_use(

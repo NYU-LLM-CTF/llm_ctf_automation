@@ -7,6 +7,7 @@ import anthropic
 import json, os
 import argparse
 import shutil
+import yaml
 from pathlib import Path
 from llm_ctf.ctflogging import status
 from llm_ctf.backends import Backend
@@ -19,7 +20,7 @@ import traceback as tb
 SCRIPT_DIR = Path(__file__).parent.resolve()
 
 class CTFConversation:
-    def __init__(self, challenge : CTFChallenge, args : argparse.Namespace):
+    def __init__(self, challenge : CTFChallenge, args : argparse.Namespace, config=None):
         self.args = args
         self.chal = challenge
         self.volume = self.chal.tmpdir
@@ -30,7 +31,8 @@ class CTFConversation:
         self.rounds = 0
         self.start_time = datetime.now()
         self.finish_reason = "unknown"
-        self.prompt_manager = PromptManager(args.prompt_set)
+        self.config = config
+        self.prompt_manager = PromptManager(args.prompt_set, config=config)
         self.backend = Backend.from_name(args.backend)(
             self.prompt_manager.system_message(self.chal),
             self.available_functions,
@@ -153,6 +155,15 @@ class CTFConversation:
         ))
         status.print(f"Conversation saved to {logfilename}")
 
+def load_config(args=None):
+    if args.config:
+        try:
+            with open(args.config, "r") as c:
+                cfg = yaml.safe_load(c)
+            return cfg
+        except FileNotFoundError:
+            return None
+
 def main():
     parser = argparse.ArgumentParser(
         description="Use an LLM to solve a CTF challenge",
@@ -183,14 +194,16 @@ def main():
 
     # Newly added config options
     parser.add_argument("-c", "--config", default=None, help="Config file to run the experiment")
-    parser.add_argument("-r", "--suffix", default=0, help="Round index of the experiment")
+    parser.add_argument("-i", "--index", default=0, help="Round index of the experiment")
+    parser.add_argument("-r", "--repo", default=None, help="Directory of the challenge")
 
     args = parser.parse_args()
+    config: dict = load_config(args=args)
     status.set(quiet=args.quiet, debug=args.debug, disable_markdown=args.disable_markdown)
     challenge_json = Path(args.challenge_json).resolve()
-    prompt_manager = PromptManager(args.prompt_set)
+    prompt_manager = PromptManager(prompt_set=args.prompt_set, config=config)
     with CTFChallenge(challenge_json, args) as chal, \
-         CTFConversation(chal, args) as convo:
+         CTFConversation(chal, args, config=config) as convo:
         next_msg = prompt_manager.initial_message(chal)
         # Add hints message to initial
         hints_msg = prompt_manager.hints_message(chal, hints=args.hints)
