@@ -10,3 +10,4 @@ lxml
 tabulate
 backoff
 pyte
+tiktoken

@@ -5,8 +5,8 @@ experiment:
 parameter:
   max_rounds: 10
   max_cost: 3
-  backend: "openai"
-  model: "gpt-4o-2024-05-13"
+  backend: "anthropic"
+  model: "claude-3-5-sonnet-20240620"
 
 prompts:
   system: |

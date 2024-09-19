@@ -1,15 +1,22 @@
+from argparse import Namespace
 from anthropic import Anthropic, RateLimitError
 from .utils import *
 import os
 from anthropic.types.content_block import ContentBlock as AnthropicMessage
 from .vllm_backend import VLLMBackend
 from ..tools.manager import Tool, ToolCall, ToolResult
+from .backend import UserMessage
 
 class AnthropicBackend(VLLMBackend):
     NAME = 'anthropic'
     MODELS = list(MODEL_INFO[NAME].keys())
     QUIRKS = {key: NO_QUIRKS for key in MODELS}
     API_KEY_PATH = "~/.config/anthropic/api_key"
+
+    def __init__(self, system_message: str, tools: dict[str, Tool], args: Namespace):
+        super().__init__(system_message, tools, args)
+        self.in_price = MODEL_INFO[self.NAME][self.args.model].get("cost_per_input_token", 0)
+        self.out_price = MODEL_INFO[self.NAME][self.args.model].get("cost_per_output_token", 0)
 
     def client_setup(self, args):
         if args.api_key is None:
@@ -38,6 +45,25 @@ class AnthropicBackend(VLLMBackend):
             raise ValueError(f"Unknown message type: {type(message)}")
         self.outgoing_messages.append(conv_message)
         self.messages.append(message)
+
+    def send(self, message : str) -> Tuple[Optional[str],bool]:
+        if not message:
+            return 0
+        self.append(self.user_message(message))
+        self.messages.append(UserMessage(message))
+        _, content, has_tool_calls = self.call_model()
+        in_token = self.client.count_tokens(message)
+        out_token = self.client.count_tokens(content)
+        cost = in_token * self.in_price + out_token * self.out_price
+        return content, has_tool_calls, cost
+    
+    def run_tools(self):
+        tool_results = self.run_tools_internal(self.last_tool_calls)
+        self.append(self.tool_results_message(tool_results))
+        _, content, has_tool_calls = self.call_model()
+        out_token = self.client.count_tokens(content)
+        cost = out_token * self.out_price
+        return content, has_tool_calls, cost
 
     @backoff.on_exception(backoff.expo, RateLimitError, max_tries=5)
     def _call_model(self, stop_seqs) -> AnthropicMessage:

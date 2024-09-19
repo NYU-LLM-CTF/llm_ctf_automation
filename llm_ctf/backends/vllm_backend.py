@@ -354,13 +354,13 @@ class VLLMBackend(Backend):
         tool_results = self.run_tools_internal(self.last_tool_calls)
         self.append(self.tool_results_message(tool_results))
         _, content, has_tool_calls = self.call_model()
-        return content, has_tool_calls
+        return content, has_tool_calls, 0
 
     def send(self, message : str) -> Tuple[Optional[str],bool]:
         self.append(self.user_message(message))
         self.messages.append(UserMessage(message))
         _, content, has_tool_calls = self.call_model()
-        return content, has_tool_calls
+        return content, has_tool_calls, 0
 
     def append(self, message : Union[dict,ChatCompletionMessage,List[ToolResult]]):
         if isinstance(message, dict):

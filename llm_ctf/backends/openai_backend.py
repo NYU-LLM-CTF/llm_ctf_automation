@@ -5,6 +5,7 @@ import json
 from openai import OpenAI
 import os
 from typing import List, Optional, Tuple
+import tiktoken
 
 from ..formatters import Formatter
 from .backend import Backend
@@ -30,6 +31,13 @@ def make_call_result(res : ToolResult):
         content=json.dumps(res.result),
         tool_call_id=res.id,
     )
+
+def count_token(message: str, model: str):
+    if not message:
+        return 0
+    enc = tiktoken.encoding_for_model(model_name=model)
+    num_tokens = len(enc.encode(message))
+    return num_tokens
 
 class OpenAIBackend(Backend):
     NAME = 'openai'
@@ -59,6 +67,8 @@ class OpenAIBackend(Backend):
             args.model = self.model
         self.system_message = system_message
         self.messages += self.get_initial_messages()
+        self.in_price = MODEL_INFO[self.NAME][self.args.model].get("cost_per_input_token", 0)
+        self.out_price = MODEL_INFO[self.NAME][self.args.model].get("cost_per_output_token", 0)
 
     def setup(self):
         status.system_message(self.system_message)
@@ -97,7 +107,10 @@ class OpenAIBackend(Backend):
         self.messages.append(self._user_message(message))
         response = self._call_model()
         self.messages.append(response)
-        return response.content, bool(response.tool_calls)
+        in_token = count_token(message=message, model=self.args.model)
+        out_token = count_token(message=response.content, model=self.args.model)
+        cost = in_token * self.in_price + out_token * self.out_price
+        return response.content, bool(response.tool_calls), cost
 
     def run_tools(self) -> Tuple[Optional[str],bool]:
         tool_calls = get_tool_calls(self.messages[-1].tool_calls)
@@ -150,8 +163,10 @@ class OpenAIBackend(Backend):
             tool_results.append(tool_res)
         self.messages += tool_results
         response = self._call_model()
+        out_token = count_token(message=response.content, model=self.args.model)
+        cost = out_token * self.out_price
         self.messages.append(response)
-        return response.content, bool(response.tool_calls)
+        return response.content, bool(response.tool_calls), cost
 
     def extract_parameters(self, tool : Tool, tool_call : ToolCall) -> dict:
         parsed_arguments = json.loads(tool_call.arguments)

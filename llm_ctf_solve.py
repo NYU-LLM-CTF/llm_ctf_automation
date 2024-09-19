@@ -38,6 +38,7 @@ class CTFConversation:
             self.available_functions,
             self.args,
         )
+        self.cost = 0
         self.times = {
             'model_time': 0.0,
             'tool_time': 0.0,
@@ -53,8 +54,9 @@ class CTFConversation:
         status.user_message(message)
         # Step 1: send the initial message to the model
         st = time.time()
-        content, tool_calls = self.backend.send(message)
+        content, tool_calls, cost = self.backend.send(message)
         self.times['model_time'] += time.time() - st
+        self.cost += cost
         if not content:
             if tool_calls:
                 status.assistant_message("🤔 ...thinking... 🤔")
@@ -73,16 +75,24 @@ class CTFConversation:
             )
             self.finish_reason = "max_rounds"
             return
+        if self.cost > self.args.max_cost:
+            status.print(
+                f"[red bold]Challenge is unsolved after {self.args.max_cost} dollars of cost; exiting[/red bold]",
+                markup=True
+            )
+            self.finish_reason = "max_cost"
+            return
 
         # Step 2: if the model wants to call functions, call them and send back the results,
         # repeating until the model doesn't want to call any more functions
         while tool_calls:
             st = time.time()
-            content, tool_calls = self.backend.run_tools()
+            content, tool_calls, cost = self.backend.run_tools()
             self.times['tool_time'] += time.time() - st
             # Send the tool results back to the model
             st = time.time()
             self.times['model_time'] += time.time() - st
+            self.cost += cost
             if not content:
                 if tool_calls:
                     status.assistant_message("🤔 ...thinking... 🤔")
@@ -101,6 +111,13 @@ class CTFConversation:
                     f"[red bold]Challenge is unsolved after {self.args.max_rounds} rounds; exiting[/red bold]",
                     markup=True
                 )
+                return
+            if self.cost > self.args.max_cost:
+                status.print(
+                    f"[red bold]Challenge is unsolved after {self.args.max_cost} dollars of cost; exiting[/red bold]",
+                    markup=True
+                )
+                self.finish_reason = "max_cost"
                 return
 
     def __exit__(self, exc_type, exc_value, traceback):
@@ -162,6 +179,7 @@ def overwrite_args(args=None, config: dict=None):
         args.max_rounds = config["parameter"].get("max_rounds", args.max_rounds)
         args.backend = config["parameter"].get("backend", args.backend)
         args.model = config["parameter"].get("model", args.model)
+        args.max_cost = config["parameter"].get("max_cost", args.max_cost)
 
 def load_config(args=None):
     if args.config:
@@ -199,6 +217,7 @@ def main():
     parser.add_argument("--hints", default=[], nargs="+", help="list of hints to provide")
     parser.add_argument("--disable-docker", default=False, action="store_true", help="disable Docker usage (for debugging)")
     parser.add_argument("--disable-markdown", default=False, action="store_true", help="don't render Markdown formatting in messages")
+    parser.add_argument("--max-cost", type=float, default=10, help="maximum cost of the conversation to run")
 
     # Newly added config options
     parser.add_argument("-c", "--config", default=None, help="Config file to run the experiment")
