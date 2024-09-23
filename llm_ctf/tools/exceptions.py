@@ -1,2 +1,0 @@
-class GiveUpException(Exception):
-    pass
