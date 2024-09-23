@@ -1,46 +1,42 @@
-from functools import cached_property
-import json
-import os
-import shlex
-import shutil
 import subprocess
-import tempfile
-import yaml
-from .utilities.dockertool import DockerClient
-
 from nyuctf.challenge import CTFChallenge
-from pathlib import Path
+import traceback as tb
+
+from .tools import ToolCall, ToolResult, TOOLSETS
+from .ctflogging import status
 
 class CTFEnvironment:
-    def __init__(self, challenge: CTFChallenge, args=None):
-        self.args = args.__dict__ if args else {}
-        self.disable_docker = self.args.get("disable_docker", False)
-
-        # Docker container information
-        self.network = self.args.get("network", "ctfnet")
-        self.tmpdir = None
+    """Manages the docker env for the agent, and the challenge container."""
+    def __init__(self, challenge: CTFChallenge, container_image: str, network: str):
         self.challenge = challenge
+        self.container_image = container_image
+        self.network = network
+        self.available_tools = {}
+        for tool in TOOLSETS.get(self.challenge.category, TOOLSETS['default']):
+            tool_instance = tool(self)
+            self.available_tools[tool_instance.name] = tool_instance
 
-        # Client container information (FIXME: this shouldn't really live here)
-        self.container_name = self.args.get("container_name", "ctfenv")
-        self.container_image = self.args.get("container_image", "ctfenv")
+    def setup(self):
+        self.start_docker()
+        for tool in self.available_tools.values():
+            tool.setup()
+        # TODO Copy files
 
-    def __enter__(self):
-        # If there are files, copy them into a temporary directory
-        if self.challenge.has_files:
-            self._tmpdir = tempfile.TemporaryDirectory()
-            self.tmpdir = self._tmpdir.__enter__()
-            # Set full permissions on the tmp folder for access inside the docker.
-            os.chmod(self.tmpdir, 0o777)
-            for filename in self.challenge.files:
-                src = (self.challenge.challenge_dir / filename).resolve()
-                dst = Path(self.tmpdir) / filename
-                dst.parent.mkdir(parents=True, exist_ok=True)
-                shutil.copy2(src, dst)
-        self.challenge.start_challenge_container()
-        return self
+    def teardown(self, exc_type, exc_value, traceback):
+        # Tear down the tools first so they can clean up
+        for tool in self.available_tools.values():
+            tool.teardown(exc_type, exc_value, traceback)
+        self.stop_docker()
 
-    def __exit__(self, exc_type, exc_value, traceback):
-        self.challenge.stop_challenge_container()
-        if self.tmpdir:
-            self._tmpdir.__exit__(exc_type, exc_value, traceback)
+    def start_docker(self):
+        status.debug_message(f"Starting environment container {self.container_image}...")
+        cmd = ["docker", "run", "-d", "--rm", 
+               "--network", self.network, "--platform", "linux/amd64",
+               self.container_image]
+        output = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        self.container = output.stdout.strip()
+        status.debug_message(f"...started {self.container}")
+
+    def stop_docker(self):
+        status.debug_message(f"Stopping environment container {self.container_image} {self.container}...")
+        subprocess.run(["docker", "stop", self.container], check=True, capture_output=True)

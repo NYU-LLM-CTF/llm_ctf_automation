@@ -1,21 +1,16 @@
-from typing import TYPE_CHECKING, Any, Optional, Set, get_type_hints
-from dataclasses import dataclass
-from ..utils import CALL_ID
 import json
 import copy
+
+from dataclasses import dataclass
 from typing_extensions import Annotated
 from typing import TYPE_CHECKING, Any, Optional, Set, get_type_hints
-if TYPE_CHECKING:
-    from llm_ctf_solve import CTFEnvironment
 from tool_def_generator import ToolDefGenerator
-from pathlib import Path
 import inspect
-import json
-import subprocess
-import tempfile
-import requests
-import bs4
-import re
+
+from ..utils import CALL_ID
+from ..ctflogging import status
+# if TYPE_CHECKING:
+#     from ..environment import CTFEnvironment
 
 class AllCategories:
     """A class that can be used to indicate that a tool should be available in all categories."""
@@ -191,7 +186,7 @@ class Tool:
                 cls.parameters[p]['required'] = False
             cls.parameters[p]['python_type'] = hints[p]
 
-    def __init__(self, environment: Optional["CTFEnvironment"] = None):
+    def __init__(self):
         pass
 
     @classmethod

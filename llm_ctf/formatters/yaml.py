@@ -3,7 +3,7 @@ from io import StringIO
 import re
 
 from ..prompts import PromptManager
-from ..tools.manager import Tool, ToolCall, ToolResult
+from ..tools.modules import Tool, ToolCall, ToolResult
 from ..utils import CALL_ID
 from ..ctflogging import status
 from .formatter import Formatter

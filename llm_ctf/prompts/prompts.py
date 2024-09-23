@@ -7,7 +7,8 @@ from jinja2.exceptions import TemplateNotFound
 from jinja2 import Template
 
 from nyuctf.challenge import CTFChallenge
-from ..tools.manager import Tool, ToolCall, ToolResult
+from ..tools import Tool, ToolCall, ToolResult
+
 if TYPE_CHECKING:
     from ..formatters import Formatter
 import os
