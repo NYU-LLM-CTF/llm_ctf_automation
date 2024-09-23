@@ -5,7 +5,7 @@ import re
 
 from ..prompts import PromptManager
 from .formatter import Formatter
-from ..tools.manager import Tool, ToolCall, ToolResult
+from ..tools import Tool, ToolCall, ToolResult
 from typing import List, get_type_hints
 import ast
 from ..ctflogging import status

@@ -1,5 +1,14 @@
-from .modules import *
-from .exceptions import *
+# from .modules import *
+# from .exceptions import *
+
+# from nyuctf.challenge import CTFChallenge
+# from ..environment import CTFEnvironment
+
+from pathlib import Path
+import subprocess
+from typing_extensions import Annotated
+
+from .modules import Tool, CTFCategories
 
 SCRIPT_DIR = Path(__file__).parent.parent.parent.resolve()
 GHIDRA = SCRIPT_DIR / 'ghidra_11.0.1_PUBLIC/support/analyzeHeadless'
@@ -8,49 +17,9 @@ GHIDRA = SCRIPT_DIR / 'ghidra_11.0.1_PUBLIC/support/analyzeHeadless'
 
 class CommandExec(Tool):
     NAME = "run_command"
-    def __init__(self, challenge: "CTFChallenge"):
+    def __init__(self, environment: "CTFEnvironment"):
         super().__init__()
-        # TODO redo challenge dependence
-        self.challenge = challenge
-        self.container_image = challenge.container_image
-        self.container_name = challenge.container_name
-        self.network = challenge.network
-        self.volume = challenge.tmpdir
-
-    def setup(self):
-        self.start_docker()
-
-    def start_docker(self):
-        status.debug_message(f"Starting client container {self.container_name}...")
-        if self.volume:
-            volumes = ['-v', f'{self.volume}:/home/ctfplayer/ctf_files']
-        else:
-            volumes = []
-        if self.challenge.disable_docker:
-            return
-        subprocess.run(
-            ['docker', 'run'] + \
-                volumes + \
-                ['--network', self.network] + \
-                ['--platform', 'linux/amd64', '-d', '--rm'] + \
-                ['--name', self.container_name, self.container_image],
-            check=True, capture_output=True,
-        )
-
-    def teardown(self, exc_type, exc_value, traceback):
-        # If there was an error, make a copy of the container for debugging
-        if exc_type is not None:
-            status.debug_message("Error detected; saving container for debugging...")
-            subprocess.run(
-                ['docker', 'commit', self.container_name, 'ctfenv_debug'],
-            )
-        self.stop_docker()
-
-    def stop_docker(self):
-        status.debug_message(f"Stopping client container {self.container_name}...")
-        if self.challenge.disable_docker:
-            return
-        subprocess.run(['docker', 'stop', self.container_name], capture_output=True)
+        self.environment = environment
 
     @staticmethod
     def _clean(text):
@@ -58,26 +27,19 @@ class CommandExec(Tool):
             return None
         return text.decode('utf-8', errors='backslashreplace').replace('\r\n', '\n')
 
-    def run_cmd(self, command, timeout=4.0):
+    def run_cmd(self, command, timeout):
         """Run a command in the docker container and return
         {"stdout": stdout, "stderr": stderr, "returncode": returncode, "timed_out": timed_out}
         """
-        if timeout is None: timeout = 4.0
         p = subprocess.Popen(
-            ['docker', 'exec', self.container_name, 'bash', '-c', command],
+            ['docker', 'exec', self.environment.container, 'bash', '-c', command],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )
         try:
-            # p = subprocess.run(
-            #     ['docker', 'exec', self.container_name, 'bash', '-c', command],
-            #     timeout=timeout, check=True, capture_output=True,
-            # )
             stdout, stderr = p.communicate(timeout=timeout)
             out = self._clean(stdout)
             err = self._clean(stderr)
-            # out = self._clean(p.stdout)
-            # err = self._clean(p.stderr)
             return {"stdout": out, "stderr": err, "returncode": p.returncode, "timed_out": False}
         except subprocess.TimeoutExpired as e:
             p.kill()
@@ -101,10 +63,9 @@ class CommandExec(Tool):
 
 class CheckFlag(Tool):
     NAME = "check_flag"
-    def __init__(self, challenge: "CTFChallenge"):
+    def __init__(self, environment: "CTFEnvironment"):
         super().__init__()
-        self.challenge = challenge
-        self.real_flag = challenge.flag
+        self.real_flag = environment.challenge.flag
 
     def __call__(self, flag: Annotated[str,"the flag to check"]):
         """Check if a flag is correct."""
@@ -122,11 +83,9 @@ class CheckFlag(Tool):
 
 class CreateFile(Tool):
     NAME = "createfile"
-    def __init__(self, challenge: "CTFChallenge"):
-        super().__init__(challenge=challenge)
-        # TODO redo container
-        self.challenge = challenge
-        self.container_name = challenge.container_name
+    def __init__(self, environment: "CTFEnvironment"):
+        super().__init__()
+        self.environment = environment
 
     def __call__(self,
                  path: Annotated[str,"path where the file should be created; relative paths will be relative to /home/ctfplayer/"],
@@ -170,12 +129,12 @@ class CreateFile(Tool):
             # Copy the file into the container
             try:
                 subprocess.run(
-                    ['docker', 'cp', tmpfile, f'{self.container_name}:{path}'],
+                    ['docker', 'cp', tmpfile, f'{self.environment.container}:{path}'],
                     check=True, capture_output=True,
                 )
                 # Set ownership to ctfplayer
                 subprocess.run(
-                    ['docker', 'exec', '--user=root', '-it', self.container_name, 'chown', 'ctfplayer:ctfplayer', path],
+                    ['docker', 'exec', '--user=root', '-it', self.environment.container, 'chown', 'ctfplayer:ctfplayer', path],
                     check=True, capture_output=True,
                 )
                 return {"success": True, "path": path}
@@ -184,9 +143,8 @@ class CreateFile(Tool):
 
 class GiveUp(Tool):
     NAME = "give_up"
-    def __init__(self, challenge: "CTFChallenge"):
-        super().__init__(challenge=challenge)
-        self.challenge = challenge
+    def __init__(self, environment: "CTFEnvironment"):
+        super().__init__()
 
     def __call__(self,
                  confirm: Annotated[bool,"a boolean flag to confirm that you want to give up"]):
@@ -198,9 +156,9 @@ class GiveUp(Tool):
 class Decompile(Tool):
     NAME = "decompile_function"
     CATEGORIES = {CTFCategories.rev, CTFCategories.pwn, CTFCategories.crypto}
-    def __init__(self, challenge: "CTFChallenge"):
+    def __init__(self, environment: "CTFEnvironment"):
         super().__init__()
-        self.challenge = challenge
+        self.environment = environment
         self._decomp_cache = {}
 
     def __call__(self,
@@ -249,6 +207,7 @@ class Decompile(Tool):
 
     def run_ghidra(self, binary, output):
         status.debug_message(f"Running Ghidra to decompile {binary}...")
+        # TODO better way to find
         binary_paths = self.challenge.chaldir.glob(f'**/{binary}')
         real_binary = next(binary_paths, None)
         if not real_binary or not real_binary.exists():

@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from enum import Enum
 from typing import Any, Literal, Optional, Tuple, Type, List, Union
-from ..tools.manager import ToolCall, ToolResult
+from ..tools import Tool, ToolCall, ToolResult
 from ..utils import timestamp
 
 class IterKind(Enum):
@@ -172,8 +172,7 @@ class TimestampedList(list):
 
 class Backend(ABC):
     """
-    Base class for backends. A backend is responsible for running tools and
-    communicating with the model.
+    Base class for backends. A backend is responsible for communicating with the model.
     """
 
     NAME: str
@@ -197,13 +196,23 @@ class Backend(ABC):
         pass
 
     # @abstractmethod
-    def run_tools(self) -> Tuple[str,bool]:
-        """
-        Run tools, send the results to the model, and return its response.
+    # def run_tools(self) -> Tuple[str,bool]:
+    #     """
+    #     Run tools, send the results to the model, and return its response.
+
+    #     Returns:
+    #         (content, has_tool_calls) where has_tool_calls is True if the
+    #         model wants to run more tools.
+    #     """
+    #     raise NotImplementedError
+
+    @abstractmethod
+    def parse_tool_arguments(self, tool: Tool, tool_call: ToolCall) -> Tuple[bool, ToolCall | ToolResult]:
+        """Extract and parse the parameters for a tool call.
 
         Returns:
-            (content, has_tool_calls) where has_tool_calls is True if the
-            model wants to run more tools.
+        - (True, tool_call) if successful; the tool_call's parsed_arguments will be set in-place
+        - (False, tool_result) if unsuccessful; the tool_result will contain an error message
         """
         raise NotImplementedError
 

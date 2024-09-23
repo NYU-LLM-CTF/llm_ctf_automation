@@ -1,96 +1,42 @@
+import subprocess
 from nyuctf.challenge import CTFChallenge
+import traceback as tb
 
-from .formatters import Formatter
-from .tools.manager import Tool, ToolCall, ToolResult
-
-def make_call_result(res : ToolResult):
-    return dict(
-        name=res.name,
-        role="tool",
-        content=json.dumps(res.result),
-        tool_call_id=res.id,
-    )
+from .tools import ToolCall, ToolResult, TOOLSETS
+from .ctflogging import status
 
 class CTFEnvironment:
     """Manages the docker env for the agent, and the challenge container."""
-    def __init__(self, challenge: CTFChallenge):
-        # TODO create enter, exit to start dockers and copy files
+    def __init__(self, challenge: CTFChallenge, container_image: str, network: str):
+        self.challenge = challenge
+        self.container_image = container_image
+        self.network = network
+        self.available_tools = {}
+        for tool in TOOLSETS.get(self.challenge.category, TOOLSETS['default']):
+            tool_instance = tool(self)
+            self.available_tools[tool_instance.name] = tool_instance
 
-        self.available_functions = {}
-        for tool in TOOLSETS.get(challenge.category, TOOLSETS['default']):
-            tool_instance = tool(self.chal)
-            self.available_functions[tool_instance.name] = tool_instance
-
-    def __enter__(self):
-        for tool in self.available_functions.values():
+    def setup(self):
+        self.start_docker()
+        for tool in self.available_tools.values():
             tool.setup()
-        return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def teardown(self, exc_type, exc_value, traceback):
         # Tear down the tools first so they can clean up
-        for tool in self.available_functions.values():
+        for tool in self.available_tools.values():
             tool.teardown(exc_type, exc_value, traceback)
+        self.stop_docker()
 
-        # If there was an exception, convert it to a dict so we can serialize it
-        if exc_type is None:
-            exception_info = None
-        else:
-            # Extracting traceback details
-            tb_list = tb.format_tb(traceback)
-            tb_string = ''.join(tb_list)
+    def start_docker(self):
+        status.debug_message(f"Starting environment container {self.container_image}...")
+        cmd = ["docker", "run", "-d", "--rm", 
+               "--network", self.network, "--platform", "linux/amd64",
+               self.container_image]
+        output = subprocess.run(cmd, check=True, capture_output=True, text=True)
+        self.container = output.stdout.strip()
+        status.debug_message(f"...started {self.container}")
 
-            # Constructing the JSON object
-            exception_info = {
-                "exception_type": str(exc_type.__name__),
-                "exception_message": str(exc_value),
-                "traceback": tb_string
-            }
+    def stop_docker(self):
+        status.debug_message(f"Stopping environment container {self.container_image} {self.container}...")
+        subprocess.run(["docker", "stop", self.container], check=True, capture_output=True)
 
-    def run_tools(self, tool_calls) -> Tuple[Optional[str],bool]:
-        for tool_call in tool_calls:
-            # Tool lookup
-            function_name = tool_call.name
-            tool = self.tools.get(function_name)
-            if not tool:
-                tool_call.result = f"Unknown tool {function_name}"
-                continue
-            tool_call.result = tool.run(tool_call.arguments)
-
-            # # Parameter parsing
-            # try:
-            #     arguments = self.extract_parameters(tool, tool_call)
-            # except json.JSONDecodeError as e:
-            #     status.debug_message(f"Error decoding arguments for {function_name}: {e}")
-            #     status.debug_message(f"Arguments: {tool_call.function.arguments}")
-            #     tool_res = tool_call.error(f"{type(e).__name__} decoding arguments for {function_name}: {e}")
-            #     tool_results.append(make_call_result(tool_res))
-            #     continue
-            # except ValueError as e:
-            #     status.debug_message(f"Error extracting parameters for {function_name}: {e}")
-            #     tool_res = tool_call.error(
-            #         f"{type(e).__name__} extracting parameters for {function_name}: {e}"
-            #     )
-            #     tool_results.append(make_call_result(tool_res))
-            #     continue
-
-            # Tool execution
-            # for k,v in tool_res_plain.result.items():
-            #     status.debug_message(f"{k}:\n{v}")
-            # try:
-            #     tool_res = make_call_result(tool_res_plain)
-            # except TypeError as e:
-            #     status.debug_message(f"Error encoding results from {function_name}: {e}")
-            #     tool_res = make_call_result(tool_call.error(
-            #         f"{type(e).__name__} running {function_name}: {e}"
-            #     ))
-            # except Exception as e:
-            #     status.debug_message(f"Error running {function_name}: {e}")
-            #     tool_res = make_call_result(tool_call.error(
-            #         f"{type(e).__name__} running {function_name}: {e}"
-            #     ))
-        # self.messages += tool_results
-        # response = self._call_model()
-        # out_token = count_token(message=response.content, model=self.args.model)
-        # cost = out_token * self.out_price
-        # self.messages.append(response)
-        # return response.content, bool(response.tool_calls), cost

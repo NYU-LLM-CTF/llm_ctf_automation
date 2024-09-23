@@ -8,7 +8,7 @@ from .backend import (AssistantMessage, Backend, ErrorToolCalls, FakeToolCalls,
                       SystemMessage, UnparsedToolCalls, UserMessage)
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessage
-from ..tools.manager import Tool, ToolCall, ToolResult
+from ..tools import Tool, ToolCall, ToolResult
 from rich.pretty import Pretty
 
 class VLLMBackend(Backend):
@@ -276,26 +276,7 @@ class VLLMBackend(Backend):
             self.messages.append(AssistantMessage(extracted_content, original_response))
         return message, extracted_content, has_tool_calls
 
-    def tool_lookup(self, tool_call : ToolCall) -> Tuple[bool,ToolCall|ToolResult]:
-        """Look up a tool by name."""
-        # Tool lookup
-        tool = self.tools.get(tool_call.name)
-        if not tool:
-            if tool_call.name == "[not provided]":
-                msg = "No tool name provided"
-            else:
-                msg = f"Unknown tool {tool_call.name}"
-            status.debug_message(msg)
-            return False, tool_call.error(msg)
-        return True, tool
-
-    def parse_tool_call_params(self, tool: Tool, tool_call: ToolCall) -> Tuple[bool, ToolCall | ToolResult]:
-        """Extract and parse the parameters for a tool call.
-
-        Returns:
-        - (True, tool_call) if successful; the tool_call's parsed_arguments will be set in-place
-        - (False, tool_result) if unsuccessful; the tool_result will contain an error message
-        """
+    def parse_tool_arguments(self, tool: Tool, tool_call: ToolCall) -> Tuple[bool, ToolCall | ToolResult]:
         # Don't need to parse if the arguments are already parsed;
         # this can happen if the tool call was created with parsed arguments
         if tool_call.parsed_arguments:

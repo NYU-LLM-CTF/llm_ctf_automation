@@ -4,7 +4,7 @@ from .utils import *
 import os
 from anthropic.types.content_block import ContentBlock as AnthropicMessage
 from .vllm_backend import VLLMBackend
-from ..tools.manager import Tool, ToolCall, ToolResult
+from ..tools import Tool, ToolCall, ToolResult
 from .backend import UserMessage
 
 class AnthropicBackend(VLLMBackend):

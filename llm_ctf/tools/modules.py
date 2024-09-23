@@ -1,22 +1,16 @@
-from typing import TYPE_CHECKING, Any, Optional, Set, get_type_hints
-from dataclasses import dataclass
-from ..utils import CALL_ID
 import json
 import copy
+
+from dataclasses import dataclass
 from typing_extensions import Annotated
 from typing import TYPE_CHECKING, Any, Optional, Set, get_type_hints
-if TYPE_CHECKING:
-    from llm_ctf_solve import CTFChallenge
 from tool_def_generator import ToolDefGenerator
-from pathlib import Path
-from ..ctflogging import status
 import inspect
-import json
-import subprocess
-import tempfile
-import requests
-import bs4
-import re
+
+from ..utils import CALL_ID
+from ..ctflogging import status
+# if TYPE_CHECKING:
+#     from ..environment import CTFEnvironment
 
 class AllCategories:
     """A class that can be used to indicate that a tool should be available in all categories."""
@@ -192,7 +186,7 @@ class Tool:
                 cls.parameters[p]['required'] = False
             cls.parameters[p]['python_type'] = hints[p]
 
-    def __init__(self, challenge: Optional["CTFChallenge"] = None):
+    def __init__(self):
         pass
 
     @classmethod
@@ -219,7 +213,7 @@ class Tool:
         """
         Tear down the tool.
 
-        Called from __exit__ in the CTFChallenge context manager; if an
+        Called from __exit__ in the CTFEnvironment context manager; if an
         exception occurred, exc_type, exc_value, and traceback will be set
         to the exception information.
         """
