@@ -4,10 +4,13 @@ from .exceptions import *
 SCRIPT_DIR = Path(__file__).parent.parent.parent.resolve()
 GHIDRA = SCRIPT_DIR / 'ghidra_11.0.1_PUBLIC/support/analyzeHeadless'
 
+# TODO all tools should take the environment container as input, not just the challenge.
+
 class CommandExec(Tool):
     NAME = "run_command"
     def __init__(self, challenge: "CTFChallenge"):
         super().__init__()
+        # TODO redo challenge dependence
         self.challenge = challenge
         self.container_image = challenge.container_image
         self.container_name = challenge.container_name
@@ -101,7 +104,7 @@ class CheckFlag(Tool):
     def __init__(self, challenge: "CTFChallenge"):
         super().__init__()
         self.challenge = challenge
-        self.real_flag = challenge.real_flag
+        self.real_flag = challenge.flag
 
     def __call__(self, flag: Annotated[str,"the flag to check"]):
         """Check if a flag is correct."""
@@ -112,7 +115,6 @@ class CheckFlag(Tool):
         status.print(f"    Actual: [green]{self.real_flag}[/green]", markup=True)
         if flag == self.real_flag:
             status.print(f"[red bold]Correct flag![/red bold]", markup=True)
-            self.challenge.solved = True
             return {"correct": True}
         else:
             status.print(f"[red bold]Incorrect flag.[/red bold]", markup=True)
@@ -122,6 +124,7 @@ class CreateFile(Tool):
     NAME = "createfile"
     def __init__(self, challenge: "CTFChallenge"):
         super().__init__(challenge=challenge)
+        # TODO redo container
         self.challenge = challenge
         self.container_name = challenge.container_name
 
