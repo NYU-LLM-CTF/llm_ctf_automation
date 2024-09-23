@@ -7,9 +7,8 @@ import os
 from typing import List, Optional, Tuple
 import tiktoken
 
-from ..formatters import Formatter
-from .backend import Backend
-from ..tools.manager import Tool, ToolCall, ToolResult
+from .backend import Backend, ToolCall
+from ..tools.manager import Tool
 from ..ctflogging import status
 from openai import RateLimitError
 from openai.types.chat import ChatCompletionMessage
@@ -23,14 +22,6 @@ API_KEY_PATH = "~/.openai/api_key"
 
 def get_tool_calls(otc_calls : List[OAIToolCall]) -> List[ToolCall]:
     return [ToolCall.create_unparsed(otc.function.name, otc.id, otc.function.arguments) for otc in otc_calls]
-
-def make_call_result(res : ToolResult):
-    return dict(
-        name=res.name,
-        role="tool",
-        content=json.dumps(res.result),
-        tool_call_id=res.id,
-    )
 
 def count_token(message: str, model: str):
     if not message:
@@ -103,77 +94,26 @@ class OpenAIBackend(Backend):
     def _system_message(self, content : str) -> dict[str,str]:
         return self._message(content, "system")
 
-    def send(self, message : str) -> Tuple[Optional[str],bool]:
+
+    def parse_tool_calls(self, tool_calls) -> dict:
+        # TODO implement properly
+        parsed_arguments = json.loads(tool_call.arguments)
+        tool_call.parsed_arguments = parsed_arguments
+        Formatter.validate_args(tool, tool_call)
+        Formatter.convert_args(tool, tool_call)
+        return tool_call
+
+    def send(self, message: str) -> Tuple[Optional[str],bool]:
         self.messages.append(self._user_message(message))
         response = self._call_model()
         self.messages.append(response)
         in_token = count_token(message=message, model=self.args.model)
         out_token = count_token(message=response.content, model=self.args.model)
         cost = in_token * self.in_price + out_token * self.out_price
-        return response.content, bool(response.tool_calls), cost
 
-    def run_tools(self) -> Tuple[Optional[str],bool]:
-        tool_calls = get_tool_calls(self.messages[-1].tool_calls)
-        tool_results = []
-        for tool_call in tool_calls:
-            # Tool lookup
-            function_name = tool_call.name
-            tool = self.tools.get(function_name)
-            if not tool:
-                tool_res = tool_call.error(f"Unknown tool {function_name}")
-                tool_results.append(make_call_result(tool_res))
-                continue
-
-            # Parameter parsing
-            try:
-                arguments = self.extract_parameters(tool, tool_call)
-            except json.JSONDecodeError as e:
-                status.debug_message(f"Error decoding arguments for {function_name}: {e}")
-                status.debug_message(f"Arguments: {tool_call.function.arguments}")
-                tool_res = tool_call.error(f"{type(e).__name__} decoding arguments for {function_name}: {e}")
-                tool_results.append(make_call_result(tool_res))
-                continue
-            except ValueError as e:
-                status.debug_message(f"Error extracting parameters for {function_name}: {e}")
-                tool_res = tool_call.error(
-                    f"{type(e).__name__} extracting parameters for {function_name}: {e}"
-                )
-                tool_results.append(make_call_result(tool_res))
-                continue
-
-            # Tool execution
-            status.debug_message(f"Calling {arguments}")
-            tool_res_plain = tool.run(arguments)
-            status.debug_message(f"Result:")
-            for k,v in tool_res_plain.result.items():
-                status.debug_message(f"{k}:\n{v}")
-            # status.debug_message(f"=> {tool_res_plain.result}", truncate=True)
-            try:
-                tool_res = make_call_result(tool_res_plain)
-            except TypeError as e:
-                status.debug_message(f"Error encoding results from {function_name}: {e}")
-                tool_res = make_call_result(tool_call.error(
-                    f"{type(e).__name__} running {function_name}: {e}"
-                ))
-            except Exception as e:
-                status.debug_message(f"Error running {function_name}: {e}")
-                tool_res = make_call_result(tool_call.error(
-                    f"{type(e).__name__} running {function_name}: {e}"
-                ))
-            tool_results.append(tool_res)
-        self.messages += tool_results
-        response = self._call_model()
-        out_token = count_token(message=response.content, model=self.args.model)
-        cost = out_token * self.out_price
-        self.messages.append(response)
-        return response.content, bool(response.tool_calls), cost
-
-    def extract_parameters(self, tool : Tool, tool_call : ToolCall) -> dict:
-        parsed_arguments = json.loads(tool_call.arguments)
-        tool_call.parsed_arguments = parsed_arguments
-        Formatter.validate_args(tool, tool_call)
-        Formatter.convert_args(tool, tool_call)
-        return tool_call
+        # TODO implement a parse_tool_calls
+        tool_calls = self.parse_tool_calls(response.tool_calls)
+        return response.content, tool_calls, cost
 
     def get_system_message(self):
         self.system_message

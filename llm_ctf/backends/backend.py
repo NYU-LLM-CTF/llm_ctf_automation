@@ -196,7 +196,7 @@ class Backend(ABC):
         """
         pass
 
-    @abstractmethod
+    # @abstractmethod
     def run_tools(self) -> Tuple[str,bool]:
         """
         Run tools, send the results to the model, and return its response.
