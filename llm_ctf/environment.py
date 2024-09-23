@@ -1,27 +1,15 @@
 from functools import cached_property
 import json
 import os
-import re
 import shlex
 import shutil
 import subprocess
 import tempfile
-from typing import List
 import yaml
 from .utilities.dockertool import DockerClient
 
 from nyuctf.challenge import CTFChallenge
 from pathlib import Path
-
-_rep_underscore = re.compile(r'_+')
-def safe_name(s: str) -> str:
-    """Create a safe name (suitable for docker) from a string
-    """
-    # Replace all non-alphanumeric characters with underscores
-    safe = s.replace(' ', '_').lower()
-    safe = ''.join(c if c.isalnum() else '_' for c in safe).rstrip('_')
-    safe = _rep_underscore.sub('_', safe)
-    return safe
 
 class CTFEnvironment:
     def __init__(self, challenge: CTFChallenge, args=None):

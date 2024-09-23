@@ -5,6 +5,8 @@ from ..ctflogging import status
 SCRIPT_DIR = Path(__file__).parent.parent.parent.resolve()
 GHIDRA = SCRIPT_DIR / 'ghidra_11.0.1_PUBLIC/support/analyzeHeadless'
 
+# TODO all tools should take the environment container as input, not just the challenge.
+
 class CommandExec(Tool):
     NAME = "run_command"
     def __init__(self, environment: "CTFEnvironment"):
@@ -114,7 +116,6 @@ class CheckFlag(Tool):
         status.print(f"    Actual: [green]{self.real_flag}[/green]", markup=True)
         if flag == self.real_flag:
             status.print(f"[red bold]Correct flag![/red bold]", markup=True)
-            self.challenge.solved = True
             return {"correct": True}
         else:
             status.print(f"[red bold]Incorrect flag.[/red bold]", markup=True)

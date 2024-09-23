@@ -8,6 +8,10 @@ import shutil
 import getpass
 import yaml
 from pathlib import Path
+
+from nyuctf.dataset import CTFDataset
+from nyuctf.challenge import CTFChallenge
+
 from llm_ctf.ctflogging import status
 from llm_ctf.backends import Backend
 from llm_ctf.formatters import Formatter
@@ -18,8 +22,6 @@ from llm_ctf.conversation import CTFConversation
 from nyuctf.dataset import CTFDataset
 from nyuctf.challenge import CTFChallenge
 
-script_dir = Path(__file__).parent.resolve()
-
 def overwrite_args(args=None, config: dict=None):
     if not args or not config:
         return
@@ -29,6 +31,7 @@ def overwrite_args(args=None, config: dict=None):
         args.model = config["parameter"].get("model", args.model)
         args.max_cost = config["parameter"].get("max_cost", args.max_cost)
         args.experiment_name = config["experiment"].get("name", args.experiment_name)
+        # TODO remove script_dir
         args.logdir = str(script_dir / "logs" / getpass.getuser() / f"{args.experiment_name}_round_{args.index}")
         args.debug = config["experiment"].get("debug", args.debug)
         args.skip_exist = config["experiment"].get("skip_exist", args.skip_exist)
@@ -54,7 +57,6 @@ def main():
 
     parser.add_argument("--challenge", help="Name of the challenge")
     parser.add_argument("--dataset", help="Path to the dataset JSON")
-    parser.add_argument("--challenge_json", help="path to the JSON file describing the challenge")
     parser.add_argument("-q", "--quiet", action="store_true", help="don't print messages to the console")
     parser.add_argument("-d", "--debug", action="store_true", help="print debug messages")
     parser.add_argument("-M", "--model", help="the model to use (default is backend-specific)", choices=model_list)
@@ -77,6 +79,7 @@ def main():
     parser.add_argument("--skip_exist", default=False, action="store_true", help="Skip existing logs and experiments")
     parser.add_argument("-c", "--config", default=None, help="Config file to run the experiment")
     parser.add_argument("-i", "--index", default=0, help="Round index of the experiment")
+    # TODO remove script_dir
     parser.add_argument("-L", "--logdir", default=str(script_dir / "logs" / getpass.getuser()), help="log directory to write the log")
 
     args = parser.parse_args()
@@ -96,6 +99,20 @@ def main():
             convo.run()
     else:
         status.print(f"[red bold]Challenge log {logfile} exists; skipping[/red bold]", markup=True)
+
+    prompt_manager = PromptManager(prompt_set=args.prompt_set, config=config)
+    backend = Backend.from_name(args.backend)(prompt_manager.system_message(challenge), {}, args)
+
+    with CTFEnvironment(challenge) as env, \
+        CTFConversation(env, challenge, prompt_manager, backend, max_rounds=args.max_rounds, max_cost=args.max_cost) as convo:
+        next_msg = prompt_manager.initial_message(chal)
+        # Add hints message to initial
+        hints_msg = prompt_manager.hints_message(chal, hints=args.hints)
+        if len(hints_msg) != 0:
+            next_msg += "\n\n" + hints_msg
+        elif len(args.hints) != 0:
+            status.debug_message(f"hints {args.hints} not found")
+        convo.run()
 
 if __name__ == "__main__":
     exit(main())
