@@ -8,6 +8,7 @@ import json, os
 import argparse
 import shutil
 import yaml
+import getpass
 from pathlib import Path
 
 from nyuctf.dataset import CTFDataset
@@ -20,7 +21,7 @@ from llm_ctf.prompts.prompts import PromptManager
 from llm_ctf.environment import CTFEnvironment
 from llm_ctf.conversation import CTFConversation
 
-
+script_dir = Path(__file__).parent.resolve()
 
 def overwrite_args(args=None, config: dict=None):
     if not args or not config:
@@ -30,6 +31,9 @@ def overwrite_args(args=None, config: dict=None):
         args.backend = config["parameter"].get("backend", args.backend)
         args.model = config["parameter"].get("model", args.model)
         args.max_cost = config["parameter"].get("max_cost", args.max_cost)
+        args.experiment_name = config["experiment"].get("name", args.experiment_name)
+        args.database = config["experiment"].get("database", args.database)
+        args.logdir = str(script_dir / "logs" / getpass.getuser() / f"{args.experiment_name}_{args.database}_{args.index}")
 
 def load_config(args=None):
     if args.config:
@@ -50,8 +54,6 @@ def main():
         model_list += b.get_models()
     model_list = list(set(model_list))
 
-    script_dir = Path(__file__).parent.resolve()
-
     parser.add_argument("--challenge", help="Name of the challenge")
     parser.add_argument("--dataset", help="Path to the dataset JSON")
     parser.add_argument("-q", "--quiet", action="store_true", help="don't print messages to the console")
@@ -61,7 +63,7 @@ def main():
     parser.add_argument("-n", "--container-name", default=f"ctfenv_{os.getuid()}", help="the Docker container name to set for the CTF environment")
     parser.add_argument("-N", "--network", default="ctfnet", help="the Docker network to use for the CTF environment")
     parser.add_argument("-m", "--max-rounds", type=int, default=100, help="maximum number of rounds to run")
-    parser.add_argument("-L", "--logdir", default=str(script_dir / "logs"), help="log directory to write the log")
+    parser.add_argument("-L", "--logdir", default=str(script_dir / "logs" / getpass.getuser()), help="log directory to write the log")
     parser.add_argument("--api-key", default=None, help="API key to use when calling the model")
     parser.add_argument("--api-endpoint", default=None, help="API endpoint URL to use when calling the model")
     parser.add_argument("--backend", default="openai", choices=Backend.registry.keys(), help="model backend to use")
@@ -75,6 +77,9 @@ def main():
     # Newly added config options
     parser.add_argument("-c", "--config", default=None, help="Config file to run the experiment")
     parser.add_argument("-i", "--index", default=0, help="Round index of the experiment")
+    parser.add_argument("--experiment-name", default="default", help="Experiment name tag")
+    parser.add_argument("--database", default="", help="Database of the competition, used for log directory")
+    parser.add_argument("--skip_exist", action="store_true", help="Skip existing logs and experiments")
 
     args = parser.parse_args()
     config: dict = load_config(args=args)
@@ -88,14 +93,17 @@ def main():
     timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     logdir = Path(args.logdir).expanduser().resolve()
     logdir.mkdir(parents=True, exist_ok=True)
-    logfile = logdir / f"{challenge.canonical_name}-{timestamp}.json"
+    logfile = logdir / f"{challenge.canonical_name}.json"
 
     environment = CTFEnvironment(challenge, args.container_image, args.network)
     prompt_manager = PromptManager(prompt_set=args.prompt_set, config=config)
     backend = Backend.from_name(args.backend)(prompt_manager.system_message(challenge), environment.available_tools, model=args.model, api_key=args.api_key)
 
-    with CTFConversation(environment, challenge, prompt_manager, backend, logfile, max_rounds=args.max_rounds, max_cost=args.max_cost) as convo:
-        convo.run()
+    if not os.path.exists(logfile) or not args.skip_exist:
+        with CTFConversation(environment, challenge, prompt_manager, backend, logfile, max_rounds=args.max_rounds, max_cost=args.max_cost) as convo:
+            convo.run()
+    else:
+        status.print(f"[red bold]Challenge is unsolved after; skipping[/red bold]", markup=True)
 
 if __name__ == "__main__":
     main()
