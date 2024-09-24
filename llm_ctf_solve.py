@@ -100,6 +100,8 @@ def main():
     backend = Backend.from_name(args.backend)(prompt_manager.system_message(challenge), environment.available_tools, model=args.model, api_key=args.api_key)
 
     if not os.path.exists(logfile) or not args.skip_exist:
+        if not args.skip_exist:
+            os.remove(logfile)
         with CTFConversation(environment, challenge, prompt_manager, backend, logfile, max_rounds=args.max_rounds, max_cost=args.max_cost) as convo:
             convo.run()
     else:
