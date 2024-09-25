@@ -6,7 +6,7 @@ import copy
 from typing_extensions import Annotated
 from typing import TYPE_CHECKING, Any, Optional, Set, get_type_hints
 if TYPE_CHECKING:
-    from llm_ctf_solve import CTFChallenge
+    from llm_ctf_solve import CTFEnvironment
 from tool_def_generator import ToolDefGenerator
 from pathlib import Path
 from ..ctflogging import status
@@ -192,7 +192,7 @@ class Tool:
                 cls.parameters[p]['required'] = False
             cls.parameters[p]['python_type'] = hints[p]
 
-    def __init__(self, challenge: Optional["CTFChallenge"] = None):
+    def __init__(self, challenge: Optional["CTFEnvironment"] = None):
         pass
 
     @classmethod
@@ -219,7 +219,7 @@ class Tool:
         """
         Tear down the tool.
 
-        Called from __exit__ in the CTFChallenge context manager; if an
+        Called from __exit__ in the CTFEnvironment context manager; if an
         exception occurred, exc_type, exc_value, and traceback will be set
         to the exception information.
         """

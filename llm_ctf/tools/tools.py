@@ -6,7 +6,7 @@ GHIDRA = SCRIPT_DIR / 'ghidra_11.0.1_PUBLIC/support/analyzeHeadless'
 
 class CommandExec(Tool):
     NAME = "run_command"
-    def __init__(self, challenge: "CTFChallenge"):
+    def __init__(self, challenge: "CTFEnvironment"):
         super().__init__()
         self.challenge = challenge
         self.container_image = challenge.container_image
@@ -98,7 +98,7 @@ class CommandExec(Tool):
 
 class CheckFlag(Tool):
     NAME = "check_flag"
-    def __init__(self, challenge: "CTFChallenge"):
+    def __init__(self, challenge: "CTFEnvironment"):
         super().__init__()
         self.challenge = challenge
         self.real_flag = challenge.real_flag
@@ -120,7 +120,7 @@ class CheckFlag(Tool):
 
 class CreateFile(Tool):
     NAME = "createfile"
-    def __init__(self, challenge: "CTFChallenge"):
+    def __init__(self, challenge: "CTFEnvironment"):
         super().__init__(challenge=challenge)
         self.challenge = challenge
         self.container_name = challenge.container_name
@@ -181,7 +181,7 @@ class CreateFile(Tool):
 
 class GiveUp(Tool):
     NAME = "give_up"
-    def __init__(self, challenge: "CTFChallenge"):
+    def __init__(self, challenge: "CTFEnvironment"):
         super().__init__(challenge=challenge)
         self.challenge = challenge
 
@@ -195,7 +195,7 @@ class GiveUp(Tool):
 class Decompile(Tool):
     NAME = "decompile_function"
     CATEGORIES = {CTFCategories.rev, CTFCategories.pwn, CTFCategories.crypto}
-    def __init__(self, challenge: "CTFChallenge"):
+    def __init__(self, challenge: "CTFEnvironment"):
         super().__init__()
         self.challenge = challenge
         self._decomp_cache = {}
@@ -264,7 +264,7 @@ class Decompile(Tool):
 class Disassemble(Tool):
     NAME = "disassemble_function"
     CATEGORIES = {CTFCategories.rev, CTFCategories.pwn, CTFCategories.crypto}
-    def __init__(self, challenge: "CTFChallenge"):
+    def __init__(self, challenge: "CTFEnvironment"):
         super().__init__()
         self.challenge = challenge
         self._disasm_cache = {}

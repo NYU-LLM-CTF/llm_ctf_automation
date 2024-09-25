@@ -6,7 +6,7 @@ from jinja2 import Environment, PackageLoader, StrictUndefined
 from jinja2.exceptions import TemplateNotFound
 from jinja2 import Template
 
-from ..challenge import CTFChallenge
+from ..environment import CTFEnvironment
 from ..tools.manager import Tool, ToolCall, ToolResult
 if TYPE_CHECKING:
     from ..formatters import Formatter
@@ -110,17 +110,17 @@ class PromptManager:
             **kwargs
         )
 
-    def initial_message(self, chal: CTFChallenge, **kwargs):
+    def initial_message(self, chal: CTFEnvironment, **kwargs):
         return self.render('initial_message', chal=chal, **kwargs)
 
-    def get_chal_hint(self, chal: CTFChallenge, hint: str):
+    def get_chal_hint(self, chal: CTFEnvironment, hint: str):
         """Get hint from the challenge dir. Return None if not present."""
         hintpath = chal.chaldir / f"hints/{hint}.md"
         if not hintpath.exists():
             return None
         return hintpath.read_text()
 
-    def hints_message(self, chal: CTFChallenge, hints=[], **kwargs):
+    def hints_message(self, chal: CTFEnvironment, hints=[], **kwargs):
         """
         Look for hints in the the challenge folder and templates folder.
         """

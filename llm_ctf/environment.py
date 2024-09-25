@@ -64,7 +64,7 @@ class SafeDict(dict):
     def __missing__(self, key):
         return '{' + key + '}'
 
-class CTFChallenge:
+class CTFEnvironment:
     def __init__(self, challenge_json: Path|str, args=None):
         self.args = args.__dict__ if args else {}
         self.disable_docker = self.args.get("disable_docker", False)
@@ -125,7 +125,6 @@ class CTFChallenge:
         #    If any of the images are not already loaded in docker, then load the .tar files.
         # This will get a lot simpler once we are pushing iamges to Docker Hub, since we can just try to do
         # docker compose up or docker run and let it pull any images needed.
-        self.oci_images = self.find_oci_images()
         # TODO: where should we get the server name from for the compose case?
         if not self.is_compose and len(self.oci_images) == 1:
             self.challenge_container = safe_name(self.fsname)
@@ -158,36 +157,6 @@ class CTFChallenge:
         else:
             box = None
         return box
-
-    # def load_challenge_images(self):
-    #     if not self.oci_images:
-    #         status.debug_message(f"No OCI image(s) found, assuming challenge has no server")
-    #         return
-
-        # Get a list of all images known to docker
-        # image_list = set(self.docker.get_images())
-        # Keep track of what name we find the image under
-        # self.image_name_map = {}
-        # for image in self.oci_images:
-        #     names = [ image.stem, 'asibench_' + image.stem ]
-        #     names = [n + ':latest' for n in names]
-        #     for n in names:
-        #         if n in image_list:
-        #             status.debug_message(f"Pre-built docker image {image.name} found as {n}!")
-        #             self.image_name_map[image] = n
-        #             break
-        #     else:
-        #         status.debug_message(f"Load pre-built docker image {image.name}...")
-        #         with open(image, 'rb') as oci:
-        #             loaded_name = subprocess.check_output(['docker', 'load'], stdin=oci, text=True).strip()
-        #             loaded_name = loaded_name.split()[-1]
-        #         self.image_name_map[image] = loaded_name
-
-    def find_oci_images(self) -> List[Path]|None:
-        if self.chaldir.is_dir():
-            pattern = '[0-9][0-9][0-9][0-9][qf]-*.tar'
-            matching_files = list(self.chaldir.glob(pattern))
-        return matching_files
 
     def get_server_type(self):
         # TODO: simplify this / make it consistent
@@ -247,41 +216,6 @@ class CTFChallenge:
             )
             return
 
-        # # If it's not a compose challenge and it has no container, assume it's a non-server challenge
-        # if not self.challenge_container: return
-
-        # # assert len(self.oci_images) == 1, "Only one image should be loaded for a single container challenge"
-        # image_name = self.image_name_map[self.oci_images[0]]
-        # status.debug_message(f"Starting challenge container {self.challenge_container} from {image_name}...")
-        # # Create a temp file to store the output from the docker run command
-        # with tempfile.NamedTemporaryFile(mode='w', delete=False) as f:
-        #     challenge_server_logfile = f.name
-        # self.challenge_server_log = open(challenge_server_logfile, 'w+b')
-        # run_cmd = ['docker', 'run'] + \
-        #     ['--network', self.network] + \
-        #     ['--platform', 'linux/amd64', '--rm'] + \
-        #     (['--privileged'] if self.challenge.get('privileged', False) else []) + \
-        #     ['--name', self.challenge_container, image_name]
-        # status.debug_message(f"Running command: " + ' '.join(shlex.quote(arg) for arg in run_cmd), truncate=False)
-        # self.challenge_server_proc = subprocess.Popen(
-        #     run_cmd,
-        #     stdout=self.challenge_server_log,
-        #     stderr=subprocess.STDOUT,
-        # )
-        # # Wait 0.5s for the server to start
-        # try:
-        #     self.challenge_server_proc.wait(timeout=0.5)
-        #     # If we get here then something went wrong
-        #     self.challenge_server_output = self.get_server_logs()
-        #     self.challenge_server_log.close()
-        #     os.remove(self.challenge_server_log.name)
-        #     command = ' '.join(shlex.quote(arg) for arg in self.challenge_server_proc.args)
-        #     status.debug_message(f"Challenge server failed to start with command: {command}", truncate=False)
-        #     status.debug_message(f"Output from challenge server:\n{self.challenge_server_output}", truncate=False)
-        #     raise RuntimeError(f"Failed to start challenge server: {self.challenge_container}")
-        # except subprocess.TimeoutExpired:
-        #     pass
-
     def stop_challenge_container(self):
         if self.disable_docker:
             return
@@ -293,37 +227,6 @@ class CTFChallenge:
                 check=True, capture_output=True,
             )
             return
-        # if not self.challenge_container: return
-        # status.debug_message(f"Stopping challenge server {self.challenge_container}")
-        # self.challenge_server_proc.terminate()
-        # try:
-        #     self.challenge_server_proc.wait(timeout=5)
-        # except subprocess.TimeoutExpired:
-        #     status.debug_message(f"Challenge server {self.challenge_container} did not stop within 5s, trying docker stop.")
-        #     subprocess.run(
-        #         ['docker', 'stop', self.challenge_container],
-        #         capture_output=True,
-        #     )
-        #     self.challenge_server_proc.wait()
-        # self.challenge_server_output = self.get_server_logs()
-        # self.challenge_server_log.close()
-        # os.remove(self.challenge_server_log.name)
-
-    def check_flag(self, resp : str):
-        # Check if the flag is in the response; also check version with
-        # escaped underscores because the model is writing Markdown and
-        # sometimes gets over-eager about escaping things. Would be nice
-        # to properly unescape the response with a Markdown parser but
-        # apparently that's more difficult than it should be.
-        unescaped_resp = resp.replace('\\_','_')
-        if self.real_flag in resp or self.real_flag in unescaped_resp:
-            status.print(
-                f"\n[red bold]Correct flag found in the output:[/red bold] [green]{self.real_flag}[/green]",
-                markup=True)
-            self.solved = True
-            return True
-        else:
-            return False
 
     def __enter__(self):
         # If there are files, copy them into a temporary directory
@@ -377,7 +280,3 @@ class CTFChallenge:
     @cached_property
     def short_category(self) -> str:
         return category_short[self.category]
-
-    @property
-    def canonical_oci_archive(self) -> Path:
-        return self.challenge_json.parent / f"{self.canonical_name}.tar"
