@@ -18,10 +18,11 @@ from .tools.manager import TOOLSETS, GiveUpException, Tool, CommandExec
 SCRIPT_DIR = Path(__file__).parent.parent.resolve()
 
 class CTFConversation:
-    def __init__(self, challenge : CTFEnvironment, args : dict, config=None):
+    def __init__(self, env : CTFEnvironment, args : dict, config=None):
         self.args = args
-        self.chal = challenge
-        self.volume = self.chal.tmpdir
+        self.env = env
+        self.chal = self.env.challenge
+        self.volume = self.env.tmpdir
         self.available_functions : dict[str,Tool] = {}
         for tool in TOOLSETS.get(self.chal.category, TOOLSETS['default']):
             tool_instance = tool(self.chal)
@@ -163,7 +164,7 @@ class CTFConversation:
             logfilename = Path(self.args.logfile)
             logdir = logfilename.parent
         else:
-            logdir = SCRIPT_DIR / f"logs/{self.chal.category}/{self.chal.chaldir.name}"
+            logdir = SCRIPT_DIR / f"logs/{self.env.challenge.category}/{self.env.challenge.challenge_dir.name}"
             timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
             logfilename = logdir / f"conversation.{timestamp}.json"
         logdir.mkdir(parents=True, exist_ok=True)

@@ -6,13 +6,13 @@ GHIDRA = SCRIPT_DIR / 'ghidra_11.0.1_PUBLIC/support/analyzeHeadless'
 
 class CommandExec(Tool):
     NAME = "run_command"
-    def __init__(self, challenge: "CTFEnvironment"):
+    def __init__(self, environment: "CTFEnvironment"):
         super().__init__()
-        self.challenge = challenge
-        self.container_image = challenge.container_image
-        self.container_name = challenge.container_name
-        self.network = challenge.network
-        self.volume = challenge.tmpdir
+        self.environment = environment
+        self.container_image = environment.container_image
+        self.container_name = environment.container_name
+        self.network = environment.network
+        self.volume = environment.tmpdir
 
     def setup(self):
         self.start_docker()
@@ -98,10 +98,10 @@ class CommandExec(Tool):
 
 class CheckFlag(Tool):
     NAME = "check_flag"
-    def __init__(self, challenge: "CTFEnvironment"):
+    def __init__(self, environment: "CTFEnvironment"):
         super().__init__()
-        self.challenge = challenge
-        self.real_flag = challenge.real_flag
+        self.challenge = environment
+        self.real_flag = environment.challenge.flag
 
     def __call__(self, flag: Annotated[str,"the flag to check"]):
         """Check if a flag is correct."""
@@ -120,10 +120,10 @@ class CheckFlag(Tool):
 
 class CreateFile(Tool):
     NAME = "createfile"
-    def __init__(self, challenge: "CTFEnvironment"):
-        super().__init__(challenge=challenge)
-        self.challenge = challenge
-        self.container_name = challenge.container_name
+    def __init__(self, environment: "CTFEnvironment"):
+        super().__init__(environment=environment)
+        self.environment = environment
+        self.container_name = environment.container_name
 
     def __call__(self,
                  path: Annotated[str,"path where the file should be created; relative paths will be relative to /home/ctfplayer/"],
@@ -181,9 +181,9 @@ class CreateFile(Tool):
 
 class GiveUp(Tool):
     NAME = "give_up"
-    def __init__(self, challenge: "CTFEnvironment"):
-        super().__init__(challenge=challenge)
-        self.challenge = challenge
+    def __init__(self, environment: "CTFEnvironment"):
+        super().__init__(environment=environment)
+        self.environment = environment
 
     def __call__(self,
                  confirm: Annotated[bool,"a boolean flag to confirm that you want to give up"]):
@@ -195,9 +195,10 @@ class GiveUp(Tool):
 class Decompile(Tool):
     NAME = "decompile_function"
     CATEGORIES = {CTFCategories.rev, CTFCategories.pwn, CTFCategories.crypto}
-    def __init__(self, challenge: "CTFEnvironment"):
+    def __init__(self, environment: "CTFEnvironment"):
         super().__init__()
-        self.challenge = challenge
+        self.environment = environment
+        self.challenge = self.environment.challenge
         self._decomp_cache = {}
 
     def __call__(self,
@@ -231,7 +232,7 @@ class Decompile(Tool):
         # Look for the decompilation output in "decomp"
         basename = Path(binary).name
         if basename not in self._decomp_cache:
-            decomp_output = SCRIPT_DIR / f"decomp/{self.challenge.category}/{self.challenge.chaldir.name}/{basename}.decomp.json"
+            decomp_output = SCRIPT_DIR / f"decomp/{self.challenge.category}/{self.challenge.challenge_dir.name}/{basename}.decomp.json"
             if decomp_output.exists():
                 self._decomp_cache[basename] = json.loads(decomp_output.read_text())
             else:
@@ -246,7 +247,7 @@ class Decompile(Tool):
 
     def run_ghidra(self, binary, output):
         status.debug_message(f"Running Ghidra to decompile {binary}...")
-        binary_paths = self.challenge.chaldir.glob(f'**/{binary}')
+        binary_paths = self.challenge.challenge_dir.glob(f'**/{binary}')
         real_binary = next(binary_paths, None)
         if not real_binary or not real_binary.exists():
             return False
@@ -264,9 +265,10 @@ class Decompile(Tool):
 class Disassemble(Tool):
     NAME = "disassemble_function"
     CATEGORIES = {CTFCategories.rev, CTFCategories.pwn, CTFCategories.crypto}
-    def __init__(self, challenge: "CTFEnvironment"):
+    def __init__(self, environment: "CTFEnvironment"):
         super().__init__()
-        self.challenge = challenge
+        self.environment = environment
+        self.challenge = self.environment.challenge
         self._disasm_cache = {}
 
     def __call__(self,

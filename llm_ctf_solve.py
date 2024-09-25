@@ -80,7 +80,7 @@ def main():
     challenge = CTFChallenge(dataset.get(args.challenge), dataset.basedir)
 
     prompt_manager = PromptManager(prompt_set=args.prompt_set, config=config)
-    with CTFEnvironment(challenge_json, args) as chal, \
+    with CTFEnvironment(challenge=challenge, args=args) as chal, \
          CTFConversation(chal, args, config=config) as convo:
         convo.run()
 

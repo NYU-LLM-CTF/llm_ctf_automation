@@ -192,7 +192,7 @@ class Tool:
                 cls.parameters[p]['required'] = False
             cls.parameters[p]['python_type'] = hints[p]
 
-    def __init__(self, challenge: Optional["CTFEnvironment"] = None):
+    def __init__(self, environment: Optional["CTFEnvironment"] = None):
         pass
 
     @classmethod
