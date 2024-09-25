@@ -58,7 +58,7 @@ def main():
     parser.add_argument("--dataset", help="Path to the dataset JSON")
     parser.add_argument("-q", "--quiet", action="store_true", help="don't print messages to the console")
     parser.add_argument("-d", "--debug", action="store_true", help="print debug messages")
-    parser.add_argument("-M", "--model", help="the model to use (default is backend-specific)", choices=model_list)
+    parser.add_argument("-M", "--model", default="", help="the model to use (default is backend-specific)", choices=model_list)
     parser.add_argument("-C", "--container-image", default="ctfenv", help="the Docker image to use for the CTF environment")
     parser.add_argument("-n", "--container-name", default=f"ctfenv_{os.getuid()}", help="the Docker container name to set for the CTF environment")
     parser.add_argument("-N", "--network", default="ctfnet", help="the Docker network to use for the CTF environment")
@@ -80,7 +80,6 @@ def main():
     parser.add_argument("--experiment-name", default="default", help="Experiment name tag")
     parser.add_argument("--database", default="", help="Database of the competition, used for log directory")
     parser.add_argument("--skip_exist", action="store_true", help="Skip existing logs and experiments")
-
     args = parser.parse_args()
     config: dict = load_config(args=args)
     overwrite_args(args, config)
@@ -90,22 +89,23 @@ def main():
     challenge = CTFChallenge(dataset.get(args.challenge), dataset.basedir)
 
     # Create logfile
-    timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
+    # timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
     logdir = Path(args.logdir).expanduser().resolve()
     logdir.mkdir(parents=True, exist_ok=True)
     logfile = logdir / f"{challenge.canonical_name}.json"
 
     environment = CTFEnvironment(challenge, args.container_image, args.network)
     prompt_manager = PromptManager(prompt_set=args.prompt_set, config=config)
-    backend = Backend.from_name(args.backend)(prompt_manager.system_message(challenge), environment.available_tools, model=args.model, api_key=args.api_key)
+    backend = Backend.from_name(args.backend)(prompt_manager.system_message(challenge), environment.available_tools, args)
 
-    if not os.path.exists(logfile) or not args.skip_exist:
-        if not args.skip_exist:
-            os.remove(logfile)
-        with CTFConversation(environment, challenge, prompt_manager, backend, logfile, max_rounds=args.max_rounds, max_cost=args.max_cost) as convo:
-            convo.run()
+    if os.path.exists(logfile) and args.skip_exist:
+        status.print(f"[red bold]Challenge is unsolved; skipping[/red bold]", markup=True)
     else:
-        status.print(f"[red bold]Challenge is unsolved after; skipping[/red bold]", markup=True)
+        if os.path.exists(logfile):
+            os.remove(logfile)
+        with CTFConversation(environment, challenge, prompt_manager, backend, logfile, 
+                            max_rounds=args.max_rounds, max_cost=args.max_cost) as convo:
+            convo.run()
 
 if __name__ == "__main__":
     main()
