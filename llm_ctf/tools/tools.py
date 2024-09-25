@@ -302,7 +302,7 @@ class Disassemble(Tool):
     def disassemble(self, binary, function):
         # Look for the disassembly output in "decomp"
         basename = Path(binary).name
-        disasm_output = SCRIPT_DIR / f"decomp/{self.challenge.category}/{self.challenge.chaldir.name}/{basename}.disas.json"
+        disasm_output = SCRIPT_DIR / f"decomp/{self.challenge.category}/{self.challenge.challenge_dir.name}/{basename}.disas.json"
 
         if basename not in self._disasm_cache:
             if disasm_output.exists():
@@ -319,7 +319,7 @@ class Disassemble(Tool):
 
     def run_ghidra(self, binary, output):
         status.debug_message(f"Running Ghidra to disassemble {binary}...")
-        binary_paths = self.challenge.chaldir.glob(f'**/{binary}')
+        binary_paths = self.challenge.challenge_dir.glob(f'**/{binary}')
         real_binary = next(binary_paths, None)
         if not real_binary or not real_binary.exists():
             return False

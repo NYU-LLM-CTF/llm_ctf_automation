@@ -57,9 +57,9 @@ class CTFConversation:
         # to properly unescape the response with a Markdown parser but
         # apparently that's more difficult than it should be.
         unescaped_resp = resp.replace('\\_','_')
-        if self.real_flag in resp or self.real_flag in unescaped_resp:
+        if self.chal.flag in resp or self.chal.flag in unescaped_resp:
             status.print(
-                f"\n[red bold]Correct flag found in the output:[/red bold] [green]{self.real_flag}[/green]",
+                f"\n[red bold]Correct flag found in the output:[/red bold] [green]{self.chal.flag}[/green]",
                 markup=True)
             self.solved = True
             return True
@@ -200,7 +200,7 @@ class CTFConversation:
         try:
             while True:
                 for resp in self.run_conversation_step(next_msg):
-                    if self.solved or (resp and self.check_flag(resp)):
+                    if self.chal.solved or (resp and self.check_flag(resp)):
                         status.print(
                             "[red bold]Challenge solved by our robot overlords![/red bold]",
                             markup=True
