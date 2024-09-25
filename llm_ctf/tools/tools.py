@@ -9,6 +9,7 @@ class CommandExec(Tool):
     def __init__(self, environment: "CTFEnvironment"):
         super().__init__()
         self.environment = environment
+        self.challenge = self.environment.challenge
         self.container_image = environment.container_image
         self.container_name = environment.container_name
         self.network = environment.network
@@ -23,7 +24,7 @@ class CommandExec(Tool):
             volumes = ['-v', f'{self.volume}:/home/ctfplayer/ctf_files']
         else:
             volumes = []
-        if self.challenge.disable_docker:
+        if self.environment.disable_docker:
             return
         subprocess.run(
             ['docker', 'run'] + \
@@ -45,7 +46,7 @@ class CommandExec(Tool):
 
     def stop_docker(self):
         status.debug_message(f"Stopping client container {self.container_name}...")
-        if self.challenge.disable_docker:
+        if self.environment.disable_docker:
             return
         subprocess.run(['docker', 'stop', self.container_name], capture_output=True)
 

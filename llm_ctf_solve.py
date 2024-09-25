@@ -74,12 +74,11 @@ def main():
     config: dict = load_config(args=args)
     overwrite_args(args, config)
     status.set(quiet=args.quiet, debug=args.debug, disable_markdown=args.disable_markdown)
-    challenge_json = Path(args.challenge_json).resolve()
+    # challenge_json = Path(args.challenge_json).resolve()
 
     dataset = CTFDataset(args.dataset)
     challenge = CTFChallenge(dataset.get(args.challenge), dataset.basedir)
 
-    prompt_manager = PromptManager(prompt_set=args.prompt_set, config=config)
     with CTFEnvironment(challenge=challenge, args=args) as chal, \
          CTFConversation(chal, args, config=config) as convo:
         convo.run()

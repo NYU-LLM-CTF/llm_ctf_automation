@@ -40,12 +40,12 @@ class CTFEnvironment:
 
     def __enter__(self):
         # If there are files, copy them into a temporary directory
-        if self.has_files:
+        if self.challenge.has_files:
             self._tmpdir = tempfile.TemporaryDirectory()
             self.tmpdir = self._tmpdir.__enter__()
             # Set full permissions on the tmp folder for access inside the docker.
             os.chmod(self.tmpdir, 0o777)
-            for filename in self.challenge["files"]:
+            for filename in self.challenge.files:
                 src = (self.challenge.challenge_dir / filename).resolve()
                 dst = Path(self.tmpdir) / filename
                 dst.parent.mkdir(parents=True, exist_ok=True)

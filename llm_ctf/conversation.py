@@ -1,6 +1,6 @@
 import json
 import time
-import datetime
+from datetime import datetime
 import subprocess
 import os
 import traceback as tb
@@ -25,7 +25,7 @@ class CTFConversation:
         self.volume = self.env.tmpdir
         self.available_functions : dict[str,Tool] = {}
         for tool in TOOLSETS.get(self.chal.category, TOOLSETS['default']):
-            tool_instance = tool(self.chal)
+            tool_instance = tool(self.env)
             self.available_functions[tool_instance.name] = tool_instance
         self.rounds = 0
         self.start_time = datetime.now()
