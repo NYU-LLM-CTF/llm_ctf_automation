@@ -6,6 +6,7 @@ import os
 import traceback as tb
 import openai
 import anthropic
+import getpass
 
 from pathlib import Path
 from .environment import CTFEnvironment
@@ -160,15 +161,15 @@ class CTFConversation:
             self.finish_reason = "exception"
 
         # Save the conversation to a file
-        if self.args.logfile:
-            logfilename = Path(self.args.logfile)
-            logdir = logfilename.parent
+        if self.args.logdir:
+            logdir = Path(self.args.logdir).resolve()
+            logfile = logdir / f"{self.chal.canonical_name}.json"
         else:
-            logdir = SCRIPT_DIR / f"logs/{self.env.challenge.category}/{self.env.challenge.challenge_dir.name}"
+            logdir = SCRIPT_DIR / f"logs/{getpass.getuser()}/{self.args.experiment_name}_{self.args.database}_{self.args.index}"
             timestamp = datetime.now().strftime("%Y%m%d-%H%M%S")
-            logfilename = logdir / f"conversation.{timestamp}.json"
+            logfile = logdir / f"{self.chal.canonical_name}.json"
         logdir.mkdir(parents=True, exist_ok=True)
-        logfilename.write_text(json.dumps(
+        logfile.write_text(json.dumps(
             {
                 "args": vars(self.args),
                 "messages": self.backend.get_timestamped_messages(),
@@ -186,7 +187,7 @@ class CTFConversation:
             },
             indent=4
         ))
-        status.print(f"Conversation saved to {logfilename}")
+        status.print(f"Conversation saved to {logfile}")
 
     def run(self):
         next_msg = self.prompt_manager.initial_message(self.chal)

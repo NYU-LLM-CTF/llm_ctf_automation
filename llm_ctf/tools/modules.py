@@ -9,7 +9,6 @@ if TYPE_CHECKING:
     from llm_ctf_solve import CTFEnvironment
 from tool_def_generator import ToolDefGenerator
 from pathlib import Path
-from ..ctflogging import status
 import inspect
 import json
 import subprocess

@@ -10,9 +10,8 @@ from typing import List
 import yaml
 from .utilities.dockertool import DockerClient
 
-from nyuctf import challenge
+from nyuctf.challenge import CTFChallenge
 from pathlib import Path
-from .ctflogging import status
 
 _rep_underscore = re.compile(r'_+')
 def safe_name(s: str) -> str:
@@ -25,7 +24,7 @@ def safe_name(s: str) -> str:
     return safe
 
 class CTFEnvironment:
-    def __init__(self, challenge: challenge, args=None):
+    def __init__(self, challenge: CTFChallenge, args=None):
         self.args = args.__dict__ if args else {}
         self.disable_docker = self.args.get("disable_docker", False)
 

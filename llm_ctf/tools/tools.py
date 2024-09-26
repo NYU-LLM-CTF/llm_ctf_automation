@@ -1,5 +1,6 @@
 from .modules import *
 from .exceptions import *
+from ..ctflogging import status
 
 SCRIPT_DIR = Path(__file__).parent.parent.parent.resolve()
 GHIDRA = SCRIPT_DIR / 'ghidra_11.0.1_PUBLIC/support/analyzeHeadless'
