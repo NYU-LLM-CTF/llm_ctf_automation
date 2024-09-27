@@ -63,7 +63,7 @@ RUN pip install -U pip
 RUN pip install pwntools gmpy2 angr chepy
 RUN mkdir ctf_files
 RUN curl https://raw.githubusercontent.com/c3-ctf/ctftools/master/install.sh | sh
-RUN cargo install project_ares
+# RUN cargo install project_ares
 
 # Copy in the entrypoint script
 COPY entrypoint.sh /home/$USERNAME/.entrypoint.sh

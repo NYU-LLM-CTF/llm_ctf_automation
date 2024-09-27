@@ -1,56 +1,15 @@
+from .utils import *
 from argparse import Namespace
 from pathlib import Path
-from typing import Any, Callable, List, Literal, Tuple, Optional, NamedTuple, Union
-import re
-import os
-
-from anthropic import Anthropic, RateLimitError
-from anthropic.types.content_block import ContentBlock as AnthropicMessage
-import backoff
 
 from llm_ctf.formatters.vbpy import VBPYFormatter
 from ..formatters.formatter import Formatter
-from llm_ctf.toolset.tool_manager import Tool, ToolCall, ToolResult
-from ..ctflogging import status
 from .backend import (AssistantMessage, Backend, ErrorToolCalls, FakeToolCalls,
                       SystemMessage, UnparsedToolCalls, UserMessage)
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessage
-from functools import partial
-from rich.syntax import Syntax
+from ..tools.manager import Tool, ToolCall, ToolResult
 from rich.pretty import Pretty
-PythonSyntax = partial(Syntax, lexer="python", theme=status.THEME, line_numbers=False)
-
-# Mixtral has an unfortunate habit of escaping underscores in its
-# XML tag names. Fix that here:
-XML_TAG_REGEX = re.compile(r'<[^>]*?>')
-def fix_xml_tag_names(s : str) -> str:
-    # Process each XML tag separately to handle multiple escaped underscores
-    def unescape_underscores(match : re.Match):
-        # Replace all escaped underscores within the tag
-        return match.group(0).replace(r'\_', '_')
-    # Find all XML tags and apply the unescape function
-    return XML_TAG_REGEX.sub(unescape_underscores, s)
-
-def fix_xml_seqs(seqs : List[str]) -> List[str]:
-    return list(set(seqs +[fix_xml_tag_names(seq) for seq in seqs]))
-
-class ModelQuirks(NamedTuple):
-    """Model-specific quirks for the VLLM backend."""
-    # Whether the model supports system messages
-    supports_system_messages: bool
-    # Whether the model needs tool use demonstrations (most do)
-    needs_tool_use_demonstrations: bool = True
-    # Function to run to clean up the model's content output
-    clean_content: Optional[Callable[[str], str]] = None
-    # Function to run to clean up the model's tool output
-    clean_tool_use: Optional[Callable[[str], str]] = None
-    # Function to run to augment the stop sequences from the formatter
-    augment_stop_sequences: Optional[Callable[[List[str]], List[str]]] = None
-    # Function to run to augment the start sequences from the formatter
-    augment_start_sequences: Optional[Callable[[List[str]], List[str]]] = None
-
-NO_QUIRKS = ModelQuirks(supports_system_messages=True)
 
 class VLLMBackend(Backend):
     NAME = 'vllm'
@@ -109,6 +68,8 @@ class VLLMBackend(Backend):
     def client_setup(self, args):
         if args.api_endpoint:
             base_url = args.api_endpoint
+        elif "MODEL_URL" in KEYS:
+            base_url = KEYS["MODEL_URL"].strip()
         else:
             base_url = "http://isabella:8000/v1"
         self.client = OpenAI(
@@ -393,13 +354,13 @@ class VLLMBackend(Backend):
         tool_results = self.run_tools_internal(self.last_tool_calls)
         self.append(self.tool_results_message(tool_results))
         _, content, has_tool_calls = self.call_model()
-        return content, has_tool_calls
+        return content, has_tool_calls, 0
 
     def send(self, message : str) -> Tuple[Optional[str],bool]:
         self.append(self.user_message(message))
         self.messages.append(UserMessage(message))
         _, content, has_tool_calls = self.call_model()
-        return content, has_tool_calls
+        return content, has_tool_calls, 0
 
     def append(self, message : Union[dict,ChatCompletionMessage,List[ToolResult]]):
         if isinstance(message, dict):
@@ -415,68 +376,3 @@ class VLLMBackend(Backend):
 
     def get_system_message(self):
         return self.system_message_content
-
-class AnthropicBackend(VLLMBackend):
-    NAME = 'anthropic'
-    MODELS = [
-        "claude-3-haiku-20240307",
-        "claude-3-sonnet-20240229",
-        "claude-3-opus-20240229",
-    ]
-    QUIRKS = {
-        "claude-3-haiku-20240307": NO_QUIRKS,
-        "claude-3-sonnet-20240229": NO_QUIRKS,
-        "claude-3-opus-20240229": NO_QUIRKS,
-    }
-    API_KEY_PATH = "~/.config/anthropic/api_key"
-
-    def client_setup(self, args):
-        if args.api_key is None:
-            if "ANTHROPIC_API_KEY" in os.environ:
-                api_key = os.environ["ANTHROPIC_API_KEY"]
-            elif os.path.exists(os.path.expanduser(self.API_KEY_PATH)):
-                api_key = open(os.path.expanduser(self.API_KEY_PATH), "r").read().strip()
-            else:
-                raise ValueError(f"No Anthropic API key provided and none found in ANTHROPIC_API_KEY or {self.API_KEY_PATH}")
-        os.environ["ANTHROPIC_API_KEY"] = api_key
-        self.client = Anthropic(api_key=api_key)
-
-    def append(self, message : dict|AnthropicMessage|List[ToolResult]):
-        if isinstance(message, dict):
-            conv_message = message
-        elif isinstance(message, list):
-            conv_message = self.tool_results_message(message)
-        elif isinstance(message, AnthropicMessage):
-            conv_message = {
-                "role": "assistant",
-                "content": message.text,
-            }
-        else:
-            raise ValueError(f"Unknown message type: {type(message)}")
-        self.outgoing_messages.append(conv_message)
-        self.messages.append(message)
-
-    @backoff.on_exception(backoff.expo, RateLimitError, max_tries=5)
-    def _call_model(self, stop_seqs) -> AnthropicMessage:
-        return self.client.messages.create(
-            model=self.model,
-            messages=self.outgoing_messages[1:], # Skip system message
-            temperature=1,
-            max_tokens=1024,
-            stop_sequences=stop_seqs,
-            system=self.get_system_message(),
-        )
-
-    def call_model_internal(self, start_seqs, stop_seqs):
-        start_seqs, stop_seqs = self.formatter.get_delimiters()
-        response = self._call_model(stop_seqs)
-        if response.stop_reason == "stop_sequence":
-            response.content[0].text += response.stop_sequence
-
-        if any(s in response.content[0].text for s in start_seqs):
-            has_tool_calls = True
-        else:
-            has_tool_calls = False
-        status.debug_message(f"Response:\n{response.content[0].text}", truncate=False)
-        message = response.content[0]
-        return response, message.text, message, has_tool_calls

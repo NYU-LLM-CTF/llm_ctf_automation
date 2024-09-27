@@ -46,7 +46,7 @@ class Status:
 
     def system_message(self, message):
         if not self.quiet:
-            self.console.print("System Prompt:", style="red bold")
+            self.console.print("[System Prompt]\n", style="red bold")
             if not self.disable_markdown:
                 m = Markdown(message, code_theme=self.THEME)
             else:

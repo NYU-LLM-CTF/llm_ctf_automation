@@ -1,0 +1,2 @@
+class GiveUpException(Exception):
+    pass

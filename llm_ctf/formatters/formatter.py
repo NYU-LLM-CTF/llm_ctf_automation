@@ -4,7 +4,7 @@ from typing import List, Tuple, Type
 from ..prompts import PromptManager
 from ..ctflogging import status
 from ..utils import str2bool
-from ..toolset.tool_manager import Tool, ToolCall, ToolResult
+from ..tools.manager import Tool, ToolCall, ToolResult
 
 class Formatter(ABC):
     NAME : str

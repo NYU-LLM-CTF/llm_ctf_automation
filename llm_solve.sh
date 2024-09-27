@@ -5,8 +5,8 @@ valid_opts=0
 # Default values
 trials=3 # Number of trials to run
 force=0 # Whether to force re-running the solver even if the log exists
-rounds=30 # How many conversation rounds to run
-backend="openai"
+rounds=10 # How many conversation rounds to run
+backend="anthropic"
 
 while getopts ":y:e:t:c:m:T:r:f" opt; do
     case $opt in
@@ -66,7 +66,7 @@ function cleanup_container {
         sleep 1
     done
 }
-chal_path="LLM_CTF_Dataset_Dev/${year}/${event}/${category}/${chal}"
+chal_path="LLM_CTF_Database/${year}/${event}/${category}/${chal}"
 echo "Start evaluation on ${year}/${event}/${category}/${chal}"
 # bash setup_chals.sh -y "${year}" -e "${event}" -t "${category}" -c "${chal}"
 safe_model=$(echo "${model}" | tr '/' '_')
@@ -83,5 +83,5 @@ for i in $(seq 1 $trials) ; do
     fi
     cleanup_container
     printf '[%d/%d] %s attempting challenge /%s/%s/%s/%s\n' $i $trials "${model}" "${year}" "${event}" "${category}" "${chal}"
-    python llm_ctf_solve.py -d -M ${model} -m "${rounds}" -L "${log}" "${chal_path}/challenge.json" --backend "${backend}" "$@"
+    python llm_ctf_solve.py -c "./config/base_config.yaml" -d -M ${model} -m "${rounds}" -L "${log}" "${chal_path}/challenge.json" --backend "${backend}" "$@"
 done
