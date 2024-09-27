@@ -31,7 +31,7 @@ def overwrite_args(args=None, config: dict=None):
         args.experiment_name = config["experiment"].get("name", args.experiment_name)
         args.database = config["experiment"].get("database", args.database)
         args.logdir = str(script_dir / "logs" / getpass.getuser() / f"{args.experiment_name}_{args.database}_{args.index}")
-        args.debug = config["debug"].get("debug", args.debug)
+        # args.debug = config["debug"].get("debug", args.debug)
 
 def load_config(args=None):
     if args.config:
