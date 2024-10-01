@@ -39,7 +39,6 @@ class CTFConversation:
         self.max_cost = max_cost
         # self.config = config
 
-        self.solved = False
         self.rounds = 0
         self.cost = 0
         self.finish_reason = "unknown"
@@ -56,7 +55,7 @@ class CTFConversation:
 
     def run(self):
         next_msg = self.prompt_manager.initial_message(self.challenge)
-        while not self.solved and not self.environment.giveup \
+        while not self.environment.solved and not self.environment.giveup \
                 and self.rounds <= self.max_rounds and self.cost <= self.max_cost:
             try:
                 tools_run = self.run_conversation_step(next_msg)
@@ -80,15 +79,19 @@ class CTFConversation:
                     # Some other error, re-raise
                     raise
 
-        if self.rounds > self.max_rounds:
-            status.print(f"[red bold]Challenge is unsolved after {self.max_rounds} rounds; exiting[/red bold]", markup=True)
-            self.finish_reason = "max_rounds"
-        elif self.cost > self.max_cost:
-            status.print(f"[red bold]Challenge is unsolved after {self.max_cost} dollars of cost; exiting[/red bold]", markup=True)
-            self.finish_reason = "max_cost"
+        # Look for a finish reason
+        if self.environment.solved:
+            status.print("[red bold]Challenge solved by our robot overlords![/red bold]", markup=True)
+            self.finish_reason = "solved"
         elif self.environment.giveup:
             status.print("[red bold]The LLM decided to give up! NGMI.[/red bold]", markup=True)
             self.finish_reason = "give_up"
+        elif self.cost > self.max_cost:
+            status.print(f"[red bold]Challenge is unsolved after {self.max_cost} dollars of cost; exiting[/red bold]", markup=True)
+            self.finish_reason = "max_cost"
+        elif self.rounds > self.max_rounds:
+            status.print(f"[red bold]Challenge is unsolved after {self.max_rounds} rounds; exiting[/red bold]", markup=True)
+            self.finish_reason = "max_rounds"
 
     def run_tools(self, tool_calls: List[ToolCall]) -> Tuple[Optional[str],bool]:
         tool_results = []
@@ -162,7 +165,7 @@ class CTFConversation:
                 # "args": vars(self.args),
                 "messages": self.backend.get_timestamped_messages(),
                 "challenge": self.challenge.challenge_info,
-                "solved": self.solved,
+                "solved": self.environment.solved,
                 "rounds": self.rounds,
                 "cost": self.cost,
                 "debug_log": status.debug_log,

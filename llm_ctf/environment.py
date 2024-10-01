@@ -17,6 +17,8 @@ class CTFEnvironment:
             tool_instance = tool(self)
             self.available_tools[tool_instance.name] = tool_instance
 
+        # The CheckFlag tool can set this to indicated if flag is found
+        self.solved = False
         # The GiveUp tool can set this to give up the challenge
         self.giveup = False
 

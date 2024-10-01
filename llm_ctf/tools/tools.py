@@ -62,6 +62,7 @@ class CheckFlag(Tool):
     NAME = "check_flag"
     def __init__(self, environment: "CTFEnvironment"):
         super().__init__()
+        self.environment = environment
         self.real_flag = environment.challenge.flag
 
     def __call__(self, flag: Annotated[str,"the flag to check"]):
@@ -73,6 +74,7 @@ class CheckFlag(Tool):
         status.print(f"    Actual: [green]{self.real_flag}[/green]", markup=True)
         if flag == self.real_flag:
             status.print(f"[red bold]Correct flag![/red bold]", markup=True)
+            self.environment.solved = True
             return {"correct": True}
         else:
             status.print(f"[red bold]Incorrect flag.[/red bold]", markup=True)
