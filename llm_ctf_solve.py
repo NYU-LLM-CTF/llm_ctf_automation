@@ -36,29 +36,29 @@ def main():
 
     parser.add_argument("--challenge", required=True, help="Name of the challenge")
     parser.add_argument("--dataset", required=True, help="Path to the dataset JSON")
+    parser.add_argument("-c", "--config", help="Config file to run the experiment")
+
     parser.add_argument("-q", "--quiet", action="store_true", help="don't print messages to the console")
     parser.add_argument("-d", "--debug", action="store_true", help="print debug messages")
     parser.add_argument("-M", "--model", help="the model to use (default is backend-specific)", choices=model_list)
     parser.add_argument("-C", "--container-image", default="ctfenv", help="the Docker image to use for the CTF environment")
-    parser.add_argument("-n", "--container-name", default=f"ctfenv_{os.getuid()}", help="the Docker container name to set for the CTF environment")
     parser.add_argument("-N", "--network", default="ctfnet", help="the Docker network to use for the CTF environment")
-    parser.add_argument("-m", "--max-rounds", type=int, default=100, help="maximum number of rounds to run")
     parser.add_argument("--api-key", default=None, help="API key to use when calling the model")
     parser.add_argument("--api-endpoint", default=None, help="API endpoint URL to use when calling the model")
     parser.add_argument("--backend", default="openai", choices=Backend.registry.keys(), help="model backend to use")
     parser.add_argument("--formatter", default="xml", choices=Formatter.registry.keys(), help="prompt formatter to use")
     parser.add_argument("--prompt-set", default="default", help="set of prompts to use")
-    parser.add_argument("--hints", default=[], nargs="+", help="list of hints to provide")
-    parser.add_argument("--disable-docker", default=False, action="store_true", help="disable Docker usage (for debugging)")
+    # TODO add back hints functionality
+    # parser.add_argument("--hints", default=[], nargs="+", help="list of hints to provide")
     parser.add_argument("--disable-markdown", default=False, action="store_true", help="don't render Markdown formatting in messages")
+    parser.add_argument("-m", "--max-rounds", type=int, default=10, help="maximum number of rounds to run")
     parser.add_argument("--max-cost", type=float, default=10, help="maximum cost of the conversation to run")
 
-    # Newly added config options
-    parser.add_argument("--experiment-name", default="default", help="Experiment name tag")
-    parser.add_argument("--skip-exist", default=False, action="store_true", help="Skip existing logs and experiments")
-    parser.add_argument("-c", "--config", default=None, help="Config file to run the experiment")
-    parser.add_argument("-i", "--index", default=0, help="Round index of the experiment")
+    # Log directory options
+    parser.add_argument("--skip-exist", action="store_true", help="Skip existing logs and experiments")
     parser.add_argument("-L", "--logdir", default=str(script_dir / "logs" / os.getlogin()), help="log directory to write the log")
+    parser.add_argument("-n", "--name", help="Experiment name (creates subdir in logdir)")
+    parser.add_argument("-i", "--index", help="Round index of the experiment (creates subdir in logdir)")
 
     args = parser.parse_args()
     config = None
@@ -77,8 +77,7 @@ def main():
         args.backend = config_parameter.get("backend", args.backend)
         args.model = config_parameter.get("model", args.model)
         args.max_cost = config_parameter.get("max_cost", args.max_cost)
-        args.experiment_name = config_experiment.get("name", args.experiment_name)
-        args.logdir = str(script_dir / "logs" / os.getlogin() / f"{args.experiment_name}_round_{args.index}")
+        args.name = config_experiment.get("name", args.name)
         args.debug = config_experiment.get("debug", args.debug)
         args.skip_exist = config_experiment.get("skip_exist", args.skip_exist)
 
@@ -88,8 +87,15 @@ def main():
     challenge = CTFChallenge(dataset.get(args.challenge), dataset.basedir)
 
     logdir = Path(args.logdir).expanduser().resolve()
+    logsubdir = []
+    if args.name:
+        logsubdir.append(args.name)
+    if args.index:
+        logsubdir.append(f"round{args.index}")
+    if len(logsubdir) > 0:
+        logdir = logdir / ("_".join(logsubdir))
     logdir.mkdir(parents=True, exist_ok=True)
-    logfile = Path(args.logdir).resolve() / f"{challenge.canonical_name}.json"
+    logfile = logdir / f"{challenge.canonical_name}.json"
     
     if logfile.exists() and args.skip_exist:
         status.print(f"[red bold]Challenge log {logfile} exists; skipping[/red bold]", markup=True)
