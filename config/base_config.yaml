@@ -1,6 +1,7 @@
 experiment:
   name: "NYU_Baseline_0"
   debug: True
+  skip_exist: True
 
 
 parameter:
