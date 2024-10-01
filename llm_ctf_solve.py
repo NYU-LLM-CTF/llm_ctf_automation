@@ -29,8 +29,7 @@ def overwrite_args(args=None, config: dict=None):
         args.model = config["parameter"].get("model", args.model)
         args.max_cost = config["parameter"].get("max_cost", args.max_cost)
         args.experiment_name = config["experiment"].get("name", args.experiment_name)
-        args.database = config["experiment"].get("database", args.database)
-        args.logdir = str(script_dir / "logs" / getpass.getuser() / f"{args.experiment_name}_{args.database}_{args.index}")
+        args.logdir = str(script_dir / "logs" / getpass.getuser() / f"{args.experiment_name}_round_{args.index}")
         args.debug = config["experiment"].get("debug", args.debug)
 
 def load_config(args=None):
@@ -62,7 +61,6 @@ def main():
     parser.add_argument("-n", "--container-name", default=f"ctfenv_{os.getuid()}", help="the Docker container name to set for the CTF environment")
     parser.add_argument("-N", "--network", default="ctfnet", help="the Docker network to use for the CTF environment")
     parser.add_argument("-m", "--max-rounds", type=int, default=100, help="maximum number of rounds to run")
-    # parser.add_argument("-L", "--logfile", default=None, help="log file to write to")
     parser.add_argument("--api-key", default=None, help="API key to use when calling the model")
     parser.add_argument("--api-endpoint", default=None, help="API endpoint URL to use when calling the model")
     parser.add_argument("--backend", default="openai", choices=Backend.registry.keys(), help="model backend to use")
@@ -75,7 +73,6 @@ def main():
 
     # Newly added config options
     parser.add_argument("--experiment-name", default="default", help="Experiment name tag")
-    parser.add_argument("--database", default="", help="Database of the competition, used for log directory")
     parser.add_argument("--skip_exist", default=False, action="store_true", help="Skip existing logs and experiments")
     parser.add_argument("-c", "--config", default=None, help="Config file to run the experiment")
     parser.add_argument("-i", "--index", default=0, help="Round index of the experiment")
@@ -85,7 +82,6 @@ def main():
     config: dict = load_config(args=args)
     overwrite_args(args, config)
     status.set(quiet=args.quiet, debug=args.debug, disable_markdown=args.disable_markdown)
-    # challenge_json = Path(args.challenge_json).resolve()
 
     dataset = CTFDataset(args.dataset)
     challenge = CTFChallenge(dataset.get(args.challenge), dataset.basedir)
