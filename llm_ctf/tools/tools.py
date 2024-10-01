@@ -1,11 +1,14 @@
-from pathlib import Path
 import subprocess
+import json
+import tempfile
+from pathlib import Path
 from typing_extensions import Annotated
 
 from .modules import Tool, CTFCategories
+from ..ctflogging import status
 
 SCRIPT_DIR = Path(__file__).parent.parent.parent.resolve()
-GHIDRA = SCRIPT_DIR / 'ghidra_11.0.1_PUBLIC/support/analyzeHeadless'
+GHIDRA = SCRIPT_DIR / "ghidra_11.0.1_PUBLIC/support/analyzeHeadless"
 
 # TODO all tools should take the environment container as input, not just the challenge.
 
@@ -95,11 +98,11 @@ class CreateFile(Tool):
         return self.createfile(path, contents)
 
     @staticmethod
-    def _expanduser(path, home='/home/ctfplayer'):
+    def _expanduser(path, home):
         """Expand ~ and ~user constructs in the given path"""
         strpath = str(path)
         if strpath.startswith('~'):
-            strpath = strpath.replace('~', home, 1)
+            strpath = strpath.replace('~', str(home), 1)
         return Path(strpath)
 
     def createfile(self, path, contents, decode_escapes=False):
@@ -111,27 +114,15 @@ class CreateFile(Tool):
                 return {"error": f"Invalid escape sequence in contents: {e}"}
         else:
             contents = contents.encode()
-        path = Path(path)
-        path = self._expanduser(path)
+        path = Path(self._expanduser(path, self.environment.container_home))
         if not path.is_absolute():
-            path = Path('/home/ctfplayer') / path
-        path = str(path)
-        with tempfile.NamedTemporaryFile(mode='wb') as f:
+            path = self.environment.container_home / path
+        with tempfile.NamedTemporaryFile(mode="wb") as f:
             f.write(contents)
             f.flush()
-            tmpfile = f.name
-            # Copy the file into the container
             try:
-                subprocess.run(
-                    ['docker', 'cp', tmpfile, f'{self.environment.container}:{path}'],
-                    check=True, capture_output=True,
-                )
-                # Set ownership to ctfplayer
-                subprocess.run(
-                    ['docker', 'exec', '--user=root', '-it', self.environment.container, 'chown', 'ctfplayer:ctfplayer', path],
-                    check=True, capture_output=True,
-                )
-                return {"success": True, "path": path}
+                path = self.environment.copy_into_container(f.name, path)
+                return {"success": True, "path": str(path)}
             except subprocess.CalledProcessError as e:
                 return {"error": f"Error copying file into container: {e.stderr.decode('utf-8', errors='backslashreplace')}"}
 
@@ -139,13 +130,14 @@ class GiveUp(Tool):
     NAME = "give_up"
     def __init__(self, environment: "CTFEnvironment"):
         super().__init__()
+        self.environment = environment
 
-    def __call__(self,
-                 confirm: Annotated[bool,"a boolean flag to confirm that you want to give up"]):
+    def __call__(self, confirm: Annotated[bool,"a boolean flag to confirm that you want to give up"]):
         """Give up on the challenge"""
         if not confirm:
             return {"error": "You must confirm that you want to give up"}
-        raise GiveUpException()
+        self.environment.giveup = True
+        return {"success": True}
 
 class Decompile(Tool):
     NAME = "decompile_function"

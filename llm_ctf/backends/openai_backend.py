@@ -22,6 +22,8 @@ import backoff  # for exponential backoff
 API_KEY_PATH = "~/.openai/api_key"
 
 def get_tool_calls(otc_calls : List[OAIToolCall]) -> List[ToolCall]:
+    if not otc_calls:
+        return []
     return [ToolCall.create_unparsed(otc.function.name, otc.id, otc.function.arguments) for otc in otc_calls]
 
 class OpenAIBackend(Backend):
@@ -104,7 +106,7 @@ class OpenAIBackend(Backend):
         except json.JSONDecodeError as e:
             status.debug_message(f"Error decoding arguments for {tool.name}: {e}")
             status.debug_message(f"Arguments: {tool_call.arguments}")
-            tool_res = tool_call.error(f"{type(e).__name__} decoding arguments for {function_name}: {e}")
+            tool_res = tool_call.error(f"{type(e).__name__} decoding arguments for {tool.name}: {e}")
             return False, tool_res
         except ValueError as e:
             msg = f"Error extracting parameters for {tool.name}: {e}"

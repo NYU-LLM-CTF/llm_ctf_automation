@@ -2,6 +2,8 @@ import time
 import subprocess
 import os
 import json
+import openai
+import anthropic
 from typing import Tuple, Optional, List
 
 from pathlib import Path
@@ -46,6 +48,7 @@ class CTFConversation:
 
     def __enter__(self):
         self.backend.setup()
+        self.challenge.start_challenge_container()
         self.environment.setup()
 
         self.start_time = now()
@@ -53,12 +56,29 @@ class CTFConversation:
 
     def run(self):
         next_msg = self.prompt_manager.initial_message(self.challenge)
-        while not self.solved and self.rounds <= self.max_rounds and self.cost <= self.max_cost:
-            tools_run = self.run_conversation_step(next_msg)
-            if tools_run == 0:
-                next_msg = "Please proceed to the next step using your best judgment."
-            else:
-                next_msg = None
+        while not self.solved and not self.environment.giveup \
+                and self.rounds <= self.max_rounds and self.cost <= self.max_cost:
+            try:
+                tools_run = self.run_conversation_step(next_msg)
+                if tools_run == 0:
+                    next_msg = "Please proceed to the next step using your best judgment."
+                else:
+                    next_msg = None
+            except KeyboardInterrupt:
+                status.print("[red bold]Interrupted by user[/red bold]", markup=True)
+                self.finish_reason = "user_cancel"
+            # TODO Normalize the ratelimiterrors
+            except (openai.RateLimitError, anthropic.RateLimitError):
+                status.print("[red bold]Rate limit reached![/red bold]", markup=True)
+                self.finish_reason = "rate_limit"
+            except openai.BadRequestError as e:
+                msg = str(e)
+                if "'code': 'context_length_exceeded'" in msg or "'code': 'string_above_max_length'" in msg:
+                    status.print("[red bold]Context length exceeded![/red bold]", markup=True)
+                    self.finish_reason = "context_length"
+                else:
+                    # Some other error, re-raise
+                    raise
 
         if self.rounds > self.max_rounds:
             status.print(f"[red bold]Challenge is unsolved after {self.max_rounds} rounds; exiting[/red bold]", markup=True)
@@ -66,52 +86,9 @@ class CTFConversation:
         elif self.cost > self.max_cost:
             status.print(f"[red bold]Challenge is unsolved after {self.max_cost} dollars of cost; exiting[/red bold]", markup=True)
             self.finish_reason = "max_cost"
-
-        # try:
-        #     while True:
-        #         for resp in convo.run_conversation_step(next_msg):
-        #             if chal.solved or (resp and chal.check_flag(resp)):
-        #                 status.print(
-        #                     "[red bold]Challenge solved by our robot overlords![/red bold]",
-        #                     markup=True
-        #                 )
-        #                 convo.finish_reason = "solved"
-        #                 return 0
-        #             else:
-        #                 # No flag in the response, just keep going
-        #                 pass
-        #         # Check if we returned from the conversation loop because we hit the max rounds
-        #         if convo.rounds > args.max_rounds:
-        #             convo.finish_reason = "max_rounds"
-        #             return 1
-        #         # Otherwise, we returned because the model didn't respond with anything; prompt
-        #         # it to keep going.
-        #         next_msg = "Please proceed to the next step using your best judgment."
-        # except GiveUpException:
-        #     # TODO Shouldn't be handled by exception
-        #     status.print(
-        #         "[red bold]The LLM decided to give up! NGMI.[/red bold]",
-        #         markup=True
-        #     )
-        #     convo.finish_reason = "give_up"
-        # except KeyboardInterrupt:
-        #     status.print(
-        #         "[red bold]Interrupted by user[/red bold]",
-        #         markup=True
-        #     )
-        #     convo.finish_reason = "user_cancel"
-        # # TODO Normalize the ratelimiterrors
-        # except (openai.RateLimitError, anthropic.RateLimitError):
-        #     status.print("[red bold]Rate limit reached![/red bold]", markup=True)
-        #     convo.finish_reason = "rate_limit"
-        # except openai.BadRequestError as e:
-        #     msg = str(e)
-        #     if "'code': 'context_length_exceeded'" in msg or "'code': 'string_above_max_length'" in msg:
-        #         status.print("[red bold]Context length exceeded![/red bold]", markup=True)
-        #         convo.finish_reason = "context_length"
-        #     else:
-        #         # Some other error, re-raise
-        #         raise
+        elif self.environment.giveup:
+            status.print("[red bold]The LLM decided to give up! NGMI.[/red bold]", markup=True)
+            self.finish_reason = "give_up"
 
     def run_tools(self, tool_calls: List[ToolCall]) -> Tuple[Optional[str],bool]:
         tool_results = []
@@ -178,6 +155,7 @@ class CTFConversation:
     def __exit__(self, exc_type, exc_value, traceback):
         self.end_time = now()
         self.environment.teardown(exc_type, exc_value, traceback)
+        self.challenge.stop_challenge_container()
 
         self.logfile.write_text(json.dumps(
             {
