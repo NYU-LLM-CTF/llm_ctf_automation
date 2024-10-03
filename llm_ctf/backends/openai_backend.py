@@ -32,7 +32,7 @@ class OpenAIBackend(Backend):
 
     def __init__(self, system_message: str, tools: dict[str,Tool], model: str = None, api_key: str = None):
         if api_key is None:
-            if "OPENAI_API_KEY" in KEYS:
+            if KEYS and "OPENAI_API_KEY" in KEYS:
                 api_key = KEYS["OPENAI_API_KEY"].strip()
             if "OPENAI_API_KEY" in os.environ:
                 api_key = os.environ["OPENAI_API_KEY"]
