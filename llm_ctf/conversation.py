@@ -26,7 +26,7 @@ def make_call_result(res : ToolResult):
     )
 
 class CTFConversation:
-    def __init__(self, environment: CTFEnvironment, challenge: CTFChallenge, prompt_manager: PromptManager, backend: Backend, logfile: Path, max_rounds:int=30, max_cost:float=1.0):
+    def __init__(self, environment: CTFEnvironment, challenge: CTFChallenge, prompt_manager: PromptManager, backend: Backend, logfile: Path, max_rounds:int=30, max_cost:float=1.0, args=None):
         self.challenge = challenge
         self.environment = environment
         self.prompt_manager = prompt_manager
@@ -38,6 +38,7 @@ class CTFConversation:
         self.max_rounds = max_rounds
         self.max_cost = max_cost
         # self.config = config
+        self.args = args
 
         self.rounds = 0
         self.cost = 0
@@ -164,7 +165,7 @@ class CTFConversation:
 
         self.logfile.write_text(json.dumps(
             {
-                # "args": vars(self.args),
+                "args": vars(self.args),
                 "messages": self.backend.get_timestamped_messages(),
                 "challenge": self.challenge.challenge_info,
                 "solved": self.environment.solved,

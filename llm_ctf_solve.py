@@ -105,7 +105,7 @@ def main():
     prompt_manager = PromptManager(prompt_set=args.prompt_set, config=config)
     backend = Backend.from_name(args.backend)(prompt_manager.system_message(challenge), environment.available_tools, model=args.model, api_key=args.api_key)
 
-    with CTFConversation(environment, challenge, prompt_manager, backend, logfile, max_rounds=args.max_rounds, max_cost=args.max_cost) as convo:
+    with CTFConversation(environment, challenge, prompt_manager, backend, logfile, max_rounds=args.max_rounds, max_cost=args.max_cost, args=args) as convo:
         convo.run()
 
 if __name__ == "__main__":
