@@ -51,19 +51,19 @@ class AnthropicBackend(VLLMBackend):
             return 0
         self.append(self.user_message(message))
         self.messages.append(UserMessage(message))
-        _, content, has_tool_calls = self.call_model()
+        _, content, tool_calls = self.call_model()
         in_token = self.client.count_tokens(message)
         out_token = self.client.count_tokens(content)
         cost = in_token * self.in_price + out_token * self.out_price
-        return content, has_tool_calls, cost
+        return content, tool_calls, cost
     
     def run_tools(self):
         tool_results = self.run_tools_internal(self.last_tool_calls)
         self.append(self.tool_results_message(tool_results))
-        _, content, has_tool_calls = self.call_model()
+        _, content, tool_calls = self.call_model()
         out_token = self.client.count_tokens(content)
         cost = out_token * self.out_price
-        return content, has_tool_calls, cost
+        return content, tool_calls, cost
 
     @backoff.on_exception(backoff.expo, RateLimitError, max_tries=5)
     def _call_model(self, stop_seqs) -> AnthropicMessage:

@@ -253,11 +253,12 @@ class VLLMBackend(Backend):
 
         # Add the cleaned message to the log since the next part may fail
         self.append(message)
-
+        tool_calls = []
         if has_tool_calls:
             # Extract tool calls (but don't parse yet)
             try:
                 tool_calls = self.formatter.extract_tool_calls(fixed_content)
+                # import pdb; pdb.set_trace()
                 self.messages.append(UnparsedToolCalls(original_response, tool_calls, extracted_content))
                 self.last_tool_calls = tool_calls
             except Exception as e:
@@ -278,7 +279,7 @@ class VLLMBackend(Backend):
         else:
             self.last_tool_calls = None
             self.messages.append(AssistantMessage(extracted_content, original_response))
-        return message, extracted_content, has_tool_calls
+        return message, extracted_content, tool_calls
 
     def parse_tool_arguments(self, tool: Tool, tool_call: ToolCall) -> Tuple[bool, ToolCall | ToolResult]:
         # Don't need to parse if the arguments are already parsed;
@@ -358,6 +359,7 @@ class VLLMBackend(Backend):
                 pretty_args = re.sub(r'\[/?#[^\]]+\]', '', pretty_args)
                 status.debug_message(f"Calling {tool.name}:")
                 status.print(PythonSyntax(pretty_args), width=status.WIDTH)
+            # import pdb; pdb.set_trace()
             result = tool.run(parsed_tc)
             if self.args.debug and not demo:
                 status.print(

@@ -47,9 +47,9 @@ class CTFConversation:
         self.tool_time = 0
 
     def __enter__(self):
+        self.environment.setup()
         self.backend.setup()
         self.challenge.start_challenge_container()
-        self.environment.setup()
 
         self.start_time = now()
         return self
