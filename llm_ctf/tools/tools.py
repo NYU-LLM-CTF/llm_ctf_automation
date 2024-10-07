@@ -30,7 +30,7 @@ class CommandExec(Tool):
         """
         # import pdb; pdb.set_trace()
         p = subprocess.Popen(
-            ['docker', 'exec', self.environment.container_image, 'bash', '-c', command],
+            ['docker', 'exec', self.environment.container, 'bash', '-c', command],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE
         )

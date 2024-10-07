@@ -105,7 +105,10 @@ for timestamp,message in js['messages']:
         if message['role'] == 'system':
             status.system_message(message['content'])
         elif message['role'] == 'user':
-            status.user_message(message['content'])
+            if message['hint']:
+                status.hint_message(message['content'])
+            else:
+                status.user_message(message['content'])
         elif message['role'] == 'assistant':
             status.assistant_message(message['content'])
 

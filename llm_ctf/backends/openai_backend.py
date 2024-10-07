@@ -80,10 +80,8 @@ class OpenAIBackend(Backend):
         ).choices[0].message
 
     def _message(self, content : str, role : str) -> dict[str,str]:
-        if role == 'hint':
-            role = 'user'
         return {
-            "role": role,
+            "role": "user" if role == "hint" else role,
             "content": content,
             "hint": role == 'hint',
         }

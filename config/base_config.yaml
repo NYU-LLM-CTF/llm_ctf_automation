@@ -7,8 +7,8 @@ experiment:
 parameter:
   max_rounds: 3
   max_cost: 3
-  backend: "anthropic"
-  model: "claude-3-5-sonnet-20240620"
+  backend: "openai"
+  model: "gpt-4o-2024-05-13"
 
 prompts:
   system: |
