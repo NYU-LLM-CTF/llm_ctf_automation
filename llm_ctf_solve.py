@@ -13,7 +13,7 @@ from nyuctf.dataset import CTFDataset
 from nyuctf.challenge import CTFChallenge
 
 from llm_ctf.ctflogging import status
-from llm_ctf.backends import Backend
+from llm_ctf.backends import Backend, OpenAIBackend, AnthropicBackend, VLLMBackend
 from llm_ctf.formatters import Formatter
 from llm_ctf.prompts.prompts import PromptManager
 from llm_ctf.environment import CTFEnvironment
@@ -103,7 +103,32 @@ def main():
         
     environment = CTFEnvironment(challenge, args.container_image, args.network)
     prompt_manager = PromptManager(prompt_set=args.prompt_set, config=config)
-    backend = Backend.from_name(args.backend)(prompt_manager.system_message(challenge), environment.available_tools, model=args.model, api_key=args.api_key)
+
+    if args.backend == "openai":
+        backend = OpenAIBackend(
+                        prompt_manager.system_message(challenge),
+                        environment.available_tools,
+                        model=args.model,
+                        api_key=args.api_key
+                    )
+    elif args.backend ==  "anthropic":
+        backend = AnthropicBackend(
+                        prompt_manager.system_message(challenge),
+                        environment.available_tools,
+                        prompt_manager,
+                        model=args.model,
+                        api_key=args.api_key
+                    )
+    elif args.backend == "vllm":
+        backend = VLLMBackend(
+                        prompt_manager.system_message(challenge),
+                        environment.available_tools,
+                        prompt_manager,
+                        model=args.model,
+                        api_key=args.api_key,
+                        api_endpoint=args.api_endpoint,
+                        formatter=args.formatter
+                    )
 
     with CTFConversation(environment, challenge, prompt_manager, backend, logfile, max_rounds=args.max_rounds, max_cost=args.max_cost, args=args) as convo:
         convo.run()

@@ -195,17 +195,6 @@ class Backend(ABC):
         """
         pass
 
-    # @abstractmethod
-    # def run_tools(self) -> Tuple[str,bool]:
-    #     """
-    #     Run tools, send the results to the model, and return its response.
-
-    #     Returns:
-    #         (content, has_tool_calls) where has_tool_calls is True if the
-    #         model wants to run more tools.
-    #     """
-    #     raise NotImplementedError
-
     @abstractmethod
     def parse_tool_arguments(self, tool: Tool, tool_call: ToolCall) -> Tuple[bool, ToolCall | ToolResult]:
         """Extract and parse the parameters for a tool call.

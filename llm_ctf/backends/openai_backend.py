@@ -24,6 +24,14 @@ def get_tool_calls(otc_calls : List[OAIToolCall]) -> List[ToolCall]:
         return []
     return [ToolCall.create_unparsed(otc.function.name, otc.id, otc.function.arguments) for otc in otc_calls]
 
+def make_tool_result(res: ToolResult):
+    return dict(
+        name=res.name,
+        role="tool",
+        content=json.dumps(res.result),
+        tool_call_id=res.id,
+    )
+
 class OpenAIBackend(Backend):
     NAME = 'openai'
     MODELS = list(MODEL_INFO[NAME].keys())
@@ -112,11 +120,17 @@ class OpenAIBackend(Backend):
             tool_res = tool_call.error(msg)
             return False, tool_res
 
+    def append(self, message : dict|List[ToolResult]):
+        if isinstance(message, list):
+            self.messages.extend([make_tool_result(r) for r in message])
+        else:
+            self.messages.append(message)
+
     def send(self, message: Optional[str]=None) -> Tuple[Optional[str],bool]:
         if message:
-            self.messages.append(self._user_message(message))
+            self.append(self._user_message(message))
         response = self._call_model()
-        self.messages.append(response)
+        self.append(response)
         in_token = self.count_tokens(message)
         out_token = self.count_tokens(response.content)
         cost = in_token * self.in_price + out_token * self.out_price

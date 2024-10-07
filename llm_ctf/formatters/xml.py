@@ -12,9 +12,9 @@ TOOL_USE_STOP = '</function_calls>'
 class XMLFormatter(Formatter):
     NAME = 'xml'
 
-    def __init__(self, tools: dict[str,Tool], prompt_set='default'):
+    def __init__(self, tools: dict[str,Tool], prompt_manager: PromptManager):
         self.tools = tools
-        self.prompt_manager = PromptManager(prompt_set)
+        self.prompt_manager = prompt_manager
         self.render_delimiters = False
         self.code_blocks = True
         self.delims_in_code_block = True

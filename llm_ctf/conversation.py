@@ -17,14 +17,6 @@ from .environment import CTFEnvironment
 
 now = lambda: time.time()
 
-def make_call_result(res : ToolResult):
-    return dict(
-        name=res.name,
-        role="tool",
-        content=json.dumps(res.result),
-        tool_call_id=res.id,
-    )
-
 class CTFConversation:
     def __init__(self, environment: CTFEnvironment, challenge: CTFChallenge, prompt_manager: PromptManager, backend: Backend, logfile: Path, max_rounds:int=30, max_cost:float=1.0, args=None):
         self.challenge = challenge
@@ -121,7 +113,7 @@ class CTFConversation:
                 status.debug_message(f"Error running {tool.name}: {e}")
                 tool_res = tool_call.error(f"{type(e).__name__} running {tool.name}: {e}")
             tool_results.append(tool_res)
-        return [make_call_result(t) for t in tool_results]
+        return tool_results
 
     def run_conversation_step(self, message: Optional[str]=None):
         if message:
@@ -151,9 +143,9 @@ class CTFConversation:
 
             env_response = "## Tool Responses:"
             for tr in tool_results:
-                env_response += f"\n\n```\n{tr['name']}: {tr['content']}\n```\n"
+                env_response += f"\n\n```\n{tr.name}: {tr.result}\n```\n"
             status.user_message(env_response)
-            self.backend.messages.extend(tool_results)
+            self.backend.append(tool_results)
             return len(tool_calls)
         else:
             return 0 # No tools run

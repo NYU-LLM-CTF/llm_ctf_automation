@@ -39,39 +39,33 @@ class VLLMBackend(Backend):
         ),
     }
 
-    def __init__(self, system_message : str, tools: dict[str,Tool], args : Namespace):
-        self.args = args
-        self.formatter : Formatter = Formatter.from_name(args.formatter)(tools, args.prompt_set)
-        self.prompt_manager = self.formatter.prompt_manager
+    def __init__(self, system_message : str, tools: dict[str,Tool], prompt_manager, model=None, api_key=None, api_endpoint=None, formatter="xml"):
+        self.formatter : Formatter = Formatter.from_name("xml")(tools, prompt_manager)
         self.tools = tools
 
-        if args.model:
-            if args.model not in self.MODELS:
+        if model:
+            if model not in self.MODELS:
                 raise ValueError(f"Invalid model {args.model} for backend. Must be one of {self.MODELS}")
-            self.model = args.model
+            self.model = model
         else:
             self.model = self.MODELS[0]
-            # Update the args object so that the model name will be included in the logs
-            args.model = self.model
+        self.api_key = api_key
+        self.api_endpoint = api_endpoint
 
-        self.client_setup(args)
+        self.client_setup()
         self.quirks = self.QUIRKS.get(self.model, NO_QUIRKS)
         self.system_message_content = system_message
 
-        # Get the vbpy formatter so we can use it to represent a tool call as a
-        # nice Python string
-        self.python_formatter = VBPYFormatter(tools, args.prompt_set)
-
         self.outgoing_messages = []
-        self.last_tool_calls = None
+        self.last_tool_calls = []
 
-    def client_setup(self, args):
-        if args.api_endpoint:
-            base_url = args.api_endpoint
+    def client_setup(self):
+        if self.api_endpoint:
+            base_url = self.api_endpoint
         elif "MODEL_URL" in KEYS:
             base_url = KEYS["MODEL_URL"].strip()
         else:
-            base_url = "http://isabella:8000/v1"
+            raise ValueError(f"No VLLM Endpoint provided")
         self.client = OpenAI(
             api_key = "EMPTY",
             base_url=base_url
@@ -82,79 +76,7 @@ class VLLMBackend(Backend):
         return cls.MODELS
 
     def setup(self):
-        self.add_initial_messages()
-
-    def demo_tool_call(self, tool_name: str, args: dict[str, Any], out:List) -> Literal[""]:
-        tool = self.tools[tool_name]
-        tool_call = tool.make_call(**args)
-        out.append(tool_call)
-        return ""
-
-    def tool_demo(self, template):
-        tool_calls: List[ToolCall] = []
-        def render_tool_calls():
-            return self.prompt_manager.tool_calls(self.formatter, tool_calls)
-        tool_calls_content = self.prompt_manager.render(
-            template,
-            make_tool_call=self.demo_tool_call,
-            dest=tool_calls,
-            render_tool_calls=render_tool_calls,
-        )
-        self.messages.append(FakeToolCalls(tool_calls))
-        self.append(self.assistant_message(tool_calls_content))
-        tool_results = self.run_tools_internal(tool_calls, demo=True)
-        self.append(self.tool_results_message(tool_results))
-        # NB: the tool results are not added to self.messages because they are
-        # added inside of _run_tools_internal.
-
-    def make_demonstration_messages(self):
-        role_states = {
-            'user': {'assistant', 'tool'},
-            'tool': {'assistant', 'tool'},
-            'assistant': {'user'},
-        }
-        demo_templates = self.prompt_manager.env.list_templates(
-            filter_func=lambda s: f'{self.args.prompt_set}/demo_messages' in s
-        )
-        expected_next_roles = {"user"}
-        for msg_num, template in enumerate(sorted(demo_templates)):
-            template_name = Path(template).name
-            match re.match(r'(\d\d)_(user|assistant|tool)', template_name):
-                case None:
-                    status.debug_message(f"Warning: demo message template {template} doesn't "
-                                         f"match expected format; skipping")
-                    continue
-                case m:
-                    num, role = m.groups()
-                    template_stem = f"demo_messages/{m.group(0)}"
-
-            # Do some validation
-            if role not in role_states:
-                status.debug_message(f"Warning: demo message template {template} has "
-                                        f"unexpected role {role}; skipping")
-                continue
-            if int(num) != msg_num:
-                status.debug_message(f"Warning: demo message template {template} has "
-                                        f"unexpected number {num}")
-            if role not in expected_next_roles:
-                status.debug_message(f"Warning: demo message template {template} has "
-                                        f"unexpected role {role}; expected one of {expected_next_roles}")
-            expected_next_roles = role_states[role]
-
-            # Process the demo message
-            match role:
-                case "user":
-                    content = self.prompt_manager.render(template_stem)
-                    self.messages.append(UserMessage(content))
-                    self.append(self.user_message(content))
-                case "assistant":
-                    content = self.prompt_manager.render(template_stem)
-                    self.messages.append(AssistantMessage(content))
-                    self.append(self.assistant_message(content))
-                case "tool":
-                    self.tool_demo(template_stem)
-
-    def add_initial_messages(self):
+        # Add initial messages
         tool_use_prompt = self.formatter.tool_use_prompt()
         self.messages.append(SystemMessage(self.system_message_content, tool_use_prompt))
         self.system_message_content += '\n\n' + tool_use_prompt
@@ -173,19 +95,89 @@ class VLLMBackend(Backend):
         for sm in system_messages:
             self.append(sm)
 
-        if self.quirks.needs_tool_use_demonstrations:
-            num_messages = len(self.outgoing_messages)
-            self.make_demonstration_messages()
-            # Print them out
-            if self.args.debug:
-                for message in self.outgoing_messages[num_messages:]:
-                    if message['role'] == 'user':
-                        status.user_message(message['content'])
-                    elif message['role'] == 'assistant':
-                        content = message['content']
-                        if self.formatter.get_delimiters()[0][0] in message['content']:
-                            content = "🤔 ...thinking... 🤔\n\n" + content
-                        status.assistant_message(content)
+        # TODO this won't work because run_tools has moved to Conversation
+        # if self.quirks.needs_tool_use_demonstrations:
+        #     num_messages = len(self.outgoing_messages)
+        #     self.make_demonstration_messages()
+        #     # Print them out
+        #     if self.args.debug:
+        #         for message in self.outgoing_messages[num_messages:]:
+        #             if message['role'] == 'user':
+        #                 status.user_message(message['content'])
+        #             elif message['role'] == 'assistant':
+        #                 content = message['content']
+        #                 if self.formatter.get_delimiters()[0][0] in message['content']:
+        #                     content = "🤔 ...thinking... 🤔\n\n" + content
+        #                 status.assistant_message(content)
+
+    # TODO won't work without run_tools, make this common across backends
+    # def demo_tool_call(self, tool_name: str, args: dict[str, Any], out:List) -> Literal[""]:
+    #     tool = self.tools[tool_name]
+    #     tool_call = tool.make_call(**args)
+    #     out.append(tool_call)
+    #     return ""
+    # def tool_demo(self, template):
+    #     tool_calls: List[ToolCall] = []
+    #     def render_tool_calls():
+    #         return self.prompt_manager.tool_calls(self.formatter, tool_calls)
+    #     tool_calls_content = self.prompt_manager.render(
+    #         template,
+    #         make_tool_call=self.demo_tool_call,
+    #         dest=tool_calls,
+    #         render_tool_calls=render_tool_calls,
+    #     )
+    #     self.messages.append(FakeToolCalls(tool_calls))
+    #     self.append(self.assistant_message(tool_calls_content))
+    #     tool_results = self.run_tools_internal(tool_calls, demo=True)
+    #     self.append(self.tool_results_message(tool_results))
+        # NB: the tool results are not added to self.messages because they are
+        # added inside of _run_tools_internal.
+    # def make_demonstration_messages(self):
+    #     role_states = {
+    #         'user': {'assistant', 'tool'},
+    #         'tool': {'assistant', 'tool'},
+    #         'assistant': {'user'},
+    #     }
+    #     demo_templates = self.prompt_manager.env.list_templates(
+    #         filter_func=lambda s: f'{self.args.prompt_set}/demo_messages' in s
+    #     )
+    #     expected_next_roles = {"user"}
+    #     for msg_num, template in enumerate(sorted(demo_templates)):
+    #         template_name = Path(template).name
+    #         match re.match(r'(\d\d)_(user|assistant|tool)', template_name):
+    #             case None:
+    #                 status.debug_message(f"Warning: demo message template {template} doesn't "
+    #                                      f"match expected format; skipping")
+    #                 continue
+    #             case m:
+    #                 num, role = m.groups()
+    #                 template_stem = f"demo_messages/{m.group(0)}"
+
+    #         # Do some validation
+    #         if role not in role_states:
+    #             status.debug_message(f"Warning: demo message template {template} has "
+    #                                     f"unexpected role {role}; skipping")
+    #             continue
+    #         if int(num) != msg_num:
+    #             status.debug_message(f"Warning: demo message template {template} has "
+    #                                     f"unexpected number {num}")
+    #         if role not in expected_next_roles:
+    #             status.debug_message(f"Warning: demo message template {template} has "
+    #                                     f"unexpected role {role}; expected one of {expected_next_roles}")
+    #         expected_next_roles = role_states[role]
+
+    #         # Process the demo message
+    #         match role:
+    #             case "user":
+    #                 content = self.prompt_manager.render(template_stem)
+    #                 self.messages.append(UserMessage(content))
+    #                 self.append(self.user_message(content))
+    #             case "assistant":
+    #                 content = self.prompt_manager.render(template_stem)
+    #                 self.messages.append(AssistantMessage(content))
+    #                 self.append(self.assistant_message(content))
+    #             case "tool":
+    #                 self.tool_demo(template_stem)
 
     def user_message(self, content : str):
         return {"role": "user", "content": content}
@@ -234,8 +226,7 @@ class VLLMBackend(Backend):
             start_seqs = self.quirks.augment_start_sequences(start_seqs)
 
         # Make the actual call to the LLM
-        (original_response, original_content,
-         message, has_tool_calls) = self.call_model_internal(start_seqs, stop_seqs)
+        original_response, original_content, message, has_tool_calls = self.call_model_internal(start_seqs, stop_seqs)
 
         # Some models consistently mess up their output in a predictable and fixable way;
         # apply a fix if one is available.
@@ -260,7 +251,7 @@ class VLLMBackend(Backend):
                 estr = f'{type(e).__name__}: {e}'
                 status.debug_message(f"Error extracting tool calls: {estr}")
                 tool_calls = []
-                self.last_tool_calls = None
+                self.last_tool_calls = []
                 self.messages.append(ErrorToolCalls(original_response, estr, extracted_content))
                 self.append(
                     self.tool_results_message([
@@ -272,9 +263,9 @@ class VLLMBackend(Backend):
                     ])
                 )
         else:
-            self.last_tool_calls = None
+            self.last_tool_calls = []
             self.messages.append(AssistantMessage(extracted_content, original_response))
-        return message, extracted_content, has_tool_calls
+        return message, extracted_content
 
     def parse_tool_arguments(self, tool: Tool, tool_call: ToolCall) -> Tuple[bool, ToolCall | ToolResult]:
         # Don't need to parse if the arguments are already parsed;
@@ -291,57 +282,10 @@ class VLLMBackend(Backend):
             status.debug_message(msg)
             return False, tool_call.error(msg)
 
-    def run_tools_internal(self, tool_calls : List[ToolCall], demo=False) -> List[ToolResult]:
-        tool_results = []
-        for tool_call in tool_calls:
-
-            # Find the tool
-            match self.tool_lookup(tool_call):
-                case (False, tool_result):
-                    tool_results.append(tool_result)
-                    self.messages.append(tool_result)
-                    continue
-                case (True, tool):
-                    pass
-
-            # Parse its parameters
-            match self.parse_tool_call_params(tool, tool_call):
-                case (False, tool_result):
-                    tool_results.append(tool_result)
-                    self.messages.append(tool_result)
-                    continue
-                case (True, parsed_tc):
-                    pass
-
-            # Tool execution
-            if self.args.debug and not demo:
-                pretty_args = self.python_formatter.format_tool_call(parsed_tc)
-                # Remove the '[#function][/#function]' tags
-                pretty_args = re.sub(r'\[/?#[^\]]+\]', '', pretty_args)
-                status.debug_message(f"Calling {tool.name}:")
-                status.print(PythonSyntax(pretty_args), width=status.WIDTH)
-            result = tool.run(parsed_tc)
-            if self.args.debug and not demo:
-                status.print(
-                    "Result:",
-                    Pretty(result.result,max_string=status.WIDTH-30),
-                    width=status.WIDTH,
-                )
-            self.messages.append(result)
-            tool_results.append(result)
-        return tool_results
-
-    def run_tools(self):
-        tool_results = self.run_tools_internal(self.last_tool_calls)
-        self.append(self.tool_results_message(tool_results))
-        _, content, has_tool_calls = self.call_model()
-        return content, has_tool_calls, 0
-
     def send(self, message : str) -> Tuple[Optional[str],bool]:
         self.append(self.user_message(message))
-        self.messages.append(UserMessage(message))
-        _, content, has_tool_calls = self.call_model()
-        return content, has_tool_calls, 0
+        _, content = self.call_model()
+        return content, self.last_tool_calls, 0
 
     def append(self, message : Union[dict,ChatCompletionMessage,List[ToolResult]]):
         if isinstance(message, dict):
@@ -354,6 +298,7 @@ class VLLMBackend(Backend):
             raise ValueError(f"Unknown message type: {type(message)}")
         # Save the message to the log we pass back to the model
         self.outgoing_messages.append(conv_message)
+        self.messages.append(UserMessage(message))
 
     def get_system_message(self):
         return self.system_message_content

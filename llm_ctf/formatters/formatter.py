@@ -8,7 +8,7 @@ from ..tools import Tool, ToolCall, ToolResult
 
 class Formatter(ABC):
     NAME : str
-    prompt_manager : PromptManager = None
+    prompt_manager = None
     render_delimiters = True
     code_blocks = True
     delims_in_code_block = False
