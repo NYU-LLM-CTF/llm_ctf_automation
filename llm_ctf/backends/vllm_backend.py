@@ -5,7 +5,7 @@ from pathlib import Path
 from llm_ctf.formatters.vbpy import VBPYFormatter
 from ..formatters.formatter import Formatter
 from .backend import (AssistantMessage, Backend, ErrorToolCalls, FakeToolCalls,
-                      SystemMessage, UnparsedToolCalls, UserMessage)
+                      SystemMessage, UnparsedToolCalls, UserMessage, HintMessage)
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessage
 from ..tools import Tool, ToolCall, ToolResult
@@ -39,7 +39,7 @@ class VLLMBackend(Backend):
         ),
     }
 
-    def __init__(self, system_message : str, tools: dict[str,Tool], args : Namespace):
+    def __init__(self, system_message : str, hint_message: str, tools: dict[str,Tool], args : Namespace):
         self.args = args
         self.formatter : Formatter = Formatter.from_name(args.formatter)(tools, args.prompt_set)
         self.prompt_manager = self.formatter.prompt_manager
@@ -57,6 +57,7 @@ class VLLMBackend(Backend):
         self.client_setup(args)
         self.quirks = self.QUIRKS.get(self.model, NO_QUIRKS)
         self.system_message_content = system_message
+        self.hint_message_content = hint_message
 
         # Get the vbpy formatter so we can use it to represent a tool call as a
         # nice Python string
@@ -157,16 +158,19 @@ class VLLMBackend(Backend):
     def add_initial_messages(self):
         tool_use_prompt = self.formatter.tool_use_prompt()
         self.messages.append(SystemMessage(self.system_message_content, tool_use_prompt))
+        self.messages.append(HintMessage(self.hint_message_content))
         self.system_message_content += '\n\n' + tool_use_prompt
         status.system_message(self.system_message_content)
 
         if self.quirks.supports_system_messages:
             system_messages = [
                 self.system_message(self.system_message_content),
+                # self.user_message(self.hint_message_content)
             ]
         else:
             system_messages = [
                 self.user_message(self.system_message_content),
+                # self.user_message(self.hint_message_content),
                 self.assistant_message("Understood."),
             ]
 
@@ -277,6 +281,40 @@ class VLLMBackend(Backend):
         return message, extracted_content, has_tool_calls
 
     def parse_tool_arguments(self, tool: Tool, tool_call: ToolCall) -> Tuple[bool, ToolCall | ToolResult]:
+        # Don't need to parse if the arguments are already parsed;
+        # this can happen if the tool call was created with parsed arguments
+        if tool_call.parsed_arguments:
+            return True, tool_call
+        try:
+            parsed_tc = self.formatter.extract_params(tool, tool_call)
+            # Upgrade in-place so we get the parsed version in the log
+            tool_call.parsed_arguments = parsed_tc.parsed_arguments
+            return True, tool_call
+        except ValueError as e:
+            msg = f"{type(e).__name__} extracting parameters for {tool_call.name}: {e}"
+            status.debug_message(msg)
+            return False, tool_call.error(msg)
+        
+    def tool_lookup(self, tool_call : ToolCall) -> Tuple[bool,ToolCall|ToolResult]:
+        """Look up a tool by name."""
+        # Tool lookup
+        tool = self.tools.get(tool_call.name)
+        if not tool:
+            if tool_call.name == "[not provided]":
+                msg = "No tool name provided"
+            else:
+                msg = f"Unknown tool {tool_call.name}"
+            status.debug_message(msg)
+            return False, tool_call.error(msg)
+        return True, tool
+
+    def parse_tool_call_params(self, tool: Tool, tool_call: ToolCall) -> Tuple[bool, ToolCall | ToolResult]:
+        """Extract and parse the parameters for a tool call.
+
+        Returns:
+        - (True, tool_call) if successful; the tool_call's parsed_arguments will be set in-place
+        - (False, tool_result) if unsuccessful; the tool_result will contain an error message
+        """
         # Don't need to parse if the arguments are already parsed;
         # this can happen if the tool call was created with parsed arguments
         if tool_call.parsed_arguments:

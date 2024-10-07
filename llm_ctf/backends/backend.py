@@ -78,6 +78,13 @@ class UserMessage:
     role: Literal["user"] = "user"
     def model_dump(self):
         return vars(self)
+    
+@dataclass
+class HintMessage:
+    content: str
+    role: Literal["user"] = "user"
+    def model_dump(self):
+        return vars(self)
 
 @dataclass
 class SystemMessage:

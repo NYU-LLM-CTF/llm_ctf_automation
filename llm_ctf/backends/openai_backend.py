@@ -30,8 +30,8 @@ class OpenAIBackend(Backend):
     NAME = 'openai'
     MODELS = list(MODEL_INFO[NAME].keys())
 
-    def __init__(self, system_message: str, tools: dict[str,Tool], model: str = None, api_key: str = None):
-        if api_key is None:
+    def __init__(self, system_message: str, hint_message: str, tools: dict[str,Tool], args: Namespace):
+        if args.api_key is None:
             if KEYS and "OPENAI_API_KEY" in KEYS:
                 api_key = KEYS["OPENAI_API_KEY"].strip()
             if "OPENAI_API_KEY" in os.environ:
@@ -43,13 +43,14 @@ class OpenAIBackend(Backend):
         self.client = OpenAI(api_key=api_key)
         self.tools = tools
         self.tool_schemas = [ChatCompletionToolParam(**tool.schema) for tool in tools.values()]
-        if model is None:
+        if args.model is None:
             self.model = self.MODELS[0]
         else:
-            if model not in self.MODELS:
+            if args.model not in self.MODELS:
                 raise ValueError(f"Invalid model {model}. Must be one of {self.MODELS}")
-            self.model = model
+            self.model = args.model
         self.system_message = system_message
+        self.hint_message = hint_message
         self.messages += self.get_initial_messages()
         self.in_price = MODEL_INFO[self.NAME][self.model].get("cost_per_input_token", 0)
         self.out_price = MODEL_INFO[self.NAME][self.model].get("cost_per_output_token", 0)
@@ -57,10 +58,12 @@ class OpenAIBackend(Backend):
 
     def setup(self):
         status.system_message(self.system_message)
+        status.hint_message(self.hint_message)
 
     def get_initial_messages(self):
         return [
             self._system_message(self.system_message),
+            self._hint_message(self.hint_message),
         ]
 
     @classmethod
@@ -77,9 +80,12 @@ class OpenAIBackend(Backend):
         ).choices[0].message
 
     def _message(self, content : str, role : str) -> dict[str,str]:
+        if role == 'hint':
+            role = 'user'
         return {
             "role": role,
             "content": content,
+            "hint": role == 'hint',
         }
 
     def _user_message(self, content : str) -> dict[str,str]:
@@ -87,6 +93,9 @@ class OpenAIBackend(Backend):
 
     def _system_message(self, content : str) -> dict[str,str]:
         return self._message(content, "system")
+    
+    def _hint_message(self, content: str) -> dict[str, str]:
+        return self._message(content, "hint")
 
     def count_tokens(self, message: Optional[str]):
         if not message:

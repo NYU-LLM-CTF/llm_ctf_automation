@@ -59,6 +59,7 @@ def main():
     parser.add_argument("-L", "--logdir", default=str(script_dir / "logs" / os.getlogin()), help="log directory to write the log")
     parser.add_argument("-n", "--name", help="Experiment name (creates subdir in logdir)")
     parser.add_argument("-i", "--index", help="Round index of the experiment (creates subdir in logdir)")
+    parser.add_argument("--hints", type=list, default=[], help="A list of hints file")
 
     args = parser.parse_args()
     config = None
@@ -72,6 +73,7 @@ def main():
     if config:
         config_parameter = config.get("parameter", {})
         config_experiment = config.get("experiment", {})
+        config_demostration = config.get("demostration", {})
 
         args.max_rounds = config_parameter.get("max_rounds", args.max_rounds)
         args.backend = config_parameter.get("backend", args.backend)
@@ -80,6 +82,7 @@ def main():
         args.name = config_experiment.get("name", args.name)
         args.debug = config_experiment.get("debug", args.debug)
         args.skip_exist = config_experiment.get("skip_exist", args.skip_exist)
+        args.hints = config_demostration.get("hints", [])
 
     status.set(quiet=args.quiet, debug=args.debug, disable_markdown=args.disable_markdown)
 
@@ -103,7 +106,7 @@ def main():
         
     environment = CTFEnvironment(challenge, args.container_image, args.network)
     prompt_manager = PromptManager(prompt_set=args.prompt_set, config=config)
-    backend = Backend.from_name(args.backend)(prompt_manager.system_message(challenge), environment.available_tools, model=args.model, api_key=args.api_key)
+    backend = Backend.from_name(args.backend)(prompt_manager.system_message(challenge), prompt_manager.hints_message(), environment.available_tools, args)
 
     with CTFConversation(environment, challenge, prompt_manager, backend, logfile, max_rounds=args.max_rounds, max_cost=args.max_cost, args=args) as convo:
         convo.run()

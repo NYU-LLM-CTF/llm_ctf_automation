@@ -13,8 +13,8 @@ class AnthropicBackend(VLLMBackend):
     QUIRKS = {key: NO_QUIRKS for key in MODELS}
     API_KEY_PATH = "~/.config/anthropic/api_key"
 
-    def __init__(self, system_message: str, tools: dict[str, Tool], args: Namespace):
-        super().__init__(system_message, tools, args)
+    def __init__(self, system_message: str, hint_message: str, tools: dict[str, Tool], args: Namespace):
+        super().__init__(system_message, hint_message, tools, args)
         self.in_price = MODEL_INFO[self.NAME][self.args.model].get("cost_per_input_token", 0)
         self.out_price = MODEL_INFO[self.NAME][self.args.model].get("cost_per_output_token", 0)
 

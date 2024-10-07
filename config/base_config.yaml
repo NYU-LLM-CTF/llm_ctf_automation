@@ -1,14 +1,14 @@
 experiment:
   name: "NYU_Baseline_0"
   debug: True
-  skip_exist: True
+  skip_exist: False
 
 
 parameter:
   max_rounds: 3
   max_cost: 3
-  backend: "openai"
-  model: "gpt-4-turbo-2024-04-09"
+  backend: "anthropic"
+  model: "claude-3-5-sonnet-20240620"
 
 prompts:
   system: |
@@ -33,6 +33,10 @@ prompts:
     Solve the challenge, executing any commands you need and writing any code that may be helpful. You can also install new software in the container using `sudo apt-get install`, or Python packages with `pip install`. {% include "category/" + chal.category + ".md.jinja2" ignore missing %}
   keep_going: |
     Please proceed to the next step using your best judgment.
-  hint: ~
+
+demostration:
+  hints:
+    - "hints/base_hint.md"
+    - "hints/base_hint_2.md"
 
 

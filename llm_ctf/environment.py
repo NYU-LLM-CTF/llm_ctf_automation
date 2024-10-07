@@ -3,7 +3,7 @@ import traceback as tb
 from pathlib import Path
 from nyuctf.challenge import CTFChallenge
 
-from .tools import ToolCall, ToolResult, TOOLSETS
+from .tools import TOOLSETS
 from .ctflogging import status
 
 class CTFEnvironment:
