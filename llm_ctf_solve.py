@@ -32,6 +32,7 @@ def overwrite_args(args=None, config: dict=None):
         args.logdir = str(script_dir / "logs" / getpass.getuser() / f"{args.experiment_name}_round_{args.index}")
         args.debug = config["experiment"].get("debug", args.debug)
         args.skip_exist = config["experiment"].get("skip_exist", args.skip_exist)
+        args.hints = config.get("demostration", {}).get("hints", [])
 
 def load_config(args=None):
     if args.config:

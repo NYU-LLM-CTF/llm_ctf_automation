@@ -5,7 +5,7 @@ from pathlib import Path
 from llm_ctf.formatters.vbpy import VBPYFormatter
 from ..formatters.formatter import Formatter
 from .backend import (AssistantMessage, Backend, ErrorToolCalls, FakeToolCalls,
-                      SystemMessage, UnparsedToolCalls, UserMessage)
+                      SystemMessage, UnparsedToolCalls, UserMessage, HintMessage)
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessage
 from ..tools.manager import Tool, ToolCall, ToolResult
@@ -39,7 +39,7 @@ class VLLMBackend(Backend):
         ),
     }
 
-    def __init__(self, system_message : str, tools: dict[str,Tool], args : Namespace):
+    def __init__(self, system_message : str, hint_message: str, tools: dict[str,Tool], args : Namespace):
         self.args = args
         self.formatter : Formatter = Formatter.from_name(args.formatter)(tools, args.prompt_set)
         self.prompt_manager = self.formatter.prompt_manager
@@ -57,7 +57,7 @@ class VLLMBackend(Backend):
         self.client_setup(args)
         self.quirks = self.QUIRKS.get(self.model, NO_QUIRKS)
         self.system_message_content = system_message
-
+        self.hint_message_content = hint_message
         # Get the vbpy formatter so we can use it to represent a tool call as a
         # nice Python string
         self.python_formatter = VBPYFormatter(tools, args.prompt_set)
@@ -157,9 +157,10 @@ class VLLMBackend(Backend):
     def add_initial_messages(self):
         tool_use_prompt = self.formatter.tool_use_prompt()
         self.messages.append(SystemMessage(self.system_message_content, tool_use_prompt))
+        if self.args.hints and self.hint_message_content:
+            self.messages.append(HintMessage(self.hint_message_content))
         self.system_message_content += '\n\n' + tool_use_prompt
         status.system_message(self.system_message_content)
-
         if self.quirks.supports_system_messages:
             system_messages = [
                 self.system_message(self.system_message_content),
@@ -168,7 +169,12 @@ class VLLMBackend(Backend):
             system_messages = [
                 self.user_message(self.system_message_content),
                 self.assistant_message("Understood."),
+
             ]
+
+        if self.args.hints and self.hint_message:
+            system_messages += [self.hint_message(self.hint_message_content), self.assistant_message("Understood.")]
+            status.hint_message(self.hint_message_content)
 
         for sm in system_messages:
             self.append(sm)
@@ -195,6 +201,9 @@ class VLLMBackend(Backend):
 
     def system_message(self, content : str):
         return {"role": "system", "content": content}
+    
+    def hint_message(self, content : str):
+        return {"role": "user", "content": content}
 
     def tool_results_message(self, tool_results : List[ToolResult]):
         return self.user_message(self.formatter.tool_result_prompt(tool_results))

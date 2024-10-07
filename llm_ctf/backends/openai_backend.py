@@ -43,10 +43,10 @@ class OpenAIBackend(Backend):
     NAME = 'openai'
     MODELS = list(MODEL_INFO[NAME].keys())
 
-    def __init__(self, system_message : str, tools: dict[str,Tool], args : Namespace):
+    def __init__(self, system_message : str, hint_message: str, tools: dict[str,Tool], args : Namespace):
         self.args = args
         if args.api_key is None:
-            if "OPENAI_API_KEY" in KEYS:
+            if KEYS and "OPENAI_API_KEY" in KEYS:
                 api_key = KEYS["OPENAI_API_KEY"].strip()
             if "OPENAI_API_KEY" in os.environ:
                 api_key = os.environ["OPENAI_API_KEY"]
@@ -66,17 +66,23 @@ class OpenAIBackend(Backend):
             # Update the args object so that the model name will be included in the logs
             args.model = self.model
         self.system_message = system_message
+        self.hint_message = hint_message
         self.messages += self.get_initial_messages()
         self.in_price = MODEL_INFO[self.NAME][self.args.model].get("cost_per_input_token", 0)
         self.out_price = MODEL_INFO[self.NAME][self.args.model].get("cost_per_output_token", 0)
 
     def setup(self):
         status.system_message(self.system_message)
+        if self.args.hints:
+            status.hint_message(self.hint_message)
 
     def get_initial_messages(self):
-        return [
+        messages = [
             self._system_message(self.system_message),
         ]
+        if self.args.hints:
+            messages.append(self._hint_message(self.hint_message))
+        return messages
 
     @classmethod
     def get_models(cls):
@@ -93,8 +99,9 @@ class OpenAIBackend(Backend):
 
     def _message(self, content : str, role : str) -> dict[str,str]:
         return {
-            "role": role,
+            "role": "user" if role == "hint" else role,
             "content": content,
+            "hint": role == 'hint',
         }
 
     def _user_message(self, content : str) -> dict[str,str]:
@@ -102,6 +109,9 @@ class OpenAIBackend(Backend):
 
     def _system_message(self, content : str) -> dict[str,str]:
         return self._message(content, "system")
+    
+    def _hint_message(self, content: str) -> dict[str, str]:
+        return self._message(content, "hint")
 
     def send(self, message : str) -> Tuple[Optional[str],bool]:
         self.messages.append(self._user_message(message))

@@ -35,6 +35,7 @@ class CTFConversation:
         self.prompt_manager = PromptManager(args.prompt_set, config=config)
         self.backend = Backend.from_name(args.backend)(
             self.prompt_manager.system_message(self.chal),
+            self.prompt_manager.hints_message(),
             self.available_functions,
             self.args,
         )
@@ -191,12 +192,12 @@ class CTFConversation:
 
     def run(self):
         next_msg = self.prompt_manager.initial_message(self.chal)
-        # Add hints message to initial
-        hints_msg = self.prompt_manager.hints_message(self.chal, hints=self.args.hints)
-        if len(hints_msg) != 0:
-            next_msg += "\n\n" + hints_msg
-        elif len(self.args.hints) != 0:
-            status.debug_message(f"hints {self.args.hints} not found")
+        # # Add hints message to initial
+        # hints_msg = self.prompt_manager.hints_message(self.chal, hints=self.args.hints)
+        # if len(hints_msg) != 0:
+        #     next_msg += "\n\n" + hints_msg
+        # elif len(self.args.hints) != 0:
+        #     status.debug_message(f"hints {self.args.hints} not found")
 
         try:
             while True:
