@@ -145,7 +145,7 @@ class VLLMBackend(Backend):
             match role:
                 case "user":
                     content = self.prompt_manager.render(template_stem)
-                    self.messages.append(UserMessage(content))
+                    # self.messages.append(UserMessage(content))
                     self.append(self.user_message(content))
                 case "assistant":
                     content = self.prompt_manager.render(template_stem)
@@ -169,16 +169,13 @@ class VLLMBackend(Backend):
             system_messages = [
                 self.user_message(self.system_message_content),
                 self.assistant_message("Understood."),
-
             ]
 
         if self.args.hints and self.hint_message:
             system_messages += [self.hint_message(self.hint_message_content), self.assistant_message("Understood.")]
             status.hint_message(self.hint_message_content)
-
-        for sm in system_messages:
+        for sm in system_messages[2:]:
             self.append(sm)
-
         if self.quirks.needs_tool_use_demonstrations:
             num_messages = len(self.outgoing_messages)
             self.make_demonstration_messages()
