@@ -49,7 +49,7 @@ def main():
     parser.add_argument("--formatter", default="xml", choices=Formatter.registry.keys(), help="prompt formatter to use")
     parser.add_argument("--prompt-set", default="default", help="set of prompts to use")
     # TODO add back hints functionality
-    # parser.add_argument("--hints", default=[], nargs="+", help="list of hints to provide")
+    parser.add_argument("--hints", default=[], nargs="+", help="list of hints to provide")
     parser.add_argument("--disable-markdown", default=False, action="store_true", help="don't render Markdown formatting in messages")
     parser.add_argument("-m", "--max-rounds", type=int, default=10, help="maximum number of rounds to run")
     parser.add_argument("--max-cost", type=float, default=10, help="maximum cost of the conversation to run")
@@ -72,6 +72,7 @@ def main():
     if config:
         config_parameter = config.get("parameter", {})
         config_experiment = config.get("experiment", {})
+        config_demostration = config.get("demostration", {})
 
         args.max_rounds = config_parameter.get("max_rounds", args.max_rounds)
         args.backend = config_parameter.get("backend", args.backend)
@@ -80,6 +81,7 @@ def main():
         args.name = config_experiment.get("name", args.name)
         args.debug = config_experiment.get("debug", args.debug)
         args.skip_exist = config_experiment.get("skip_exist", args.skip_exist)
+        args.hints = config_demostration.get("hints", [])
 
     status.set(quiet=args.quiet, debug=args.debug, disable_markdown=args.disable_markdown)
 
@@ -107,27 +109,33 @@ def main():
     if args.backend == "openai":
         backend = OpenAIBackend(
                         prompt_manager.system_message(challenge),
+                        prompt_manager.hints_message(),
                         environment.available_tools,
                         model=args.model,
-                        api_key=args.api_key
+                        api_key=args.api_key,
+                        args=args
                     )
     elif args.backend ==  "anthropic":
         backend = AnthropicBackend(
                         prompt_manager.system_message(challenge),
+                        prompt_manager.hints_message(),
                         environment.available_tools,
                         prompt_manager,
                         model=args.model,
-                        api_key=args.api_key
+                        api_key=args.api_key,
+                        args=args
                     )
     elif args.backend == "vllm":
         backend = VLLMBackend(
                         prompt_manager.system_message(challenge),
+                        prompt_manager.hints_message(),
                         environment.available_tools,
                         prompt_manager,
                         model=args.model,
                         api_key=args.api_key,
                         api_endpoint=args.api_endpoint,
-                        formatter=args.formatter
+                        formatter=args.formatter,
+                        args=args
                     )
 
     with CTFConversation(environment, challenge, prompt_manager, backend, logfile, max_rounds=args.max_rounds, max_cost=args.max_cost, args=args) as convo:

@@ -14,8 +14,8 @@ class AnthropicBackend(VLLMBackend):
     QUIRKS = {key: NO_QUIRKS for key in MODELS}
     API_KEY_PATH = "~/.config/anthropic/api_key"
 
-    def __init__(self, system_message: str, tools: dict[str, Tool], prompt_manager: PromptManager, model=None, api_key=None):
-        super().__init__(system_message, tools, prompt_manager, model=model, api_key=api_key)
+    def __init__(self, system_message: str, hint_message: str, tools: dict[str, Tool], prompt_manager: PromptManager, model=None, api_key=None, args: Namespace = None):
+        super().__init__(system_message, hint_message, tools, prompt_manager, model=model, api_key=api_key, args=args)
         self.in_price = MODEL_INFO[self.NAME][self.model].get("cost_per_input_token", 0)
         self.out_price = MODEL_INFO[self.NAME][self.model].get("cost_per_output_token", 0)
 
@@ -31,7 +31,7 @@ class AnthropicBackend(VLLMBackend):
         else:
             raise ValueError(f"No Anthropic API key provided and none found in ANTHROPIC_API_KEY or {self.API_KEY_PATH}")
         os.environ["ANTHROPIC_API_KEY"] = api_key
-        self.client = Anthropic(api_key=api_key)
+        self.client = Anthropic(api_key=api_key.strip('\''))
 
     def append(self, message : dict|AnthropicMessage|List[ToolResult]):
         if isinstance(message, dict):

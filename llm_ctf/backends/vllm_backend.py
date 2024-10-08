@@ -5,7 +5,7 @@ from pathlib import Path
 from llm_ctf.formatters.vbpy import VBPYFormatter
 from ..formatters.formatter import Formatter
 from .backend import (AssistantMessage, Backend, ErrorToolCalls, FakeToolCalls,
-                      SystemMessage, UnparsedToolCalls, UserMessage)
+                      SystemMessage, UnparsedToolCalls, UserMessage, HintMessage)
 from openai import OpenAI
 from openai.types.chat import ChatCompletionMessage
 from ..tools import Tool, ToolCall, ToolResult
@@ -39,9 +39,10 @@ class VLLMBackend(Backend):
         ),
     }
 
-    def __init__(self, system_message : str, tools: dict[str,Tool], prompt_manager, model=None, api_key=None, api_endpoint=None, formatter="xml"):
+    def __init__(self, system_message : str, hint_message: str, tools: dict[str,Tool], prompt_manager, model=None, api_key=None, api_endpoint=None, formatter="xml", args: Namespace = None):
         self.formatter : Formatter = Formatter.from_name("xml")(tools, prompt_manager)
         self.tools = tools
+        self.args = args
 
         if model:
             if model not in self.MODELS:
@@ -55,7 +56,7 @@ class VLLMBackend(Backend):
         self.client_setup()
         self.quirks = self.QUIRKS.get(self.model, NO_QUIRKS)
         self.system_message_content = system_message
-
+        self.hint_message_content = hint_message
         self.outgoing_messages = []
         self.last_tool_calls = []
 
@@ -79,6 +80,8 @@ class VLLMBackend(Backend):
         # Add initial messages
         tool_use_prompt = self.formatter.tool_use_prompt()
         self.messages.append(SystemMessage(self.system_message_content, tool_use_prompt))
+        if self.args.hints and self.hint_message_content:
+            self.messages.append(HintMessage(self.hint_message_content))
         self.system_message_content += '\n\n' + tool_use_prompt
         status.system_message(self.system_message_content)
 
@@ -91,7 +94,11 @@ class VLLMBackend(Backend):
                 self.user_message(self.system_message_content),
                 self.assistant_message("Understood."),
             ]
+        if self.args.hints and self.hint_message:
+            system_messages += [self.hint_message(self.hint_message_content), self.assistant_message("Understood.")]
+            status.hint_message(self.hint_message_content)
 
+        # import pdb; pdb.set_trace()
         for sm in system_messages:
             self.append(sm)
 
@@ -187,6 +194,9 @@ class VLLMBackend(Backend):
 
     def system_message(self, content : str):
         return {"role": "system", "content": content}
+    
+    def hint_message(self, content : str):
+        return {"role": "user", "content": content}
 
     def tool_results_message(self, tool_results : List[ToolResult]):
         return self.user_message(self.formatter.tool_result_prompt(tool_results))
@@ -298,7 +308,7 @@ class VLLMBackend(Backend):
             raise ValueError(f"Unknown message type: {type(message)}")
         # Save the message to the log we pass back to the model
         self.outgoing_messages.append(conv_message)
-        self.messages.append(UserMessage(message))
+        # self.messages.append(UserMessage(message))
 
     def get_system_message(self):
         return self.system_message_content
