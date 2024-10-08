@@ -59,17 +59,18 @@ class CTFConversation:
             except KeyboardInterrupt:
                 status.print("[red bold]Interrupted by user[/red bold]", markup=True)
                 self.finish_reason = "user_cancel"
-                raise
+                break
             # TODO Normalize the ratelimiterrors
             except (openai.RateLimitError, anthropic.RateLimitError):
                 status.print("[red bold]Rate limit reached![/red bold]", markup=True)
                 self.finish_reason = "rate_limit"
-                raise
+                break
             except openai.BadRequestError as e:
                 msg = str(e)
                 if "'code': 'context_length_exceeded'" in msg or "'code': 'string_above_max_length'" in msg:
                     status.print("[red bold]Context length exceeded![/red bold]", markup=True)
                     self.finish_reason = "context_length"
+                    break
                 else:
                     # Some other error, re-raise
                     raise
