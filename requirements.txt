@@ -11,3 +11,4 @@ tabulate
 backoff
 pyte
 tiktoken
+nyuctf

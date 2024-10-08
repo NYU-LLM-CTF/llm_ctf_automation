@@ -35,7 +35,8 @@ def main():
     script_dir = Path(__file__).parent.resolve()
 
     parser.add_argument("--challenge", required=True, help="Name of the challenge")
-    parser.add_argument("--dataset", required=True, help="Path to the dataset JSON")
+    parser.add_argument("--dataset", help="Dataset JSON path. Only provide if not using the NYUCTF dataset at default path")
+    parser.add_argument("-s", "--split", default="development", choices=["test", "development"], help="Dataset split to select. Only used when --dataset not provided.")
     parser.add_argument("-c", "--config", help="Config file to run the experiment")
 
     parser.add_argument("-q", "--quiet", action="store_true", help="don't print messages to the console")
@@ -85,7 +86,10 @@ def main():
 
     status.set(quiet=args.quiet, debug=args.debug, disable_markdown=args.disable_markdown)
 
-    dataset = CTFDataset(args.dataset)
+    if args.dataset is not None:
+        dataset = CTFDataset(dataset_json=args.dataset)
+    else:
+        dataset = CTFDataset(split=args.split)
     challenge = CTFChallenge(dataset.get(args.challenge), dataset.basedir)
 
     logdir = Path(args.logdir).expanduser().resolve()
