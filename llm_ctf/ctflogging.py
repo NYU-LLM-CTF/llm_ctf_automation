@@ -43,6 +43,16 @@ class Status:
                 m = message
             self.console.print(m, width=self.WIDTH)
             self._last = "USER"
+            
+    def hint_message(self, message):
+        if not self.quiet:
+            self.console.print("[Hint Prompt]\n", style="yellow bold")
+            if not self.disable_markdown:
+                m = Markdown(message, code_theme=self.THEME)
+            else:
+                m = message
+            self.console.print(m, width=self.WIDTH)
+            self._last = "HINT"
 
     def system_message(self, message):
         if not self.quiet:

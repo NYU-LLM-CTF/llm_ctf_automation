@@ -101,11 +101,16 @@ if 'exception_info' in js and js['exception_info']:
     print()
 print("*"*80)
 for timestamp,message in js['messages']:
+    if 'content' not in message:
+        continue
     if message['content']:
         if message['role'] == 'system':
             status.system_message(message['content'])
         elif message['role'] == 'user':
-            status.user_message(message['content'])
+            if "hint" in message and message["hint"]:
+                status.hint_message(message['content'])
+            else:
+                status.user_message(message['content'])
         elif message['role'] == 'assistant':
             status.assistant_message(message['content'])
 

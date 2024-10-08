@@ -12,7 +12,7 @@ from nyuctf.challenge import CTFChallenge
 from .ctflogging import status
 from .backends import Backend
 from .prompts.prompts import PromptManager
-from .tools import ToolCall, ToolResult, TOOLSETS
+from .tools import ToolCall, ToolResult, Tool, TOOLSETS
 from .environment import CTFEnvironment
 
 now = lambda: time.time()
