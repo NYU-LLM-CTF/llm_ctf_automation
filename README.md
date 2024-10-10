@@ -1,6 +1,6 @@
 # LLM CTF Automation Framework
 
-This repository holds the baseline automation framework for evaluation on the [NYU CTF Bench](nyu-llm-ctf.github.io).
+This repository holds the baseline automation framework for evaluation on the [NYU CTF Bench](https://nyu-llm-ctf.github.io).
 It implements an LLM Agent that operates in a docker environment and interacts with CTF challenges to solve them.
 
 ## Installation and Setup
