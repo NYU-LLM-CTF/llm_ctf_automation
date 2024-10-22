@@ -86,7 +86,9 @@ pretty_finish_reasons = {
 calls = {}
 js = json.load(open(sys.argv[1]))
 model = js['args']['model']
-print(f"Log of conversation with {model} on {js['start_time']} to {js['end_time']} ({js['runtime']['total']} seconds)")
+print(f"Log of conversation with {model}")
+if "start_time" in js and "end_time" in js and "runtime" in js:
+    print(f"Time: {js['start_time']} to {js['end_time']} ({js['runtime']['total']} seconds)")
 solve_str = "solved successfully" if js['solved'] else "not solved"
 print(f"Conversation lasted {js['rounds']} rounds and was {solve_str}")
 if 'finish_reason' in js:
