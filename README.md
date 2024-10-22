@@ -18,5 +18,7 @@ Follow these instructions to setup:
 5. Download the dataset (will take a few minutes): `python3 -m nyuctf.download`
 
 ## Usage
+
 ```python
-python llm_ctf_solve.py -c /llm_ctf_automation/config/base_config.yaml --dataset "/llm_ctf_automation/LLM_CTF_Database/test_dataset.json" --challenge "challenge_name"
+python3 llm_ctf_solve.py -c config/base_config.yaml --split <test|development> --challenge <challenge-name>
+```
