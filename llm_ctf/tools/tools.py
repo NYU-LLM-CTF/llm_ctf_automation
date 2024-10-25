@@ -1,5 +1,6 @@
 import subprocess
 import json
+import re
 import tempfile
 from pathlib import Path
 from typing_extensions import Annotated
@@ -9,8 +10,6 @@ from ..ctflogging import status
 
 SCRIPT_DIR = Path(__file__).parent.parent.parent.resolve()
 GHIDRA = SCRIPT_DIR / "ghidra_11.0.1_PUBLIC/support/analyzeHeadless"
-
-# TODO all tools should take the environment container as input, not just the challenge.
 
 class CommandExec(Tool):
     NAME = "run_command"
