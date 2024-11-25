@@ -20,7 +20,7 @@ class Conversation:
 
     def __init__(self):
         self.all_messages = []        
-        self.round = 1
+        self.round = 0
 
     def get_messages(self, len_observations=None):
         """
@@ -46,6 +46,9 @@ class Conversation:
         self.round += 1
     def append(self, role, content, tool_data=None):
         m = Message(index=self.round, role=role, content=content, tool_data=tool_data)
+        print("====MESSAGE====", self.round, role)
+        print("content:", content)
+        print("tool:", tool_data)
         self.all_messages.append(m)
     def append_system(self, content):
         self.append(MessageRole.SYSTEM, content)

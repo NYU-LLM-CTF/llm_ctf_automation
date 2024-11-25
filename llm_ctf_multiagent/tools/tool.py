@@ -17,9 +17,9 @@ class Tool:
     def call(self, **kwargs):
         raise NotImplementedError
     def setup(self):
-        raise NotImplementedError
-    def teardown(self):
-        raise NotImplementedError
+        pass
+    def teardown(self, ex_type, ex_val, tb):
+        pass
 
     def validate_params(self, tool_call):
         present = set(tool_call.parsed_arguments.keys())

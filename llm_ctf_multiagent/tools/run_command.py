@@ -1,3 +1,5 @@
+import subprocess
+
 from .tool import Tool, ToolResult
 
 class RunCommandTool(Tool):
@@ -19,7 +21,7 @@ class RunCommandTool(Tool):
             return None
         return text.decode('utf-8', errors='backslashreplace').replace('\r\n', '\n')
 
-    def call(self, command, timeout=10.0):
+    def call(self, command=None, timeout=10.0):
         if command is None:
             return {"error": "No command provided"}
 

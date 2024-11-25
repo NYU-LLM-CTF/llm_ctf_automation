@@ -39,8 +39,6 @@ class OpenAIBackend:
 
     # @backoff.on_exception(backoff.expo, RateLimitError, max_tries=5)
     def _call_model(self, messages) -> ChatCompletionMessage:
-        print("======CALLING\n", messages)
-        print("======TOOLS\n", self.tool_schemas)
         return self.client.chat.completions.create(
             model=self.model,
             messages=messages,

@@ -1,4 +1,5 @@
 import subprocess
+import json
 from pathlib import Path
 from nyuctf.challenge import CTFChallenge
 
@@ -6,18 +7,18 @@ from .tools import ToolCall, ToolResult, TOOLSETS
 
 class CTFEnvironment:
     """Manages the docker env for the agent, and the challenge container."""
-    def __init__(self, challenge: CTFChallenge, container_image: str, network: str):
+    def __init__(self, challenge: CTFChallenge, container_image: str, network: str, toolset: str="default"):
         self.challenge = challenge
         self.container_image = container_image
         self.network = network
         self.available_tools = {}
-        for tool in TOOLSETS.get(self.challenge.category, TOOLSETS['default']):
+        for tool in TOOLSETS.get(toolset, TOOLSETS["default"]):
             tool_instance = tool(self)
             self.available_tools[tool_instance.NAME] = tool_instance
 
-        # The CheckFlag tool can set this to indicated if flag is found
+        # The SubmitFlagTool can set this to indicated if flag is found
         self.solved = False
-        # The GiveUp tool can set this to give up the challenge
+        # The GiveupTool can set this to give up the challenge
         self.giveup = False
 
     def setup(self):
@@ -36,13 +37,13 @@ class CTFEnvironment:
         self.stop_docker()
 
     def start_docker(self):
-        status.debug_message(f"Starting environment container {self.container_image}...")
+        print(f"Starting environment container {self.container_image}...")
         cmd = ["docker", "run", "-d", "--rm", 
                "--network", self.network, "--platform", "linux/amd64",
                self.container_image]
         output = subprocess.run(cmd, check=True, capture_output=True, text=True)
         self.container = output.stdout.strip()
-        status.debug_message(f"...started {self.container}")
+        print(f"...started {self.container}")
 
     def copy_into_container(self, hostpath, filename):
         if Path(filename).is_absolute():
@@ -53,20 +54,20 @@ class CTFEnvironment:
             cmd = ["docker", "exec", self.container, "mkdir", "-p", str(containerpath.parent)]
             subprocess.run(cmd, capture_output=True)
         # Copy file
-        status.debug_message(f"Copying file {hostpath} into container {self.container} at {containerpath}")
+        print(f"Copying file {hostpath} into container {self.container} at {containerpath}")
         cmd = ["docker", "cp", "-aq", str(hostpath), f"{self.container}:{containerpath}"]
         subprocess.run(cmd, capture_output=True)
         return containerpath
 
     def stop_docker(self):
-        status.debug_message(f"Stopping environment container {self.container_image} {self.container}...")
+        print(f"Stopping environment container {self.container_image} {self.container}...")
         subprocess.run(["docker", "stop", self.container], check=True, capture_output=True)
 
     def run_tool(self, tool_call):
-        print("====RUN")
-        print(tool_call.name, tool_call.id)
-        print(tool_call.parsed_arguments)
-        return ToolResult(name=tool_call.name, id=tool_call.id, result="TOOL DID NOT RUN")
+        # Should have been checked by backend if correct tool or not
+        tool = self.available_tools[tool_call.name]
+        res = tool.call(**tool_call.parsed_arguments)
+        return ToolResult(name=tool_call.name, id=tool_call.id, result=json.dumps(res))
 
     @property
     def container_home(self):
