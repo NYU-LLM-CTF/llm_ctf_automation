@@ -1,10 +1,8 @@
 import subprocess
-import traceback as tb
 from pathlib import Path
 from nyuctf.challenge import CTFChallenge
 
 from .tools import ToolCall, ToolResult, TOOLSETS
-from .ctflogging import status
 
 class CTFEnvironment:
     """Manages the docker env for the agent, and the challenge container."""
@@ -15,7 +13,7 @@ class CTFEnvironment:
         self.available_tools = {}
         for tool in TOOLSETS.get(self.challenge.category, TOOLSETS['default']):
             tool_instance = tool(self)
-            self.available_tools[tool_instance.name] = tool_instance
+            self.available_tools[tool_instance.NAME] = tool_instance
 
         # The CheckFlag tool can set this to indicated if flag is found
         self.solved = False
@@ -63,6 +61,12 @@ class CTFEnvironment:
     def stop_docker(self):
         status.debug_message(f"Stopping environment container {self.container_image} {self.container}...")
         subprocess.run(["docker", "stop", self.container], check=True, capture_output=True)
+
+    def run_tool(self, tool_call):
+        print("====RUN")
+        print(tool_call.name, tool_call.id)
+        print(tool_call.parsed_arguments)
+        return ToolResult(name=tool_call.name, id=tool_call.id, result="TOOL DID NOT RUN")
 
     @property
     def container_home(self):

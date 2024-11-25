@@ -13,6 +13,7 @@ class Message:
     index: int
     role: MessageRole
     content: str
+    tool_data: dict = None
 
 class Conversation:
     """Holds the messages of the entire conversation"""
@@ -43,14 +44,14 @@ class Conversation:
 
     def next_round(self):
         self.round += 1
-    def append(self, role, content):
-        m = Message(index=self.round, role=role, content=content)
+    def append(self, role, content, tool_data=None):
+        m = Message(index=self.round, role=role, content=content, tool_data=tool_data)
         self.all_messages.append(m)
     def append_system(self, content):
         self.append(MessageRole.SYSTEM, content)
     def append_user(self, content):
         self.append(MessageRole.USER, content)
-    def append_assistant(self, content):
-        self.append(MessageRole.ASSISTANT, content)
-    def append_observation(self, content):
-        self.append(MessageRole.OBSERVATION, content)
+    def append_assistant(self, content, tool_data):
+        self.append(MessageRole.ASSISTANT, content, tool_data)
+    def append_observation(self, tool_data):
+        self.append(MessageRole.OBSERVATION, None, tool_data)

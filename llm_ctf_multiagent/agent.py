@@ -1,29 +1,28 @@
 from pathlib import Path
 from nyuctf.challenge import CTFChallenge
 
-from .environment import CTFEnvironment
 from .conversation import Conversation, MessageRole, Message
-from .prompting import PromptManager
 
 now = lambda: time.time()
 
 class BaseAgent:
-    def __init__(self, environment: CTFEnvironment, challenge: CTFChallenge, prompter: PromptManager):
+    def __init__(self, environment, challenge, prompter, backend):
         self.environment = environment
         self.challenge = challenge
         self.prompter = prompter
+        self.backend = backend
 
         self.conversation = Conversation()
 
         self.conversation.append_system(self.prompter.get("system"))
         self.conversation.append_user(self.prompter.get("initial"))
 
-        self.max_rounds = 10
+        self.max_rounds = 3
 
     def run(self):
         while self.conversation.round <= self.max_rounds:
             response, tool_call = self.backend.send(self.conversation.get_messages(len_observations=5))
-            self.conversation.append_assistant(response)
+            self.conversation.append_assistant(content=response, tool_data=tool_call)
 
             if tool_call:
                 tool_result = self.handle_tool_call(tool_call)

@@ -1,11 +1,16 @@
+import yaml
+
 class PromptManager:
     """Handles formatting of the prompts"""
-    def __init__(self, challenge, templates):
+    def __init__(self, promptyaml, challenge, environment):
+        
+        with open(promptyaml, "r") as c:
+            self.templates = yaml.safe_load(c)
         self.challenge = challenge
-        self.templates = templates
+        self.environment = environment
 
-    def get(self, p):
-        if p not in self.templates:
-            return None
-        # TODO do some templating
-        return self.templates[p]
+    def get(self, key):
+        # TODO check if templating done properly
+        tmpl = self.templates.get(key, "")
+        prompt = tmpl.format(challenge=self.challenge, environment=self.environment)
+        return prompt

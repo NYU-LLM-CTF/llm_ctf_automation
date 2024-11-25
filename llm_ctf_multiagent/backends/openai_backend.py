@@ -1,13 +1,16 @@
+import json
 from openai import OpenAI, RateLimitError
 from openai.types.chat import ChatCompletionMessage
-from openai.types.chat.chat_completion_message_tool_call import ChatCompletionMessageToolCall as OAIToolCall
 
-class OpenAIBackend(Backend):
+from ..conversation import MessageRole
+from ..tools import ToolCall
+
+class OpenAIBackend:
     NAME = 'openai'
-    MODELS = list(MODEL_INFO[NAME].keys())
+    # MODELS = list(MODEL_INFO[NAME].keys())
 
-    def __init__(self, model, tools):
-        self.api_key = "TODO LOAD"
+    def __init__(self, model, tools, api_key):
+        self.api_key = api_key
         self.client = OpenAI(api_key=self.api_key)
         self.tools = tools
         self.model = model
@@ -17,7 +20,7 @@ class OpenAIBackend(Backend):
         self.out_price = 0 # TODO load
         # TODO self.token_encoding = tiktoken.encoding_for_model(model_name=self.model)
 
-    @classmethod
+    @staticmethod
     def get_tool_schema(tool):
         # Based on required OpenAI format, https://platform.openai.com/docs/guides/function-calling
         # TODO use ChatCompletionToolParam probably
@@ -36,6 +39,8 @@ class OpenAIBackend(Backend):
 
     # @backoff.on_exception(backoff.expo, RateLimitError, max_tries=5)
     def _call_model(self, messages) -> ChatCompletionMessage:
+        print("======CALLING\n", messages)
+        print("======TOOLS\n", self.tool_schemas)
         return self.client.chat.completions.create(
             model=self.model,
             messages=messages,
@@ -56,7 +61,7 @@ class OpenAIBackend(Backend):
             return True, tool_call
         try:
             tool_call.parsed_arguments = json.loads(tool_call.arguments)
-            tool.validate_args(tool_call)
+            self.tools[tool_call.name].validate_params(tool_call)
             return True, tool_call
         except json.JSONDecodeError as e:
             tool_res = ToolResult.for_call(tool_call,
@@ -68,9 +73,27 @@ class OpenAIBackend(Backend):
             return False, tool_res
 
     def send(self, messages):
-        formatted_messages = messages # TODO process
-        response = self._call_model(formatted_messages)
+        # formatted_messages = messages # TODO process
+        formatted_messages = []
+        for m in messages:
+            if m.role == MessageRole.OBSERVATION:
+                msg = {"role": "tool", "content": m.tool_data.result, "tool_call_id": m.tool_data.id}
+            elif m.role == MessageRole.ASSISTANT:
+                msg = {"role": m.role.value}
+                if m.content is not None:
+                    msg["content"] = m.content
+                if m.tool_data is not None:
+                    msg["tool_calls"] = [{"id": m.tool_data.id,
+                                          "type": "function",
+                                          "function": {
+                                              "name": m.tool_data.name,
+                                              "arguments": m.tool_data.arguments
+                                            }}]
+            else:
+                msg = {"role": m.role.value, "content": m.content}
+            formatted_messages.append(msg)
 
+        response = self._call_model(formatted_messages)
         if response.tool_calls and len(response.tool_calls) > 0:
             oai_call = response.tool_calls[0]
             tool_call = ToolCall(name=oai_call.function.name, id=oai_call.id,
