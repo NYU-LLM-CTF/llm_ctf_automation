@@ -6,7 +6,8 @@ from nyuctf.challenge import CTFChallenge
 from .environment import CTFEnvironment
 from .backends.openai_backend import OpenAIBackend
 from .prompting import PromptManager
-from .agent import BaseAgent, PlannerAgent
+from .agent import PlannerExecutorSystem
+from .logging import status
 
 parser = argparse.ArgumentParser(description="Multi-agent LLM for CTF solving")
 
@@ -17,6 +18,8 @@ parser.add_argument("--api-key", required=True, help="OpenAI API key") # TODO re
 
 args = parser.parse_args()
 
+status.set(quiet=False, debug=True)
+
 if args.dataset is not None:
     dataset = CTFDataset(dataset_json=args.dataset)
 else:
@@ -25,8 +28,10 @@ challenge = CTFChallenge(dataset.get(args.challenge), dataset.basedir)
 
 # TODO configurable
 environment = CTFEnvironment(challenge, "ctfenv", "ctfnet")
-backend = OpenAIBackend("gpt-4o", environment.available_tools, args.api_key)
-prompt_manager = PromptManager("config/prompts/planner_prompt.yaml", challenge, environment)
+planner_backend = OpenAIBackend("gpt-4o", environment.get_toolset("planner"), args.api_key)
+planner_prompter = PromptManager("config/prompts/planner_prompt.yaml", challenge, environment)
+executor_backend = OpenAIBackend("gpt-4o-mini", environment.get_toolset("executor"), args.api_key)
+executor_prompter = PromptManager("config/prompts/executor_prompt.yaml", challenge, environment)
 
-with PlannerAgent(environment, challenge, prompt_manager, backend) as agent:
-    agent.run()
+with PlannerExecutorSystem(environment, challenge, planner_prompter, planner_backend, executor_prompter, executor_backend) as multiagent:
+    multiagent.run()

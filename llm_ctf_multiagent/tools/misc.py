@@ -46,3 +46,14 @@ class DelegateTool(Tool):
     REQUIRED_PARAMETERS = {"task"}
     def __init__(self, environment):
         super().__init__()
+
+class FinishTaskTool(Tool):
+    """Tool to mark executor task finished and return summary to planner."""
+    NAME = "finish_task"
+    DESCRIPTION = "Finish the task assigned by the planner and return the task summary."
+    PARAMETERS = {
+        "summary": ("string", "a detailed summary of the task performed"),
+    }
+    REQUIRED_PARAMETERS = {"summary"}
+    def __init__(self, environment):
+        super().__init__()

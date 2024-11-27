@@ -7,6 +7,7 @@ class MessageRole(str, Enum):
     ASSISTANT = "assistant"
     OBSERVATION = "observation"
 
+
 @dataclass(frozen=True)
 class Message:
     """Holds message contents"""
@@ -18,9 +19,10 @@ class Message:
 class Conversation:
     """Holds the messages of the entire conversation"""
 
-    def __init__(self):
+    def __init__(self, name=""):
         self.all_messages = []        
         self.round = 0
+        self.name = name
 
     def get_messages(self, len_observations=None):
         """
@@ -46,9 +48,6 @@ class Conversation:
         self.round += 1
     def append(self, role, content, tool_data=None):
         m = Message(index=self.round, role=role, content=content, tool_data=tool_data)
-        print("====MESSAGE====", self.round, role)
-        print("content:", content)
-        print("tool:", tool_data)
         self.all_messages.append(m)
     def append_system(self, content):
         self.append(MessageRole.SYSTEM, content)

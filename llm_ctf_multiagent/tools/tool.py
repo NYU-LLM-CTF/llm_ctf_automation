@@ -40,6 +40,18 @@ class ToolCall:
     def error(self, message):
         return ToolResult(self.name, self.id, {"error": message})
 
+    def formatted(self):
+        # TODO each tool should format the call individually
+        formatted_call = f"**{self.name}:**\n\n"
+        if self.parsed_arguments is not None:
+            for arg in self.parsed_arguments:
+                formatted_call += f"- {arg}: {self.parsed_arguments[arg]}\n"
+        elif self.arguments is not None:
+            formatted_call += f"{self.arguments}\n"
+        else:
+            formatted_call += "*no arguments*\n"
+        return formatted_call
+
     def __str__(self):
         if self.parsed_arguments:
             return f"{self.name}({self.parsed_arguments})"
@@ -60,7 +72,7 @@ class ToolResult:
     result : str
     """The result of running the tool"""
 
-    @classmethod
+    @staticmethod
     def for_call(tool_call, result):
         """Create a result for a tool_call"""
         return ToolResult(name=tool_call.name, id=tool_call.id, result=result)
