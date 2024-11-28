@@ -17,7 +17,7 @@ class BaseAgent:
         self.backend = backend
 
         self.conversation = Conversation()
-        self.max_rounds = 5
+        self.max_rounds = 10
         self.running = True
 
     def run(self):
