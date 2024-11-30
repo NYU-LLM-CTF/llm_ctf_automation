@@ -29,6 +29,8 @@ class GhidraBaseTool(Tool):
                 return dis["functions"]["_start"]
             if "invoke_main" in dis["functions"]:
                 return dis["functions"]["invoke_main"]
+            if "entry" in dis["functions"]:
+                return dis["functions"]["entry"]
         # Check if requesting radare2 unnamed function with address
         if re.match(r"fcn\.[0-9a-f]+$", function):
             addr = function[4:]
@@ -46,8 +48,9 @@ class GhidraBaseTool(Tool):
             status.debug_message("GHIDRA FAILED!!")
             status.debug_message(res.stdout.decode("utf-8"))
             return None
-        return json.loads(res.stdout.decode("utf-8"))
-
+        out = json.loads(res.stdout.decode("utf-8"))
+        # status.debug_message("\n".join(out["functions"].keys()))
+        return out
 
 class DisassembleTool(GhidraBaseTool):
     NAME = "disassemble"
