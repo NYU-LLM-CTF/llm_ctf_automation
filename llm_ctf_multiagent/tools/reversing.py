@@ -52,6 +52,9 @@ class GhidraBaseTool(Tool):
         # status.debug_message("\n".join(out["functions"].keys()))
         return out
 
+    def format_tool_call(self, tool_call):
+        return f"**{self.NAME}** binary:`{tool_call.parsed_arguments['binary']}` function:`{tool_call.parsed_arguments['function']}`"
+
 class DisassembleTool(GhidraBaseTool):
     NAME = "disassemble"
     DESCRIPTION = "Disassemble a function from a binary using Ghidra."
@@ -80,6 +83,12 @@ class DisassembleTool(GhidraBaseTool):
         else:
             return {"error": f"Function {function} not found in {binary}"}
 
+    def format_result(self, tool_result):
+        if "error" in tool_result.result:
+            return f"**{self.NAME}**: [red]{tool_result.result['error']}[/red]"
+        else:
+            return f"**{self.NAME}**\n```\n{tool_result.result['disassembly']}\n```"
+
 class DecompileTool(GhidraBaseTool):
     NAME = "decompile"
     DESCRIPTION = "Decompile a function from a binary using Ghidra."
@@ -107,3 +116,9 @@ class DecompileTool(GhidraBaseTool):
             return {"decompilation": found}
         else:
             return {"error": f"Function {function} not found in {binary}"}
+
+    def format_result(self, tool_result):
+        if "error" in tool_result.result:
+            return f"**{self.NAME}**: [red]{tool_result.result['error']}[/red]"
+        else:
+            return f"**{self.NAME}**\n```\n{tool_result.result['decompilation']}\n```"

@@ -21,6 +21,15 @@ class SubmitFlagTool(Tool):
         self.environment.solved = True
         return {"success": True}
 
+    def format_tool_call(self, tool_call):
+        return f"**{self.NAME}:** `{tool_call.parsed_arguments['flag']}`"
+
+    def format_result(self, tool_result):
+        if "error" in tool_result.result:
+            return f"**{self.NAME}**: [red]{tool_result.result['error']}[/red]" 
+        else:
+            return f"[green bold]SOLVED![/green bold]" 
+
 class GiveupTool(Tool):
     # TODO maybe add back the confirm=true
     NAME = "giveup"
@@ -36,6 +45,12 @@ class GiveupTool(Tool):
         self.environment.giveup = True
         return {"success": True}
 
+    def format_tool_call(self, tool_call):
+        return f"**{self.NAME}:**"
+
+    def format_result(self, tool_result):
+        return f"[red bold]AGENT GAVE UP![/red bold]" 
+
 class DelegateTool(Tool):
     """Tool to delegate task from planner to executor"""
     NAME = "delegate"
@@ -47,6 +62,10 @@ class DelegateTool(Tool):
     def __init__(self, environment):
         super().__init__()
 
+    def format_tool_call(self, tool_call):
+        return f"**{self.NAME}**\n\n{tool_call.parsed_arguments['task']}"
+
+
 class FinishTaskTool(Tool):
     """Tool to mark executor task finished and return summary to planner."""
     NAME = "finish_task"
@@ -57,3 +76,7 @@ class FinishTaskTool(Tool):
     REQUIRED_PARAMETERS = {"summary"}
     def __init__(self, environment):
         super().__init__()
+
+    def format_tool_call(self, tool_call):
+        return f"**{self.NAME}**\n\n{tool_call.parsed_arguments['summary']}"
+

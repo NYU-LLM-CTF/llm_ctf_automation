@@ -30,7 +30,7 @@ challenge = CTFChallenge(dataset.get(args.challenge), dataset.basedir)
 environment = CTFEnvironment(challenge, "ctfenv:multiagent", "ctfnet")
 planner_backend = OpenAIBackend("gpt-4o", environment.get_toolset("planner"), args.api_key)
 planner_prompter = PromptManager("config/prompts/planner_prompt.yaml", challenge, environment)
-executor_backend = OpenAIBackend("gpt-4o", environment.get_toolset("executor"), args.api_key)
+executor_backend = OpenAIBackend("gpt-4o-mini", environment.get_toolset("executor"), args.api_key)
 executor_prompter = PromptManager("config/prompts/executor_prompt.yaml", challenge, environment)
 
 with PlannerExecutorSystem(environment, challenge, planner_prompter, planner_backend, executor_prompter, executor_backend) as multiagent:

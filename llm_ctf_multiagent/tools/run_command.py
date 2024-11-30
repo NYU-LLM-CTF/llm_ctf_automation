@@ -47,3 +47,15 @@ class RunCommandTool(Tool):
             out = self._clean(e.stdout)
             err = self._clean(e.stderr)
             return {"stdout": out, "stderr": err, "returncode": e.returncode, "timed_out": False}
+
+    def format_tool_call(self, tool_call):
+        return f"**{self.NAME}**\n```\n{tool_call.parsed_arguments['command']}\n```"
+        
+    def format_result(self, tool_result):
+        if "error" in tool_result.result:
+            return f"**{self.NAME}**: [red]{tool_result.result['error']}[/red]" 
+        else:
+            return f"**returncode**: {tool_result.result['returncode']} **timed out**: {tool_result.result['timed_out']}\n\n" +\
+                    f"**stdout**:\n```\n{tool_result.result['stdout']}\n```\n\n" + \
+                    f"**stderr**:\n```\n{tool_result.result['stderr']}\n```\n\n"
+

@@ -1,4 +1,6 @@
-from .tool import ToolCall, ToolResult
+from .tool import Tool, ToolCall, ToolResult
+
+# Tools
 from .misc import SubmitFlagTool, GiveupTool, DelegateTool, FinishTaskTool
 from .run_command import RunCommandTool
 from .editing import CreateFileTool
@@ -12,3 +14,4 @@ TOOLSETS = {
     "planner": {RunCommandTool, SubmitFlagTool, GiveupTool, DelegateTool},
     "executor": {RunCommandTool, CreateFileTool, FinishTaskTool, DisassembleTool, DecompileTool} # TODO add other tools
 }
+

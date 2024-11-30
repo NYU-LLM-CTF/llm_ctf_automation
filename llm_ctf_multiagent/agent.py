@@ -52,10 +52,17 @@ class BaseAgent:
         status.assistant_thought(message)
     def add_observation_message(self, tool_result):
         self.conversation.append_observation(tool_data=tool_result)
-        status.observation_message(tool_result.result)
 
     def run_one_round(self):
         raise NotImplementedError
+
+    def format_parsed_call(self, parsed_call):
+        return self.environment.tools[parsed_call.name].format_tool_call(parsed_call)
+    def format_result(self, tool_result):
+        if tool_result.name in self.environment.tools:
+            return self.environment.tools[tool_result.name].format_result(tool_result)
+        else:
+            return tool_result.format()
 
 
 class SingleAgent(BaseAgent):
@@ -81,6 +88,8 @@ class SingleAgent(BaseAgent):
 
         if tool_call:
             tool_result = self.handle_tool_call(tool_call)
+            # Print result
+            status.observation_message(self.format_result(tool_result))
             self.add_observation_message(tool_result)
         else:
             self.add_user_message(self.prompter.get("continue"))
@@ -91,10 +100,10 @@ class SingleAgent(BaseAgent):
         parsed, parsed_call = self.backend.parse_tool_arguments(tool_call)
         if not parsed:
             # Print unparsed tool_call
-            status.assistant_action(tool_call.formatted())
+            status.assistant_action(tool_call.format())
             return parsed_call # Contains the ToolResult with error
         # Print parsed tool_call
-        status.assistant_action(parsed_call.formatted())
+        status.assistant_action(self.format_parsed_call(parsed_call))
         return self.environment.run_tool(parsed_call)
 
 
@@ -116,19 +125,21 @@ class PlannerAgent(BaseAgent):
         parsed, parsed_call = self.backend.parse_tool_arguments(tool_call)
         if not parsed:
             # Print unparsed tool_call
-            status.assistant_action(tool_call.formatted())
+            status.assistant_action(tool_call.format())
             # Contains the ToolResult with error
+            status.observation_message(self.format_result(parsed_call))
             self.add_observation_message(parsed_call)
             return
 
         # Print parsed tool_call
-        status.assistant_action(parsed_call.formatted())
+        status.assistant_action(self.format_parsed_call(parsed_call))
 
         if parsed_call.name == DelegateTool.NAME:
             self.delegated_task = parsed_call
             # MultiAgent system is responsible to add observation to the conversation.
         else:
             tool_result = self.environment.run_tool(parsed_call)
+            status.observation_message(self.format_result(tool_result))
             self.add_observation_message(tool_result)
 
 class ExecutorAgent(BaseAgent):
@@ -150,12 +161,13 @@ class ExecutorAgent(BaseAgent):
         parsed, parsed_call = self.backend.parse_tool_arguments(tool_call)
         if not parsed:
             # Print unparsed tool_call
-            status.assistant_action(tool_call.formatted())
+            status.assistant_action(tool_call.format())
             # Contains the ToolResult with error
+            status.observation_message(self.format_result(parsed_call))
             self.add_observation_message(parsed_call)
             return
         # Print parsed tool_call
-        status.assistant_action(parsed_call.formatted())
+        status.assistant_action(self.format_parsed_call(parsed_call))
 
         if parsed_call.name == FinishTaskTool.NAME:
             # TODO Maybe have the agent retry if summary is empty?
@@ -164,6 +176,7 @@ class ExecutorAgent(BaseAgent):
             # Executor is done here.
         else:
             tool_result = self.environment.run_tool(parsed_call)
+            status.observation_message(self.format_result(tool_result))
             self.add_observation_message(tool_result)
 
 class PlannerExecutorSystem:
@@ -196,6 +209,7 @@ class PlannerExecutorSystem:
 
             if self.planner.delegated_task is not None:
                 result = self.run_executor(self.planner.delegated_task)
+                # No need to print this
                 self.planner.add_observation_message(ToolResult.for_call(self.planner.delegated_task, result))
                 self.planner.delegated_task = None
             

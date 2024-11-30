@@ -72,7 +72,12 @@ class CTFEnvironment:
         # Should have been checked by backend if correct tool or not
         tool = self.tools[tool_call.name]
         res = tool.call(**tool_call.parsed_arguments)
-        return ToolResult(name=tool_call.name, id=tool_call.id, result=json.dumps(res))
+        return ToolResult(name=tool_call.name, id=tool_call.id, result=res)
+
+    def format_tool_call(self, tool_call):
+        tool = self.tools[tool_call.name]
+        # Should have been checked by backend if correct tool or not
+        return tool.format_call(tool_call)
 
     @property
     def container_home(self):

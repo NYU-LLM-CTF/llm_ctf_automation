@@ -27,6 +27,11 @@ class Tool:
             raise ValueError(f"Missing required parameters for {self.NAME}: {missing}")
         # TODO check extra?
 
+    def format_tool_call(self, tool_call):
+        # Calls the default formatter, subclasses should implement their own
+        return tool_call.format()
+
+
 class ToolCall:
     """Holds the call and arguments to a specific tool"""
     def __init__(self, name, id=None, arguments=None, parsed_arguments=None):
@@ -40,8 +45,8 @@ class ToolCall:
     def error(self, message):
         return ToolResult(self.name, self.id, {"error": message})
 
-    def formatted(self):
-        # TODO each tool should format the call individually
+    def format(self):
+        """Generic formatter for status printing. Parsed calls should use the tool specific formatter"""
         formatted_call = f"**{self.name}:**\n\n"
         if self.parsed_arguments is not None:
             for arg in self.parsed_arguments:
@@ -69,10 +74,21 @@ class ToolResult:
     """The name of the tool that was run"""
     id : str
     """The ID of the tool call"""
-    result : str
+    result : object
     """The result of running the tool"""
 
     @staticmethod
     def for_call(tool_call, result):
         """Create a result for a tool_call"""
         return ToolResult(name=tool_call.name, id=tool_call.id, result=result)
+
+    def format(self):
+        """Generic formatter for status printing."""
+        formatted = f"**{self.name}: **"
+        if type(self.result) is dict:
+            formatted += "\n\n"
+            for key, val in self.result.items():
+                formatted += f" - {key}:\n```\n{val}\n```\n"
+        else:
+            formatted += str(self.result)
+        return formatted

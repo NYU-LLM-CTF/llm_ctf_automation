@@ -25,3 +25,12 @@ class CreateFileTool(Tool):
         tmpf.close()
         created = self.environment.copy_into_container(tmpf.name, path)
         return {"success": True, "path": str(created)}
+
+    def format_tool_call(self, tool_call):
+        return f"**{self.NAME}**: `{tool_call.parsed_arguments['path']}`\n```\n{tool_call.parsed_arguments['contents']}\n```\n"
+
+    def format_result(self, tool_result):
+        if "error" in tool_result.result:
+            return f"**{self.NAME}**: {tool_result.result['error']}" 
+        else:
+            return f"**{self.NAME}**: successfully created file!" 

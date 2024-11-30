@@ -23,7 +23,6 @@ class OpenAIBackend:
     @staticmethod
     def get_tool_schema(tool):
         # Based on required OpenAI format, https://platform.openai.com/docs/guides/function-calling
-        # TODO use ChatCompletionToolParam probably
         return {
             "type": "function",
             "function": {
@@ -75,7 +74,9 @@ class OpenAIBackend:
         formatted_messages = []
         for m in messages:
             if m.role == MessageRole.OBSERVATION:
-                msg = {"role": "tool", "content": m.tool_data.result, "tool_call_id": m.tool_data.id}
+                msg = {"role": "tool",
+                       "content": json.dumps(m.tool_data.result),
+                       "tool_call_id": m.tool_data.id}
             elif m.role == MessageRole.ASSISTANT:
                 msg = {"role": m.role.value}
                 if m.content is not None:
