@@ -15,3 +15,4 @@ myenv
 llm_ctf/.DS_Store
 llm_ctf/toolset/.DS_Store
 keys.cfg
+llm_ctf/ctfrag/
