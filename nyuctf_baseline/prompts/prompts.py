@@ -44,7 +44,7 @@ class PromptManager:
     def __init__(self, prompt_set=DEFAULT_PROMPT_SET, config=None):
         self.prompt_set = prompt_set
         self.env = RelEnvironment(
-            loader=FallbackLoader('llm_ctf.prompts', prompt_set=prompt_set),
+            loader=FallbackLoader('nyuctf_baseline.prompts', prompt_set=prompt_set),
             autoescape=False,
             undefined=StrictUndefined,
             trim_blocks=True,

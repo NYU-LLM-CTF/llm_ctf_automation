@@ -34,5 +34,5 @@ for i in $(seq 1 $trials) ; do
     fi
     cleanup_container
     printf '[%d/%d] %s attempting challenge /%s/%s/%s/%s\n' $i $trials "${model}" "${year}" "${event}" "${category}" "${chal}"
-    python llm_ctf_solve.py -d -M ${model} -m "${rounds}" -L "${log}" "${chal_path}/challenge.json" --backend "${backend}" "$@"
+    python run_baseline.py -d -M ${model} -m "${rounds}" -L "${log}" "${chal_path}/challenge.json" --backend "${backend}" "$@"
 done

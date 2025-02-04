@@ -12,15 +12,12 @@ from pathlib import Path
 from nyuctf.dataset import CTFDataset
 from nyuctf.challenge import CTFChallenge
 
-from llm_ctf.ctflogging import status
-from llm_ctf.backends import Backend, OpenAIBackend, AnthropicBackend, VLLMBackend
-from llm_ctf.formatters import Formatter
-from llm_ctf.prompts.prompts import PromptManager
-from llm_ctf.environment import CTFEnvironment
-from llm_ctf.conversation import CTFConversation
-
-from nyuctf.dataset import CTFDataset
-from nyuctf.challenge import CTFChallenge
+from nyuctf_baseline.ctflogging import status
+from nyuctf_baseline.backends import Backend, OpenAIBackend, AnthropicBackend, VLLMBackend
+from nyuctf_baseline.formatters import Formatter
+from nyuctf_baseline.prompts.prompts import PromptManager
+from nyuctf_baseline.environment import CTFEnvironment
+from nyuctf_baseline.conversation import CTFConversation
 
 def main():
     parser = argparse.ArgumentParser(

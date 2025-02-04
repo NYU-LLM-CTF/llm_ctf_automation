@@ -2,7 +2,7 @@ from .utils import *
 from argparse import Namespace
 from pathlib import Path
 
-from llm_ctf.formatters.vbpy import VBPYFormatter
+from ..formatters.vbpy import VBPYFormatter
 from ..formatters.formatter import Formatter
 from .backend import (AssistantMessage, Backend, ErrorToolCalls, FakeToolCalls,
                       SystemMessage, UnparsedToolCalls, UserMessage, HintMessage)
