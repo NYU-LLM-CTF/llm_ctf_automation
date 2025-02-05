@@ -1,0 +1,26 @@
+experiment:
+  max_cost: 1.0
+  enable_autoprompt: False
+
+executor:
+  max_rounds: 100
+  model: gpt-4o-2024-11-20
+  temperature: 1.0
+  max_tokens: 4096
+  prompt: prompts/rev_single_executor.yaml
+  toolset:
+    - run_command
+    - create_file
+    - disassemble
+    - decompile
+    - submit_flag
+    - giveup
+autoprompter:
+  max_rounds: 5
+  model: gpt-4o-2024-11-20
+  temperature: 1.0
+  max_tokens: 4096
+  prompt: prompts/autoprompt_prompt.yaml
+  toolset:
+    - run_command
+    - generate_prompt

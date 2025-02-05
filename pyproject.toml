@@ -1,0 +1,41 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "nyuctf_multiagent"
+version = "0.1"
+authors = [
+  { name="NYU CTF", email="nyuctf@gmail.com" },
+  { name="Meet Udeshi", email="m.udeshi@nyu.edu" },
+]
+description = "NYU CTF Multi-agent: Autonomous LLM agents for solving CTFs"
+readme = "README.md"
+requires-python = ">=3.8"
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: Apache Software License",
+    "Operating System :: OS Independent",
+]
+dependencies = [
+  "pathlib",
+  "openai",
+  "anthropic",
+  "rich",
+  "ruamel.yaml",
+#  "bs4",
+#  "jinja2",
+  "docker",
+  "tabulate",
+  "backoff",
+  "pyte",
+  "tiktoken",
+  "nyuctf",
+  "google-generativeai"
+]
+
+[project.urls]
+Homepage = "https://nyu-llm-ctf.github.io"
+
+[tool.hatch.build.targets.wheel]
+packages = ["nyuctf_multiagent"]

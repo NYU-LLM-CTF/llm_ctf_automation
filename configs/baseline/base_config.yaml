@@ -36,7 +36,7 @@ prompts:
 
 demostration:
   hints: ~
-    # - "hints/base_hint.md"
-    # - "hints/base_hint_2.md"
+    # - "configs/baseline/hints/base_hint.md"
+    # - "configs/baseline/hints/base_hint_2.md"
 
 
