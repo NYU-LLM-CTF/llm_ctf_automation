@@ -27,7 +27,6 @@ def load_common_options(parser):
     # Logging options
     parser.add_argument("-d", "--debug", default=False, action="store_true", help="Print debug messages")
     parser.add_argument("-q", "--quiet", default=False, action="store_true", help="Do not print messages to console")
-    parser.add_argument("--logdir", default="logs", type=str, help="Log directory")
     parser.add_argument("--overwrite-existing", default=False, action="store_true", help="Overwrite existing log")
     parser.add_argument("--skip-existing", default=False, action="store_true", help="Skip if log exists")
 

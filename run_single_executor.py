@@ -18,6 +18,7 @@ parser = argparse.ArgumentParser(description="Multi-agent Planner-Executor LLM f
 
 # Loads the dataset and container related common options into parser
 load_common_options(parser)
+parser.add_argument("--logdir", default="logs_single_executor", type=str, help="Log directory")
 parser.add_argument("--config", default=None, help="YAML config for the planner-executor multiagent. If not provided, it picks one automatically based on challenge cateogory.")
 
 # Config overriding options
