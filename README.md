@@ -45,3 +45,7 @@ Use the following command to run the baseline agent:
 ```
 python3 run_baseline.py -c configs/baseline/base_config.yaml --split <test|development> --challenge <challenge-name>
 ```
+
+While the baseline agent code is present in the main branch, you can access the baseline's last updated version at [v20250206](https://github.com/NYU-LLM-CTF/llm_ctf_automation/releases/tag/20250206).
+This is the code used for the [NYU CTF Bench](https://nyu-llm-ctf.github.io) paper.
+
